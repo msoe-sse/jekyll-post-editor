@@ -4,9 +4,11 @@
 
 $ ->
   $("#get-preview-button").click ->
-    fetch "/preview",
-      method: 'post',
-      body: JSON.stringify(text: $("#previewArea").html)
-      .then (response) -> response.json()
-      .then(data) ->
-        $("#previewArea").html(data.convertedHtml)
+    fetch "home/preview",
+      method: 'POST',
+      headers:
+        "Content-Type": "application/json"
+      body: JSON.stringify("text": $("#markdownArea").val())
+    .then (response) -> response.json()
+    .then (data) ->
+      $("#previewArea").html(data.html)
