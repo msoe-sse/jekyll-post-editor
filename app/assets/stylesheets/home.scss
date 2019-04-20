@@ -3,12 +3,25 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 textarea {
+  display: table-cell;
   width: 500px;
   height: 500px;
 }
 
 #previewArea {
+  display: table-cell;
   width: 500px;
   height: 500px;
   border: 1px solid black;
+}
+
+#edit-container {
+  margin-top: 5px;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  display: table;
+}
+
+#get-preview-button {
+  margin-left: 5px;
 }
