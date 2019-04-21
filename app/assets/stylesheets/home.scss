@@ -3,23 +3,26 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 textarea {
-  display: table-cell;
   width: 500px;
   height: 500px;
 }
 
 #previewArea {
-  display: table-cell;
   width: 500px;
   height: 500px;
   border: 1px solid black;
+}
+
+#header-container,
+#submit-button {
+  display: block;
 }
 
 #edit-container {
   margin-top: 5px;
   margin-left: 5px;
   margin-bottom: 5px;
-  display: table;
+  display: inline-flex;
 }
 
 #get-preview-button {
