@@ -1,5 +1,10 @@
-<div id="edit-container">
-  <textarea id="markdownArea"></textarea>
-  <div id="previewArea"><%= @kramdown_html %></div>
-</div>
-<button id="get-preview-button" class="btn btn-primary">Get Preview</button>
+<%= form_tag("/submit", method: "post") do %>
+  <%= content_tag(:div, id: "edit-container") do %>
+    <%= text_area_tag(:markdownArea) %>
+    <%= content_tag(:div, id: "previewArea") do %>
+      <%= @kramdown_html %>
+    <% end %>
+  <% end %>
+  <%= submit_tag("Submit") %>
+<% end %>
+<%= button_tag("Get Preview", id: "get-preview-button", class: "btn btn-primary")%>
