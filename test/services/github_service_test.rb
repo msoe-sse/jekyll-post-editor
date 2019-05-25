@@ -1,10 +1,8 @@
 require 'test_helper'
 
 class GithubServiceTest < ActiceSupport::TestCase
-  fixtures :github_service
-  
-  def test_authenticate_failed_authenticaiton 
+  test 'authenticate should return nil on failed authentication' do 
     result = GithubService.authenticate('test', 'test')
     #TODO: Finish this test
-  end
+  end  
 end
