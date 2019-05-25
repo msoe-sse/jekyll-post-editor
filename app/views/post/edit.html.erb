@@ -1,0 +1,17 @@
+<%= form_tag('/submit', method: 'post') do %>
+    <%= content_tag(:div, id: 'header-container') do %>
+      <%= label_tag('Title:')%>
+      <%= text_field_tag(:title) %>
+      <%= simple_format("\n") %>
+      <%= label_tag('Author:') %>
+      <%= text_field_tag(:author) %>
+    <% end %>
+    <%= content_tag(:div, id: 'edit-container') do %>
+      <%= text_area_tag(:markdownArea) %>
+      <%= content_tag(:div, id: 'previewArea') do %>
+        <%= @kramdown_html %>
+      <% end %>
+    <% end %>
+    <%= submit_tag('Submit', id: 'submit-button') %>
+  <% end %>
+  <%= button_tag('Get Preview', id: 'get-preview-button', class: 'btn btn-primary')%>

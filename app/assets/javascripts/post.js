@@ -1,6 +1,6 @@
 $(function() {
   $('#get-preview-button').click(function() {
-    fetch('home/preview', {
+    fetch('preview', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
