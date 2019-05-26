@@ -3,8 +3,14 @@ require 'octokit'
 module GithubService
   class << self
     def authenticate(username, password)
-      Octokit::Client.new(:login => username, :password => password)
       #TODO: Check that the user belongs to the SSE orginization
+      client = Octokit::Client.new(:login => username, :password => password)
+      begin
+        client.user.login
+      rescue Octokit::Unauthorized
+        client = nil
+      end
+      client
     end
 
     def submit_post(post_markdown, author)
