@@ -1,0 +1,21 @@
+#login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+input {
+    width: 255px;
+}
+
+label {
+    margin-right: 130px;
+    margin-top: 3px;
+}
+
+#login-button {
+    width: 100px;
+    margin-right: 157px;
+    margin-top: 3px;
+}

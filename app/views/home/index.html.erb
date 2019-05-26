@@ -1,1 +1,10 @@
-<h1>Index View</h1>
+<%= form_tag('/login', method: '/post') do %>
+    <%= content_tag(:div, id: 'login-container') do %>
+      <%= tag.h1 'SSE Post Editor' %>
+      <%= label_tag(:label_username, 'GitHub Username:') %>
+      <%= text_field_tag(:username) %>
+      <%= label_tag(:label_password, 'GitHub Password:') %>
+      <%= password_field(:login, :password) %>
+      <%= submit_tag('Login', id: 'login-button') %>
+    <% end %>
+<% end %>
