@@ -6,7 +6,7 @@ module GithubService
       #TODO: Check that the user belongs to the SSE orginization
       client = Octokit::Client.new(:login => username, :password => password)
       begin
-        client.user.login
+        client.user
       rescue Octokit::Unauthorized
         client = nil
       end
