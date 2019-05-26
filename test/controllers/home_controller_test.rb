@@ -1,4 +1,4 @@
 require 'test_helper'
 
-class HomeControllerTest < ActiceSupport::TestCase
+class HomeControllerTest < ActiveSupport::TestCase
 end
