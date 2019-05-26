@@ -3,12 +3,13 @@ require 'octokit'
 module GithubService
   class << self
     def authenticate(username, password)
-      #TODO: Check that the user belongs to the SSE orginization
       client = Octokit::Client.new(:login => username, :password => password)
       begin
-        client.user
+        if not client.organization_member?(Rails.configuration.github_org, client.user.login)
+          client = :not_in_organization
+        end
       rescue Octokit::Unauthorized
-        client = nil
+        client = :unauthorized
       end
       client
     end
