@@ -1,5 +1,8 @@
 <%= form_tag('home/login', method: '/post') do %>
     <%= content_tag(:div, id: 'login-container') do %>
+      <% flash.each do |name, msg| %>
+        <%= content_tag :div, msg, class: 'validation-message' %>
+      <% end %>
       <%= tag.h1 'SSE Post Editor' %>
       <%= label_tag(:label_username, 'GitHub Username:') %>
       <%= text_field_tag(:username) %>
