@@ -1,5 +1,10 @@
-<%= form_tag('/login', method: '/post') do %>
+<%= form_tag('home/login', method: '/post') do %>
     <%= content_tag(:div, id: 'login-container') do %>
+      <% if @validation_message %>
+        <%= content_tag(:div) do %>
+          <%= @validation_message %>
+        <% end %>
+      <% end %>
       <%= tag.h1 'SSE Post Editor' %>
       <%= label_tag(:label_username, 'GitHub Username:') %>
       <%= text_field_tag(:username) %>
