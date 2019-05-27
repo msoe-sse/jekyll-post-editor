@@ -9,8 +9,7 @@ class HomeController < ApplicationController
       validation_message = 'The GitHub user provided is not apart of the msoe-sse GitHub orginization. Please contact the SSE Webmaster for assistance.'
       redirect_to '/', :alert => validation_message
     else
-      session[:github_client] = client
-      redirect_to '/post/list'
+      redirect_to :controller => 'post', :action => 'list'
     end
   end
 end
