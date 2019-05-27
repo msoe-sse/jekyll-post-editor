@@ -1,4 +1,5 @@
 require 'octokit'
+require 'base64'
 
 module GithubService
   class << self
@@ -13,6 +14,17 @@ module GithubService
       rescue Octokit::Unauthorized
         return :unauthorized
       end
+    end
+
+    def get_all_posts
+      result = []
+      posts = Octokit.contents('msoe-sse/msoe-sse.github.io', :path => '_posts')
+      posts.each do |post|
+        post_api_response = Octokit.contents('msoe-sse/msoe-sse.github.io', :path => post.path)
+        text_contents = Base64.decode64(post_api_response.content)
+        #TODO: Call a factory method to create a post object
+      end
+      result
     end
 
     def submit_post(post_markdown, author)
