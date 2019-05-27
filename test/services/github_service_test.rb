@@ -29,19 +29,20 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert_equal :not_in_organization, result
   end
 
-  test 'authenticate should return the octokit client reference on successful authentication' do
+  test 'authenticate should return a oauth access token on successful authentication' do
     #Arrange
     user = DummyApiResource.new
     user.login = 'test'
 
     Octokit::Client.any_instance.expects(:user).returns(user)
     Octokit::Client.any_instance.expects(:organization_member?).with('msoe-sse', 'test').returns(true)
+    Octokit::Client.any_instance.expects(:create_authorizaion).returns('access token')
 
     #Act
     result = GithubService.authenticate('test', 'test')
 
     #Assert
-    assert_instance_of Octokit::Client, result
+    assert_equal 'access token', result
   end
 
   class DummyApiResource

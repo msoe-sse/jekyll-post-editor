@@ -6,16 +6,17 @@ module GithubService
       client = Octokit::Client.new(:login => username, :password => password)
       begin
         if not client.organization_member?(Rails.configuration.github_org, client.user.login)
-          client = :not_in_organization
+          return :not_in_organization
+        else
+          return client.create_authorizaion(:scopes => ['user'], :note => 'SSE Post Editor Token')
         end
       rescue Octokit::Unauthorized
-        client = :unauthorized
+        return :unauthorized
       end
-      client
     end
 
     def submit_post(post_markdown, author)
-      #TODO: Authentication
+      #TODO: Authentication with client = Octokit::Client.new(:access_token => "<your 40 char token>")
       #TODO: Create Branch for new post
       #TODO: Commit and push new post
       #TODO: Create pull request for new post
