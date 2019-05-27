@@ -1,4 +1,4 @@
 require 'test_helper'
 
-class PostControllerTest < ActiveSupport::TestCase
+class PostControllerTest < ActionDispatch::IntegrationTest
 end
