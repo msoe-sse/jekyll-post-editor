@@ -30,7 +30,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'Invalid GitHub username or password', flash[:alert]
   end
 
-  test 'should redirect back to index if not apart of the msoe-sse github orginization' do
+  test 'should redirect back to index if not apart of the msoe-sse github organization' do
     #Arrange
     GithubService.expects(:authenticate).with('test', 'test').returns(:not_in_organization)
 
@@ -39,7 +39,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     
     #Assert
     assert_redirected_to '/'
-    assert_equal 'The GitHub user provided is not apart of the msoe-sse GitHub orginization. Please contact the SSE Webmaster for assistance.', flash[:alert]
+    assert_equal 'The GitHub user provided is not apart of the msoe-sse GitHub organization. Please contact the SSE Webmaster for assistance.', flash[:alert]
   end
 
   test 'should redirect to the post list view on successful authentication' do
