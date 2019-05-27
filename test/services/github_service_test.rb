@@ -36,7 +36,7 @@ class GithubServiceTest < ActiveSupport::TestCase
 
     Octokit::Client.any_instance.expects(:user).returns(user)
     Octokit::Client.any_instance.expects(:organization_member?).with('msoe-sse', 'test').returns(true)
-    Octokit::Client.any_instance.expects(:create_authorizaion).returns('access token')
+    Octokit::Client.any_instance.expects(:create_authorization).returns('access token')
 
     #Act
     result = GithubService.authenticate('test', 'test')

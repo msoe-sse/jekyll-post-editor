@@ -27,6 +27,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     #Assert
     assert_redirected_to '/'
+    assert_nil session[:access_token]
     assert_equal 'Invalid GitHub username or password', flash[:alert]
   end
 
@@ -39,17 +40,19 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     
     #Assert
     assert_redirected_to '/'
+    assert_nil session[:access_token]
     assert_equal 'The GitHub user provided is not apart of the msoe-sse GitHub organization. Please contact the SSE Webmaster for assistance.', flash[:alert]
   end
 
   test 'should redirect to the post list view on successful authentication' do
     #Arrange
-    GithubService.expects(:authenticate).with('test', 'test').returns('Some Response')
+    GithubService.expects(:authenticate).with('test', 'test').returns('a token')
 
     #Act
     post '/home/login', params: { username: 'test', login: { password: 'test' }}
 
     #Assert
+    assert_equal 'a token', session[:access_token]
     assert_redirected_to :controller => 'post', :action => 'list'
   end
 end

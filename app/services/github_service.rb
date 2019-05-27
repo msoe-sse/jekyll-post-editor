@@ -8,7 +8,7 @@ module GithubService
         if not client.organization_member?(Rails.configuration.github_org, client.user.login)
           return :not_in_organization
         else
-          return client.create_authorizaion(:scopes => ['user'], :note => 'SSE Post Editor Token')
+          return client.create_authorization(:scopes => ['user'], :note => 'SSE Post Editor Token')
         end
       rescue Octokit::Unauthorized
         return :unauthorized
