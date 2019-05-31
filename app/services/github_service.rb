@@ -9,7 +9,7 @@ module GithubService
         if not client.organization_member?(Rails.configuration.github_org, client.user.login)
           return :not_in_organization
         else
-          return client.create_authorization(:scopes => ['user'], :note => 'SSE Post Editor Token')
+          return _get_oauth_token(client)
         end
       rescue Octokit::Unauthorized
         return :unauthorized
@@ -32,6 +32,14 @@ module GithubService
       #TODO: Create Branch for new post
       #TODO: Commit and push new post
       #TODO: Create pull request for new post
+    end
+
+    def _get_oauth_token(client)
+      authorization = client.authorizations.find { |x| x[:app][:name] == Rails.configuration.oauth_token_name}
+      if authorization
+        return authorization[:hashed_token]
+      end
+      client.create_authorization(:scopes => ['user'], :note => Rails.configuration.oauth_token_name)
     end
   end
 end
