@@ -7,16 +7,7 @@ module KramdownService
     end
 
     def create_jekyll_post_text(text, author, title)
-      #TODO: Tags, Hero, Overlay
-      %(
-      ---
-      layout: post
-      author: #{author}
-      title: #{title}
-      published: true
-      ---
-      #{text}
-      )
+      #TODO: Implement This
     end
   end
 end
