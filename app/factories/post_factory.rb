@@ -14,12 +14,22 @@ module PostFactory
         result.contents = match_obj.captures[1]
         result.title = header.match(/title:\s*(.*)\n/).captures.first
         result.author = header.match(/author:\s*(.*)\n/).captures.first
-        #result.tags = header.to_enum(:scan, /\s*-\s*(.*)/m).map { Regexp.last_match.captures.first }
+        result.tags = _parse_tags(header)
+
         result.hero = header.match(/hero:\s*(.*)\n/).captures.first
         result.overlay = header.match(/overlay:\s*(.*)\n/).captures.first
         
       end
 
+      result
+    end
+
+    def _parse_tags(header)
+      result = []
+      header.lines.each do |line|
+        tag_match = line.match(/\s*-\s*(.*)/)
+        if tag_match then result << tag_match.captures.first end
+      end
       result
     end
   end
