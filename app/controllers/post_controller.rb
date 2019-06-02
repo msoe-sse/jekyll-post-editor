@@ -1,4 +1,9 @@
 class PostController < ApplicationController
+  # GET post/list
+  def list
+    @posts = GithubService.get_all_posts
+  end
+
   # POST post/preview
   def preview
     kramdown_html = KramdownService.get_html(params[:text])
