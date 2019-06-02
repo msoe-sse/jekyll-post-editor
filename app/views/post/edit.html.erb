@@ -1,13 +1,13 @@
 <%= form_tag('/submit', method: 'post') do %>
     <%= content_tag(:div, id: 'header-container') do %>
       <%= label_tag('Title:')%>
-      <%= text_field_tag(:title) %>
+      <%= text_field_tag(:title, @post.title) %>
       <%= simple_format("\n") %>
       <%= label_tag('Author:') %>
-      <%= text_field_tag(:author) %>
+      <%= text_field_tag(:author,  @post.author) %>
     <% end %>
     <%= content_tag(:div, id: 'edit-container') do %>
-      <%= text_area_tag(:markdownArea) %>
+      <%= text_area_tag(:markdownArea, @post.contents) %>
       <%= content_tag(:div, id: 'previewArea') do %>
         <%= @kramdown_html %>
       <% end %>
