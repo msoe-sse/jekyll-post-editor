@@ -6,7 +6,10 @@ class PostController < ApplicationController
   
   #GET post/edit
   def edit
-    #TODO: Call a new GithubService to fetch the post by title params[:title]
+    @post = Post.new
+    if params[:title]
+      @post = GithubService.get_post_by_title(params[:title])
+    end
   end
 
   # POST post/preview
