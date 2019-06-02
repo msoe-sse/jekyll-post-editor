@@ -18,12 +18,12 @@ module GithubService
 
     def get_all_posts
       result = []
-      full_repo_name = "#{Rails.configuration.github_org}/#{Rails.configuration.github_name}"
+      full_repo_name = "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
       posts = Octokit.contents(full_repo_name, :path => '_posts')
       posts.each do |post|
         post_api_response = Octokit.contents(full_repo_name, :path => post.path)
         text_contents = Base64.decode64(post_api_response.content)
-        #TODO: Call a factory method to create a post object
+        result << PostFactory.create_post(text_contents)
       end
       result
     end
