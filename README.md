@@ -6,3 +6,7 @@
 3. Run `gem install bundler`
 4. Run `bundle install`
 5. If 3 and 4 succeed you should be able to run the post editor application locally by running `rails server` and navigating to http://localhost:3000 in a brower.
+# Continuous Integration
+There are checks that will be performed whenever Pull Requests are opened. To save time on the build server, please run the tests locally to check for errors that will occur in the CI builds.
+1. To run all tests, run the command `rake`
+    - To run tests in an individual file run the command `rails test <path_to_test_file>`
