@@ -18,14 +18,17 @@ module GithubService
 
     def get_all_posts
       result = []
-      full_repo_name = "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
-      posts = Octokit.contents(full_repo_name, :path => '_posts')
+      posts = Octokit.contents(_get_full_repo_name, :path => '_posts')
       posts.each do |post|
-        post_api_response = Octokit.contents(full_repo_name, :path => post.path)
+        post_api_response = Octokit.contents(_get_full_repo_name, :path => post.path)
         text_contents = Base64.decode64(post_api_response.content)
         result << PostFactory.create_post(text_contents)
       end
       result
+    end
+    
+    def get_post_by_title(title)
+      get_all_posts.find { |x| x.title == title }
     end
 
     def submit_post(post_markdown, author)
@@ -41,6 +44,10 @@ module GithubService
         return authorization[:hashed_token]
       end
       client.create_authorization(:scopes => ['user'], :note => Rails.configuration.oauth_token_name)
+    end
+
+    def _get_full_repo_name
+      "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
     end
   end
 end

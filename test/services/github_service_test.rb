@@ -111,6 +111,36 @@ class GithubServiceTest < ActiveSupport::TestCase
     #Assert
     assert_equal [post1_model, post2_model, post3_model], result
   end
+  
+  test 'get_post_by_title should return nil if the post does not exist' do
+    #Arrange
+    post1_model = _create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
+    post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
+    post3_model = _create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
+    
+    GithubService.expects(:get_all_posts).returns([post1_model, post2_model, post3_model])
+
+    #Act
+    result = GithubService.get_post_by_title('a very fake post')
+
+    #Assert
+    assert_nil result
+  end
+
+  test 'basic test case to get_post_by_title' do
+    #Arrange
+    post1_model = _create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
+    post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
+    post3_model = _create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
+    
+    GithubService.expects(:get_all_posts).returns([post1_model, post2_model, post3_model])
+
+    #Act
+    result = GithubService.get_post_by_title('post 2')
+
+    #Assert
+    assert_equal post2_model, result
+  end
 
   def _create_dummy_api_resource(parameters)
     resource = DummyApiResource.new
