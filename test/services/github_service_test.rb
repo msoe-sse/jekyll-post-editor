@@ -156,6 +156,8 @@ class GithubServiceTest < ActiveSupport::TestCase
     post_model.author = author
     post_model.hero = hero
     post_model.overlay = overlay
+    post_model.contents = contents
+    post_model.tags = tags
     post_model
   end
 
