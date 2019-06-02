@@ -3,6 +3,11 @@ class PostController < ApplicationController
   def list
     @posts = GithubService.get_all_posts
   end
+  
+  #GET post/edit
+  def edit
+    #TODO: Call a new GithubService to fetch the post by title params[:title]
+  end
 
   # POST post/preview
   def preview
