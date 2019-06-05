@@ -17,7 +17,7 @@ class PostFactoryTest < ActiveSupport::TestCase
     assert_nil result
   end
 
-  test 'basic test case for create_post' do 
+  test 'create_post should return a post model with correct values' do 
     #Arrange
     post_contents = %(---
 layout: post
