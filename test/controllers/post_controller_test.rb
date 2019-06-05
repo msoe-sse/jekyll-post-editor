@@ -2,7 +2,7 @@ require 'test_helper'
 require 'mocha/setup'
 
 class PostControllerTest < ActionDispatch::IntegrationTest
-  test 'should navigate to post/list successfully' do 
+  test 'the post editor should navigate to post/list successfully' do 
     #Act
     get '/post/list'
 
@@ -10,7 +10,7 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'should navigate to post/edit successfully' do 
+  test 'the post editor should navigate to post/edit successfully' do 
     #Act
     get '/post/edit'
 
@@ -18,7 +18,7 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'should navigate to post/edit successfully with a title parameter' do
+  test 'the post editor should navigate to post/edit successfully with a title parameter' do
     #Arrange
     post = _create_post_model('title', 'author', 'hero', 'overlay', 'contents', ['tag1', 'tag2'])
     GithubService.expects(:get_post_by_title).with('title').returns(post)

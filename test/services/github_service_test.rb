@@ -15,7 +15,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert_equal :unauthorized, result
   end
   
-  test 'authenticate should return :not_in_organization on failed authentication' do 
+  test 'authenticate should return :not_in_organization if a user does not belong to the msoe-sse orginization' do 
     #Arrange
     user = _create_dummy_api_resource(login: 'test')
 
@@ -78,7 +78,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert_equal 'premade token', result
   end
 
-  test 'basic test case for get_all_posts' do 
+  test 'get_all_posts should return all posts from the msoe-sse website' do 
     #Arrange
     post1 = _create_dummy_api_resource(path: '_posts/post1.md')
     post2 = _create_dummy_api_resource(path: '_posts/post2.md')
@@ -127,7 +127,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert_nil result
   end
 
-  test 'basic test case to get_post_by_title' do
+  test 'get_post_by_title should return a given post by its title' do
     #Arrange
     post1_model = _create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
     post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])

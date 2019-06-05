@@ -2,7 +2,7 @@ require 'test_helper'
 require 'mocha/setup'
 
 class HomeControllerTest < ActionDispatch::IntegrationTest
-  test 'should get index successfully' do 
+  test 'the post editor should get index successfully' do 
     #Act
     get '/home/index'
 
@@ -10,7 +10,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'should get index with root url successfully' do
+  test 'the post editor should get index with root url successfully' do
     #Act
     get '/'
 
@@ -18,7 +18,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'should redirect back to index with failed credentials' do
+  test 'the post editor should redirect back to index with a failed login' do
     #Arrange
     GithubService.expects(:authenticate).with('test', 'test').returns(:unauthorized)
 
@@ -31,7 +31,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'Invalid GitHub username or password', flash[:alert]
   end
 
-  test 'should redirect back to index if not apart of the msoe-sse github organization' do
+  test 'the post edtior should redirect back to index if a user is not apart of the msoe-sse github organization' do
     #Arrange
     GithubService.expects(:authenticate).with('test', 'test').returns(:not_in_organization)
 
@@ -44,7 +44,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'The GitHub user provided is not apart of the msoe-sse GitHub organization. Please contact the SSE Webmaster for assistance.', flash[:alert]
   end
 
-  test 'should redirect to the post list view on successful authentication' do
+  test 'the post editor should redirect to the post list view on successful authentication' do
     #Arrange
     GithubService.expects(:authenticate).with('test', 'test').returns('a token')
 
