@@ -1,14 +1,14 @@
 class PostController < ApplicationController
   # GET post/list
   def list
-    @posts = GithubService.get_all_posts
+    @posts = GithubService.get_all_posts(session[:access_token])
   end
   
   #GET post/edit
   def edit
     @post = Post.new
     if params[:title]
-      @post = GithubService.get_post_by_title(params[:title])
+      @post = GithubService.get_post_by_title(session[:access_token], params[:title])
     end
   end
 
