@@ -9,4 +9,4 @@
 # Continuous Integration
 There are checks that will be performed whenever Pull Requests are opened. To save time on the build server, please run the tests locally to check for errors that will occur in the CI builds.
 1. To run all tests, run the command `rake`
-    - To run tests in an individual file run the command `rails test <path_to_test_file>`
+    - To run tests in an individual file run the command `rails <path_to_test_file>`
