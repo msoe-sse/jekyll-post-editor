@@ -1,4 +1,4 @@
-require_relative '../error/error_handler'
+require_relative '../error/error'
 
 class ApplicationController < ActionController::Base
   include Error::ErrorHandler
