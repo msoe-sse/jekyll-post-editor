@@ -1,7 +1,7 @@
 require 'octokit'
 
 module Error
-  module ErrorHandlers
+  module ErrorHandler
     def self.included(clazz)
       clazz.class_eval do 
         rescue_from Octokit::TooManyRequests, with: rate_limit_error
