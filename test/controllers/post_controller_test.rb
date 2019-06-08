@@ -3,6 +3,10 @@ require 'mocha/setup'
 
 class PostControllerTest < ActionDispatch::IntegrationTest
   test 'the post editor should navigate to post/list successfully' do 
+    post1 = _create_post_model('title1', 'author1', 'hero1', 'overlay1', 'contents1', ['tag1', 'tag2'])
+    post2 = _create_post_model('title2', 'author2', 'hero2', 'overlay2', 'contents2', ['tag1', 'tag2'])
+    GithubService.expects(:get_all_posts).with(nil).returns([post1, post2])
+
     #Act
     get '/post/list'
 
