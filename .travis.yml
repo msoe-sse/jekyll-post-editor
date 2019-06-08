@@ -1,8 +1,8 @@
 language: ruby
 rvm:
   - 2.5.1
-branches:
-  only: [master] #Note: We are not including dev in the travis build to try and prevent future GitHub API rate limiting errors
+# branches:
+#   only: [master] #Note: We are not including dev in the travis build to try and prevent future GitHub API rate limiting errors
 sudo: false # route your build to the container-based infrastructure for a faster build
 cache: bundler # caching bundler gem packages will speed up build
 install:
