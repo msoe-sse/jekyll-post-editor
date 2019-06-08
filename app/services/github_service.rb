@@ -34,11 +34,15 @@ module GithubService
     ##
     # This method fetches all the markdown contents of all the posts on the SSE website
     # and returns a list of models representing a Post
-    def get_all_posts
+    #
+    # Params:
+    # +oauth_token+::a user's oauth access token
+    def get_all_posts(oauth_token)
       result = []
-      posts = Octokit.contents(_get_full_repo_name, :path => '_posts')
+      client = Octokit::Client.new(:access_token => oauth_token)
+      posts = client.contents(_get_full_repo_name, :path => '_posts')
       posts.each do |post|
-        post_api_response = Octokit.contents(_get_full_repo_name, :path => post.path)
+        post_api_response = client.contents(_get_full_repo_name, :path => post.path)
         text_contents = Base64.decode64(post_api_response.content)
         result << PostFactory.create_post(text_contents)
       end
@@ -50,9 +54,10 @@ module GithubService
     # and returns a Post model
     # 
     # Params:
+    # +oauth_token+::a user's oauth access token
     # +title+:: A title of a SSE website post
-    def get_post_by_title(title)
-      get_all_posts.find { |x| x.title == title }
+    def get_post_by_title(oauth_token, title)
+      get_all_posts(oauth_token).find { |x| x.title == title }
     end
 
     def submit_post(post_markdown, author)

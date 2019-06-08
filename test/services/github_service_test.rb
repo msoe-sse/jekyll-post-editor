@@ -92,10 +92,10 @@ class GithubServiceTest < ActiveSupport::TestCase
     post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
     post3_model = _create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
 
-    Octokit.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts').returns([post1, post2, post3])
-    Octokit.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post1.md').returns(post1_content)
-    Octokit.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post2.md').returns(post2_content)
-    Octokit.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post3.md').returns(post3_content)
+    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts').returns([post1, post2, post3])
+    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post1.md').returns(post1_content)
+    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post2.md').returns(post2_content)
+    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post3.md').returns(post3_content)
 
     Base64.expects(:decode64).with('post 1 base 64 content').returns('post 1 text content')
     Base64.expects(:decode64).with('post 2 base 64 content').returns('post 2 text content')
@@ -106,7 +106,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     PostFactory.expects(:create_post).with('post 3 text content').returns(post3_model)
 
     #Act
-    result = GithubService.get_all_posts
+    result = GithubService.get_all_posts('my token')
 
     #Assert
     assert_equal [post1_model, post2_model, post3_model], result
@@ -118,10 +118,10 @@ class GithubServiceTest < ActiveSupport::TestCase
     post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
     post3_model = _create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
     
-    GithubService.expects(:get_all_posts).returns([post1_model, post2_model, post3_model])
+    GithubService.expects(:get_all_posts).with('my token').returns([post1_model, post2_model, post3_model])
 
     #Act
-    result = GithubService.get_post_by_title('a very fake post')
+    result = GithubService.get_post_by_title('my token', 'a very fake post')
 
     #Assert
     assert_nil result
@@ -133,10 +133,10 @@ class GithubServiceTest < ActiveSupport::TestCase
     post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
     post3_model = _create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
     
-    GithubService.expects(:get_all_posts).returns([post1_model, post2_model, post3_model])
+    GithubService.expects(:get_all_posts).with('my token').returns([post1_model, post2_model, post3_model])
 
     #Act
-    result = GithubService.get_post_by_title('post 2')
+    result = GithubService.get_post_by_title('my token', 'post 2')
 
     #Assert
     assert_equal post2_model, result
