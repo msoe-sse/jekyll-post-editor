@@ -35,6 +35,16 @@ module GithubService
     end
 
     ##
+    # This method get the authorization url which authorizes the post editor app
+    # to use a user's GitHub account. The scope is write:org so that we're able
+    # to make changes to the msoe-sse/mseo-sse.github.io repository which requires
+    # write access to an orginization's repository
+    def get_authorization_url
+      client = Octokit::Client.new
+      client.authorize_url(CLIENT_ID, :scope => 'write:org')
+    end
+
+    ##
     # This method exchanges a session code, which gets created after a user authorizes
     # the app to use their GitHub account, and fetches their oauth access token
     # to be used when making GitHub API requests with the post editor

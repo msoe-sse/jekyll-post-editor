@@ -78,9 +78,21 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert_equal 'premade token', result
   end
 
+  #Note the client id and client secret values are set in test_helper.rb
+
+  test 'get_authorization_url should get the correct authorization url with the write:org scope' do 
+    #Arrange
+    Octokit::Client.any_instance.expects(:authorize_url).with('github client id', scope: 'write:org').returns('https://github.com/login/oauth/authorize?scope=write:org&client_id=github%20client%20id')
+
+    #Act
+    result = GithubService.get_authorization_url
+
+    #Assert
+    assert_equal 'https://github.com/login/oauth/authorize?scope=write:org&client_id=github%20client%20id', result
+  end
+
   test 'get_oauth_access_token should return a oauth access token for a GitHub user' do 
     #Arrange
-    #Note the client id and client secret values are set in test_helper.rb
     Octokit.expects(:exchange_code_for_token).with('session code', 'github client id', 'github client secret').returns('oauth access token')
 
     #Act
