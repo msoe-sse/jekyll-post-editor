@@ -78,6 +78,18 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert_equal 'premade token', result
   end
 
+  test 'get_oauth_access_token should return a oauth access token for a GitHub user' do 
+    #Arrange
+    #Note the client id and client secret values are set in test_helper.rb
+    Octokit.expects(:exchange_code_for_token).with('session code', 'github client id', 'github client secret').returns('oauth access token')
+
+    #Act
+    access_token = GithubService.get_oauth_access_token('session code')
+
+    #Assert
+    assert_equal 'oauth access token', access_token
+  end
+
   test 'get_all_posts should return all posts from the msoe-sse website' do 
     #Arrange
     post1 = _create_dummy_api_resource(path: '_posts/post1.md')

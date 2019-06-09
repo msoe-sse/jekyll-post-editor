@@ -34,7 +34,15 @@ module GithubService
       end
     end
 
+    ##
+    # This method exchanges a session code, which gets created after a user authorizes
+    # the app to use their GitHub account, and fetches their oauth access token
+    # to be used when making GitHub API requests with the post editor
+    # 
+    # Params:
+    # +session_code+:: a GitHub session code
     def get_oauth_access_token(session_code)
+      Octokit.exchange_code_for_token(session_code, CLIENT_ID, CLIENT_SECRET)
     end
 
     ##
