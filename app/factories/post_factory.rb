@@ -26,7 +26,7 @@ module PostFactory
         # located in the post header.
         result.title = header.match(/title:\s*(.*)\n/).captures.first
         result.author = header.match(/author:\s*(.*)\n/).captures.first
-        result.tags = _parse_tags(header)
+        result.tags = parse_tags(header)
 
         result.hero = header.match(/hero:\s*(.*)\n/).captures.first
         result.overlay = header.match(/overlay:\s*(.*)\n/).captures.first
@@ -36,9 +36,8 @@ module PostFactory
       result
     end
 
-    #Private Helpers, do not call the methods below outside of this module
-
-    def _parse_tags(header)
+    private
+    def parse_tags(header)
       result = []
       header.lines.each do |line|
         tag_match = line.match(/\s*-\s*(.*)/)
