@@ -27,7 +27,7 @@ module GithubService
         if not client.organization_member?(Rails.configuration.github_org, client.user.login)
           return :not_in_organization
         else
-          return _get_oauth_token(client)
+          return get_oauth_token(client)
         end
       rescue Octokit::Unauthorized
         return :unauthorized
@@ -46,9 +46,9 @@ module GithubService
     def get_all_posts(oauth_token)
       result = []
       client = Octokit::Client.new(:access_token => oauth_token)
-      posts = client.contents(_get_full_repo_name, :path => '_posts')
+      posts = client.contents(get_full_repo_name, :path => '_posts')
       posts.each do |post|
-        post_api_response = client.contents(_get_full_repo_name, :path => post.path)
+        post_api_response = client.contents(get_full_repo_name, :path => post.path)
         text_contents = Base64.decode64(post_api_response.content)
         result << PostFactory.create_post(text_contents)
       end
@@ -73,9 +73,8 @@ module GithubService
       #TODO: Create pull request for new post
     end
 
-    #Private Helpers, these methods should not be called outside of this module
-
-    def _get_oauth_token(client)
+    private
+    def get_oauth_token(client)
       authorization = client.authorizations.find { |x| x[:app][:name] == Rails.configuration.oauth_token_name}
       if authorization
         return authorization[:hashed_token]
@@ -83,7 +82,7 @@ module GithubService
       client.create_authorization(:scopes => ['user'], :note => Rails.configuration.oauth_token_name)
     end
 
-    def _get_full_repo_name
+    def get_full_repo_name
       "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
     end
   end
