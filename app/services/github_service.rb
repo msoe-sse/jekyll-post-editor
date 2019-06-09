@@ -6,6 +6,9 @@ require 'base64'
 
 module GithubService
   class << self
+    CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
+    CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
+
     ##
     # This method authenticates a GitHub user given their username and password
     # and checks to see if the user belongs to the msoe-sse github orginization.
@@ -29,6 +32,9 @@ module GithubService
       rescue Octokit::Unauthorized
         return :unauthorized
       end
+    end
+
+    def get_oauth_access_token(session_code)
     end
 
     ##
