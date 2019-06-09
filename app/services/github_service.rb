@@ -56,6 +56,23 @@ module GithubService
     end
 
     ##
+    # This method checks to see if a oauth access token is valid for use in the post editor.
+    # A token could no longer be valid if it's been revoked, which means we need to start
+    # the oauth authentication flow again.
+    #
+    # Params:
+    # +access_token+:: a GitHub oauth access token
+    def check_access_token(access_token)
+      client = Octokit::Client.new(:client_id => CLIENT_ID, :client_secret => CLIENT_SECRET)
+      begin
+        client.check_application_authorization access_token
+        return true
+      rescue Octokit::Unauthorized
+        return false
+      end
+    end
+
+    ##
     # This method fetches all the markdown contents of all the posts on the SSE website
     # and returns a list of models representing a Post
     #

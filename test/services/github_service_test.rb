@@ -102,6 +102,28 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert_equal 'oauth access token', access_token
   end
 
+  test 'check_access_token should return false if the oauth access token provided is invalid' do 
+    #Arrange
+    Octokit::Client.any_instance.expects(:check_application_authorization).with('access token').raises(Octokit::Unauthorized)
+
+    #Act
+    result = GithubService.check_access_token('access token')
+
+    #Assert
+    assert_not result
+  end
+
+  test 'check_access_token should return true if the oauth access token provided is valid' do 
+    #Arrange
+    Octokit::Client.any_instance.expects(:check_application_authorization).with('access token').returns('result')
+
+    #Act
+    result = GithubService.check_access_token('access token')
+
+    #Assert
+    assert result
+  end
+
   test 'get_all_posts should return all posts from the msoe-sse website' do 
     #Arrange
     post1 = _create_dummy_api_resource(path: '_posts/post1.md')
