@@ -6,5 +6,5 @@ Rails.application.routes.draw do
   get 'post/edit'
   post 'post/preview'
   post 'post/submit'
-  root 'home#index'
+  root 'post#list'
 end

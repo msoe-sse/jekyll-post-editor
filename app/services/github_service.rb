@@ -67,7 +67,7 @@ module GithubService
       begin
         client.check_application_authorization access_token
         return true
-      rescue Octokit::Unauthorized
+      rescue => e
         return false
       end
     end
