@@ -1,5 +1,7 @@
 ##
-# This controller contains specific code for handling GitHub specific urls
+# This controller contains specific code for handling GitHub specific urls.
+# This class does not extend BasePostEditorController since we don't want to 
+# require a user to be authenticated in order to access an action
 class GithubController < ApplicationController
   ##
   # This method handles the oauth callback url after a user authorizes 

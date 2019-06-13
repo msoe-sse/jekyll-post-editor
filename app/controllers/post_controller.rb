@@ -1,4 +1,4 @@
-class PostController < ApplicationController
+class PostController < BasePostEditorController
   # GET post/list
   def list
     @posts = GithubService.get_all_posts(session[:access_token])
