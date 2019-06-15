@@ -17,6 +17,37 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test 'an authenticated user should be able to navigate to / successfully' do 
+    #Arramge
+    setup_session('access token', true)
+
+    post1 = create_post_model('title1', 'author1', 'hero1', 'overlay1', 'contents1', ['tag1', 'tag2'])
+    post2 = create_post_model('title2', 'author2', 'hero2', 'overlay2', 'contents2', ['tag1', 'tag2'])
+    GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
+
+    #Act
+    get '/'
+
+    #Assert
+    assert_response :success
+  end
+
+  test 'an unauthenticated user should be redirected to GitHub when navigating to post/list' do
+    #Act
+    get '/post/list'
+
+    #Assert
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
+  end
+
+  test 'an unauthenticated user should be redirected to GitHub when navigating to /' do
+    #Act
+    get '/'
+
+    #Assert
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
+  end
+
   test 'an authenticated user should be able to navigate to post/edit successfully' do 
     #Arrange
     setup_session('access token', true)
@@ -28,7 +59,15 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'the post editor should navigate to post/edit successfully with a title parameter' do
+  test 'an unauthenticated user should be redirected to GitHub when navigating to post/edit' do
+    #Act
+    get '/post/edit'
+
+    #Assert
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
+  end
+
+  test 'an authenticated user should be able to navigate to post/edit successfully with a title parameter' do
     #Arrange
     setup_session('access token', true)
 
