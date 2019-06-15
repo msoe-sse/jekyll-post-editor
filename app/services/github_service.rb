@@ -10,31 +10,6 @@ module GithubService
     CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
 
     ##
-    # This method authenticates a GitHub user given their username and password
-    # and checks to see if the user belongs to the msoe-sse github orginization.
-    #
-    # Returns a new oauth token for the Post Editor to use or an existing oauth token
-    # that the Post Editor previously created. If the login credentials are incorrect
-    # the symbol :unauthorized is returned and if the user is not apart of the msoe-sse
-    # GitHub orginization the symbol :not_in_organization is returned
-    # 
-    # Params:
-    # +username+:: a user's GitHub username
-    # +password+:: a user's GitHub password
-    def authenticate(username, password)
-      client = Octokit::Client.new(:login => username, :password => password)
-      begin
-        if not client.organization_member?(Rails.configuration.github_org, client.user.login)
-          return :not_in_organization
-        else
-          return get_oauth_token(client)
-        end
-      rescue Octokit::Unauthorized
-        return :unauthorized
-      end
-    end
-
-    ##
     # This method get the authorization url which authorizes the post editor app
     # to use a user's GitHub account. The scope is write:org so that we're able
     # to make changes to the msoe-sse/mseo-sse.github.io repository which requires
@@ -110,13 +85,6 @@ module GithubService
     end
 
     private
-    def get_oauth_token(client)
-      authorization = client.authorizations.find { |x| x[:app][:name] == Rails.configuration.oauth_token_name}
-      if authorization
-        return authorization[:hashed_token]
-      end
-      client.create_authorization(:scopes => ['user'], :note => Rails.configuration.oauth_token_name)
-    end
 
     def get_full_repo_name
       "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
