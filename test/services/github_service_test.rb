@@ -93,7 +93,7 @@ class GithubServiceTest < ActiveSupport::TestCase
 
   test 'get_oauth_access_token should return a oauth access token for a GitHub user' do 
     #Arrange
-    Octokit.expects(:exchange_code_for_token).with('session code', 'github client id', 'github client secret').returns('oauth access token')
+    Octokit.expects(:exchange_code_for_token).with('session code', 'github client id', 'github client secret').returns({:access_token => 'oauth access token'})
 
     #Act
     access_token = GithubService.get_oauth_access_token('session code')

@@ -52,7 +52,8 @@ module GithubService
     # Params:
     # +session_code+:: a GitHub session code
     def get_oauth_access_token(session_code)
-      Octokit.exchange_code_for_token(session_code, CLIENT_ID, CLIENT_SECRET)
+      result = Octokit.exchange_code_for_token(session_code, CLIENT_ID, CLIENT_SECRET)
+      result[:access_token]
     end
 
     ##
