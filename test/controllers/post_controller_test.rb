@@ -2,10 +2,13 @@ require 'test_helper'
 require 'mocha/setup'
 
 class PostControllerTest < ActionDispatch::IntegrationTest
-  test 'the post editor should navigate to post/list successfully' do 
-    post1 = _create_post_model('title1', 'author1', 'hero1', 'overlay1', 'contents1', ['tag1', 'tag2'])
-    post2 = _create_post_model('title2', 'author2', 'hero2', 'overlay2', 'contents2', ['tag1', 'tag2'])
-    GithubService.expects(:get_all_posts).with(nil).returns([post1, post2])
+  test 'an authenticated user should be able to navigate to post/list successfully' do 
+    #Arramge
+    setup_session('access token', true)
+
+    post1 = create_post_model('title1', 'author1', 'hero1', 'overlay1', 'contents1', ['tag1', 'tag2'])
+    post2 = create_post_model('title2', 'author2', 'hero2', 'overlay2', 'contents2', ['tag1', 'tag2'])
+    GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
 
     #Act
     get '/post/list'
@@ -14,7 +17,10 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'the post editor should navigate to post/edit successfully' do 
+  test 'an authenticated user should be able to navigate to post/edit successfully' do 
+    #Arrange
+    setup_session('access token', true)
+
     #Act
     get '/post/edit'
 
@@ -24,8 +30,10 @@ class PostControllerTest < ActionDispatch::IntegrationTest
 
   test 'the post editor should navigate to post/edit successfully with a title parameter' do
     #Arrange
-    post = _create_post_model('title', 'author', 'hero', 'overlay', 'contents', ['tag1', 'tag2'])
-    GithubService.expects(:get_post_by_title).with(nil, 'title').returns(post)
+    setup_session('access token', true)
+
+    post = create_post_model('title', 'author', 'hero', 'overlay', 'contents', ['tag1', 'tag2'])
+    GithubService.expects(:get_post_by_title).with('access token', 'title').returns(post)
 
     #Act
     get '/post/edit?title=title'
@@ -34,7 +42,8 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def _create_post_model(title, author, hero, overlay, contents, tags)
+  private
+  def create_post_model(title, author, hero, overlay, contents, tags)
     post_model = Post.new
     post_model.title = title
     post_model.author = author
@@ -43,5 +52,11 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     post_model.contents = contents
     post_model.tags = tags
     post_model
+  end
+
+  def setup_session(access_token, is_valid_token)
+    session = {:access_token => access_token}
+    PostController.any_instance.expects(:session).at_least_once.returns(session)
+    GithubService.expects(:check_access_token).with(access_token).returns(is_valid_token)
   end
 end
