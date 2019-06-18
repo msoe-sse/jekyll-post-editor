@@ -1,0 +1,20 @@
+ClassAndModuleChildren:
+  EnforcedStyle: compact
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/WordArray:
+  EnforcedStyle: brackets
+
+Metrics/LineLength:
+  Max: 120
+
+Metrics/BlockLength:
+  Max: 50 # This is doubled from the default because our automated tests use blocks instead of methods
+
+Metrics/ClassLength:
+  Enabled: false
+
+Layout/TrailingWhitespace:
+  Enabled: false

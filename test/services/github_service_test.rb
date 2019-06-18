@@ -50,19 +50,14 @@ class GithubServiceTest < ActiveSupport::TestCase
     # Arrange
     user = _create_dummy_api_resource(login: 'test')
 
-
     authorizations = [
       {
-        :app => {
-          :name => 'some app'
-        },
-        :hashed_token => 'a wrong token'
+        app: { name: 'some app' },
+        hashed_token: 'a wrong token'
       },
       {
-        :app => {
-          :name => 'SSE Post Editor Token'
-        },
-        :hashed_token => 'premade token'
+        app: { name: 'SSE Post Editor Token' },
+        hashed_token: 'premade token'
       }
     ]
 
@@ -88,14 +83,21 @@ class GithubServiceTest < ActiveSupport::TestCase
     post2_content = _create_dummy_api_resource(content: 'post 2 base 64 content')
     post3_content = _create_dummy_api_resource(content: 'post 3 base 64 content')
     
-    post1_model = _create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
-    post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
-    post3_model = _create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
+    post1_model = _create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
+                                     overlay: 'overlay 1', contents: '#post1', tags: ['announcement', 'info'])
+    post2_model = _create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
+                                     overlay: 'overlay 2', contents: '##post2', tags: ['announcement'])
+    post3_model = _create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
+                                     overlay: 'overlay 3', contents: '###post3', tags: ['info'])
 
-    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts').returns([post1, post2, post3])
-    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post1.md').returns(post1_content)
-    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post2.md').returns(post2_content)
-    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post3.md').returns(post3_content)
+    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts')
+                   .returns([post1, post2, post3])
+    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post1.md')
+                   .returns(post1_content)
+    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post2.md')
+                   .returns(post2_content)
+    Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post3.md')
+                   .returns(post3_content)
 
     Base64.expects(:decode64).with('post 1 base 64 content').returns('post 1 text content')
     Base64.expects(:decode64).with('post 2 base 64 content').returns('post 2 text content')
@@ -114,10 +116,13 @@ class GithubServiceTest < ActiveSupport::TestCase
   
   test 'get_post_by_title should return nil if the post does not exist' do
     # Arrange
-    post1_model = _create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
-    post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
-    post3_model = _create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
-    
+    post1_model = _create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
+                                     overlay: 'overlay 1', contents: '#post1', tags: ['announcement', 'info'])
+    post2_model = _create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
+                                     overlay: 'overlay 2', contents: '##post2', tags: ['announcement'])
+    post3_model = _create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
+                                     overlay: 'overlay 3', contents: '###post3', tags: ['info'])
+
     GithubService.expects(:get_all_posts).with('my token').returns([post1_model, post2_model, post3_model])
 
     # Act
@@ -129,10 +134,13 @@ class GithubServiceTest < ActiveSupport::TestCase
 
   test 'get_post_by_title should return a given post by its title' do
     # Arrange
-    post1_model = _create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
-    post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
-    post3_model = _create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
-    
+    post1_model = _create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
+                                     overlay: 'overlay 1', contents: '#post1', tags: ['announcement', 'info'])
+    post2_model = _create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
+                                     overlay: 'overlay 2', contents: '##post2', tags: ['announcement'])
+    post3_model = _create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
+                                     overlay: 'overlay 3', contents: '###post3', tags: ['info'])
+
     GithubService.expects(:get_all_posts).with('my token').returns([post1_model, post2_model, post3_model])
 
     # Act
@@ -150,14 +158,14 @@ class GithubServiceTest < ActiveSupport::TestCase
     resource
   end
 
-  def _create_post_model(title, author, hero, overlay, contents, tags)
+  def _create_post_model(parameters)
     post_model = Post.new
-    post_model.title = title
-    post_model.author = author
-    post_model.hero = hero
-    post_model.overlay = overlay
-    post_model.contents = contents
-    post_model.tags = tags
+    post_model.title = parameters[:title]
+    post_model.author = parameters[:author]
+    post_model.hero = parameters[:hero]
+    post_model.overlay = parameters[:overlay]
+    post_model.contents = parameters[:contents]
+    post_model.tags = parameters[:tags]
     post_model
   end
 

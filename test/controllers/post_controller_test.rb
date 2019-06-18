@@ -3,8 +3,10 @@ require 'mocha/setup'
 
 class PostControllerTest < ActionDispatch::IntegrationTest
   test 'the post editor should navigate to post/list successfully' do 
-    post1 = _create_post_model('title1', 'author1', 'hero1', 'overlay1', 'contents1', ['tag1', 'tag2'])
-    post2 = _create_post_model('title2', 'author2', 'hero2', 'overlay2', 'contents2', ['tag1', 'tag2'])
+    post1 = _create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
+                               overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
+    post2 = _create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
+                               overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
     GithubService.expects(:get_all_posts).with(nil).returns([post1, post2])
 
     # Act
@@ -34,14 +36,14 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def _create_post_model(title, author, hero, overlay, contents, tags)
+  def _create_post_model(parameters)
     post_model = Post.new
-    post_model.title = title
-    post_model.author = author
-    post_model.hero = hero
-    post_model.overlay = overlay
-    post_model.contents = contents
-    post_model.tags = tags
+    post_model.title = parameters[:title]
+    post_model.author = parameters[:author]
+    post_model.hero = parameters[:hero]
+    post_model.overlay = parameters[:overlay]
+    post_model.contents = parameters[:contents]
+    post_model.tags = parameters[:tags]
     post_model
   end
 end

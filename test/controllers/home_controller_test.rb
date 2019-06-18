@@ -23,7 +23,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     GithubService.expects(:authenticate).with('test', 'test').returns(:unauthorized)
 
     # Act
-    post '/home/login', params: { username: 'test', login: { password: 'test' }}
+    post '/home/login', params: { username: 'test', login: { password: 'test' } }
 
     # Assert
     assert_redirected_to '/'
@@ -36,12 +36,13 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     GithubService.expects(:authenticate).with('test', 'test').returns(:not_in_organization)
 
     # Act
-    post '/home/login', params: { username: 'test', login: { password: 'test' }}
+    post '/home/login', params: { username: 'test', login: { password: 'test' } }
     
     # Assert
     assert_redirected_to '/'
     assert_nil session[:access_token]
-    assert_equal 'The GitHub user provided is not apart of the msoe-sse GitHub organization. Please contact the SSE Webmaster for assistance.', flash[:alert]
+    assert_equal 'The GitHub user provided is not apart of the msoe-sse GitHub organization. 
+                  Please contact the SSE Webmaster for assistance.', flash[:alert]
   end
 
   test 'the post editor should redirect to the post list view on successful authentication' do
@@ -49,10 +50,10 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     GithubService.expects(:authenticate).with('test', 'test').returns('a token')
 
     # Act
-    post '/home/login', params: { username: 'test', login: { password: 'test' }}
+    post '/home/login', params: { username: 'test', login: { password: 'test' } }
 
     # Assert
     assert_equal 'a token', session[:access_token]
-    assert_redirected_to :controller => 'post', :action => 'list'
+    assert_redirected_to controller: 'post', action: 'list'
   end
 end
