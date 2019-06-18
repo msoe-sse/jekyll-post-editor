@@ -7,30 +7,30 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     post2 = _create_post_model('title2', 'author2', 'hero2', 'overlay2', 'contents2', ['tag1', 'tag2'])
     GithubService.expects(:get_all_posts).with(nil).returns([post1, post2])
 
-    #Act
+    # Act
     get '/post/list'
 
-    #Assert
+    # Assert
     assert_response :success
   end
 
   test 'the post editor should navigate to post/edit successfully' do 
-    #Act
+    # Act
     get '/post/edit'
 
-    #Assert
+    # Assert
     assert_response :success
   end
 
   test 'the post editor should navigate to post/edit successfully with a title parameter' do
-    #Arrange
+    # Arrange
     post = _create_post_model('title', 'author', 'hero', 'overlay', 'contents', ['tag1', 'tag2'])
     GithubService.expects(:get_post_by_title).with(nil, 'title').returns(post)
 
-    #Act
+    # Act
     get '/post/edit?title=title'
 
-    #Assert
+    # Assert
     assert_response :success
   end
 

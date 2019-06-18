@@ -2,23 +2,23 @@ require 'test_helper'
 
 class PostFactoryTest < ActiveSupport::TestCase
   test 'create_post should return nil if given a nil value for post_contents' do 
-    #Act
+    # Act
     result = PostFactory.create_post(nil)
 
-    #Assert
+    # Assert
     assert_nil result
   end
 
   test 'create_post should return nil if given a non-string type for post_contents' do
-    #Act
+    # Act
     result = PostFactory.create_post(1)
 
-    #Assert
+    # Assert
     assert_nil result
   end
 
   test 'create_post should return a post model with correct values' do 
-    #Arrange
+    # Arrange
     post_contents = %(---
 layout: post
 title: Some Post
@@ -32,10 +32,10 @@ overlay: green
 #An H1 tag
 ##An H2 tag)
 
-    #Act
+    # Act
     result = PostFactory.create_post(post_contents)
 
-    #Assert
+    # Assert
     assert_equal 'Some Post', result.title
     assert_equal 'Andrew Wojciechowski', result.author
     assert_equal ['announcement', 'info'], result.tags
