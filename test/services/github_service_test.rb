@@ -51,17 +51,17 @@ class GithubServiceTest < ActiveSupport::TestCase
 
   test 'get_all_posts should return all posts from the msoe-sse website' do 
     #Arrange
-    post1 = _create_dummy_api_resource(path: '_posts/post1.md')
-    post2 = _create_dummy_api_resource(path: '_posts/post2.md')
-    post3 = _create_dummy_api_resource(path: '_posts/post3.md')
+    post1 = create_dummy_api_resource(path: '_posts/post1.md')
+    post2 = create_dummy_api_resource(path: '_posts/post2.md')
+    post3 = create_dummy_api_resource(path: '_posts/post3.md')
 
-    post1_content = _create_dummy_api_resource(content: 'post 1 base 64 content')
-    post2_content = _create_dummy_api_resource(content: 'post 2 base 64 content')
-    post3_content = _create_dummy_api_resource(content: 'post 3 base 64 content')
+    post1_content = create_dummy_api_resource(content: 'post 1 base 64 content')
+    post2_content = create_dummy_api_resource(content: 'post 2 base 64 content')
+    post3_content = create_dummy_api_resource(content: 'post 3 base 64 content')
     
-    post1_model = _create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
-    post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
-    post3_model = _create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
+    post1_model = create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
+    post2_model = create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
+    post3_model = create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
 
     Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts').returns([post1, post2, post3])
     Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts/post1.md').returns(post1_content)
@@ -85,9 +85,9 @@ class GithubServiceTest < ActiveSupport::TestCase
   
   test 'get_post_by_title should return nil if the post does not exist' do
     #Arrange
-    post1_model = _create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
-    post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
-    post3_model = _create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
+    post1_model = create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
+    post2_model = create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
+    post3_model = create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
     
     GithubService.expects(:get_all_posts).with('my token').returns([post1_model, post2_model, post3_model])
 
@@ -100,9 +100,9 @@ class GithubServiceTest < ActiveSupport::TestCase
 
   test 'get_post_by_title should return a given post by its title' do
     #Arrange
-    post1_model = _create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
-    post2_model = _create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
-    post3_model = _create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
+    post1_model = create_post_model('post 1', 'Andy Wojciechowski', 'hero 1', 'overlay 1', '#post1', ['announcement', 'info'])
+    post2_model = create_post_model('post 2', 'Grace Fleming', 'hero 2', 'overlay 2', '##post2', ['announcement'])
+    post3_model = create_post_model('post 3', 'Sabrina Stangler', 'hero 3', 'overlay 3', '###post3', ['info'])
     
     GithubService.expects(:get_all_posts).with('my token').returns([post1_model, post2_model, post3_model])
 
@@ -113,14 +113,15 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert_equal post2_model, result
   end
 
-  def _create_dummy_api_resource(parameters)
+  private
+  def create_dummy_api_resource(parameters)
     resource = DummyApiResource.new
     resource.path = parameters[:path]
     resource.content = parameters[:content]
     resource
   end
 
-  def _create_post_model(title, author, hero, overlay, contents, tags)
+  def create_post_model(title, author, hero, overlay, contents, tags)
     post_model = Post.new
     post_model.title = title
     post_model.author = author
