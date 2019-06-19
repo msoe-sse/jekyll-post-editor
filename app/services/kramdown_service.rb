@@ -14,7 +14,7 @@ module KramdownService
     end
 
     def create_jekyll_post_text(text, author, title)
-      #TODO: Implement This
+      # TODO: Implement This
     end
   end
 end
