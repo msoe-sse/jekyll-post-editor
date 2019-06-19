@@ -26,7 +26,8 @@ class PostControllerTest < ActionDispatch::IntegrationTest
 
   test 'the post editor should navigate to post/edit successfully with a title parameter' do
     # Arrange
-    post = _create_post_model('title', 'author', 'hero', 'overlay', 'contents', ['tag1', 'tag2'])
+    post = _create_post_model(title: 'title', author: 'author', hero: 'hero', 
+                              overlay: 'overlay', contents: 'contents',  tags: ['tag1', 'tag2'])
     GithubService.expects(:get_post_by_title).with(nil, 'title').returns(post)
 
     # Act

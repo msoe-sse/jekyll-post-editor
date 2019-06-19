@@ -2,7 +2,7 @@ require 'octokit'
 
 ##
 # This module includes custom methods related to program errors in rails
-module Error::ErrorHandler
+module ErrorHandlers
   ##
   # This method rescues controller method calls from certain exceptions
   # and will handle them in a unique way
