@@ -12,11 +12,17 @@ Style/FrozenStringLiteralComment:
 Style/WordArray:
   EnforcedStyle: brackets
 
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
 Metrics/LineLength:
   Max: 120
 
 Metrics/BlockLength:
   Max: 50 # This is doubled from the default because our automated tests use blocks instead of methods
+
+Metrics/MethodLength:
+  Max: 25
 
 Metrics/ClassLength:
   Enabled: false
