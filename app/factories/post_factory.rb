@@ -13,8 +13,7 @@ module PostFactory
       return create_post_model(post_contents) if !post_contents.nil? && post_contents.is_a?(String)
     end
 
-    private
-
+  private
     def parse_tags(header)
       result = []
       header.lines.each do |line|

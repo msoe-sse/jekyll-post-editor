@@ -65,8 +65,7 @@ module GithubService
       # TODO: Create pull request for new post
     end
 
-    private
-
+  private
     def get_oauth_token(client)
       authorization = client.authorizations.find { |x| x[:app][:name] == Rails.configuration.oauth_token_name }
       return authorization[:hashed_token] if authorization

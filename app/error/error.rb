@@ -15,8 +15,7 @@ module Error::ErrorHandler
     end
   end
   
-  private
-
+private
   def rate_limit_error
     render template: 'public/RateLimitError.html'
   end
