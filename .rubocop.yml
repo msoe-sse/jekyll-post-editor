@@ -1,3 +1,8 @@
+AllCops:
+  Exclude:
+    - 'bin/*'
+    - 'config/**/*.rb'
+
 ClassAndModuleChildren:
   EnforcedStyle: compact
 
