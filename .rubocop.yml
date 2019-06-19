@@ -11,7 +11,7 @@ ClassAndModuleChildren:
   EnforcedStyle: compact
 
 Style/FrozenStringLiteralComment:
-  Enabled: false
+  EnforcedStyle: never
 
 Style/WordArray:
   EnforcedStyle: brackets
