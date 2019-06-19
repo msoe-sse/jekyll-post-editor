@@ -17,8 +17,8 @@ class BasePostEditorController < ApplicationController
       authenticate!
     else
       access_token = session[:access_token]
-      is_token_valid = GithubService.check_access_token(access_token)
-      if !is_token_valid
+      valid_token = GithubService.check_access_token(access_token)
+      if !valid_token
         session[:access_token] = nil
         authenticate!
       end
