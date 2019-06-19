@@ -8,4 +8,5 @@ cache: bundler # caching bundler gem packages will speed up build
 install:
   - bundle install --jobs=3 --retry=3
 script:
+  - bundle exec rubocop
   - rake

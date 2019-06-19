@@ -3,99 +3,104 @@ require 'mocha/setup'
 
 class PostControllerTest < ActionDispatch::IntegrationTest
   test 'an authenticated user should be able to navigate to post/list successfully' do 
-    #Arramge
+    # Arramge
     setup_session('access token', true)
 
-    post1 = create_post_model('title1', 'author1', 'hero1', 'overlay1', 'contents1', ['tag1', 'tag2'])
-    post2 = create_post_model('title2', 'author2', 'hero2', 'overlay2', 'contents2', ['tag1', 'tag2'])
+    post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
+                              overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
+    post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
+                              overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
     GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
 
-    #Act
+    # Act
     get '/post/list'
 
-    #Assert
+    # Assert
     assert_response :success
   end
 
   test 'an authenticated user should be able to navigate to / successfully' do 
-    #Arramge
+    # Arramge
     setup_session('access token', true)
 
-    post1 = create_post_model('title1', 'author1', 'hero1', 'overlay1', 'contents1', ['tag1', 'tag2'])
-    post2 = create_post_model('title2', 'author2', 'hero2', 'overlay2', 'contents2', ['tag1', 'tag2'])
+    post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
+                              overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
+    post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
+                              overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
     GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
 
-    #Act
+    # Act
     get '/'
 
-    #Assert
+    # Assert
     assert_response :success
   end
 
   test 'an unauthenticated user should be redirected to GitHub when navigating to post/list' do
-    #Act
+    # Act
     get '/post/list'
 
-    #Assert
+    # Assert
     assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
   end
 
   test 'an unauthenticated user should be redirected to GitHub when navigating to /' do
-    #Act
+    # Act
     get '/'
 
-    #Assert
+    # Assert
     assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
   end
 
   test 'an authenticated user should be able to navigate to post/edit successfully' do 
-    #Arrange
+    # Arrange
     setup_session('access token', true)
 
-    #Act
+    # Act
     get '/post/edit'
 
-    #Assert
+    # Assert
     assert_response :success
   end
 
   test 'an unauthenticated user should be redirected to GitHub when navigating to post/edit' do
-    #Act
+    # Act
     get '/post/edit'
 
-    #Assert
+    # Assert
     assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
   end
 
   test 'an authenticated user should be able to navigate to post/edit successfully with a title parameter' do
-    #Arrange
+    # Arrange
     setup_session('access token', true)
 
-    post = create_post_model('title', 'author', 'hero', 'overlay', 'contents', ['tag1', 'tag2'])
+    post = create_post_model(title: 'title', author: 'author', hero: 'hero', 
+                              overlay: 'overlay', contents: 'contents',  tags: ['tag1', 'tag2'])
     GithubService.expects(:get_post_by_title).with('access token', 'title').returns(post)
 
-    #Act
+    # Act
     get '/post/edit?title=title'
 
-    #Assert
+    # Assert
     assert_response :success
   end
 
   private
-  def create_post_model(title, author, hero, overlay, contents, tags)
-    post_model = Post.new
-    post_model.title = title
-    post_model.author = author
-    post_model.hero = hero
-    post_model.overlay = overlay
-    post_model.contents = contents
-    post_model.tags = tags
-    post_model
-  end
+    def create_post_model(parameters)
+      post_model = Post.new
+      post_model.title = parameters[:title]
+      post_model.author = parameters[:author]
+      post_model.hero = parameters[:hero]
+      post_model.overlay = parameters[:overlay]
+      post_model.contents = parameters[:contents]
+      post_model.tags = parameters[:tags]
+      post_model
+    end
 
-  def setup_session(access_token, is_valid_token)
-    session = {:access_token => access_token}
-    PostController.any_instance.expects(:session).at_least_once.returns(session)
-    GithubService.expects(:check_access_token).with(access_token).returns(is_valid_token)
-  end
+    def setup_session(access_token, is_valid_token)
+      session = { access_token: access_token }
+      PostController.any_instance.expects(:session).at_least_once.returns(session)
+      GithubService.expects(:check_access_token).with(access_token).returns(is_valid_token)
+    end
 end

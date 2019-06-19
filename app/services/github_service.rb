@@ -3,7 +3,6 @@ require 'base64'
 
 ##
 # This module contains all operations involving interacting with the GitHub API
-
 module GithubService
   class << self
     CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
@@ -16,7 +15,7 @@ module GithubService
     # write access to an orginization's repository
     def get_authorization_url
       client = Octokit::Client.new
-      client.authorize_url(CLIENT_ID, :scope => 'write:org')
+      client.authorize_url(CLIENT_ID, scope: 'write:org')
     end
 
     ##
@@ -39,11 +38,11 @@ module GithubService
     # Params:
     # +access_token+:: a GitHub oauth access token
     def check_access_token(access_token)
-      client = Octokit::Client.new(:client_id => CLIENT_ID, :client_secret => CLIENT_SECRET)
+      client = Octokit::Client.new(client_id: CLIENT_ID, client_secret: CLIENT_SECRET)
       begin
         client.check_application_authorization access_token
         return true
-      rescue => e
+      rescue
         return false
       end
     end
@@ -56,10 +55,10 @@ module GithubService
     # +oauth_token+::a user's oauth access token
     def get_all_posts(oauth_token)
       result = []
-      client = Octokit::Client.new(:access_token => oauth_token)
-      posts = client.contents(get_full_repo_name, :path => '_posts')
+      client = Octokit::Client.new(access_token: oauth_token)
+      posts = client.contents(full_repo_name, path: '_posts')
       posts.each do |post|
-        post_api_response = client.contents(get_full_repo_name, :path => post.path)
+        post_api_response = client.contents(full_repo_name, path: post.path)
         text_contents = Base64.decode64(post_api_response.content)
         result << PostFactory.create_post(text_contents)
       end
@@ -78,16 +77,15 @@ module GithubService
     end
 
     def submit_post(post_markdown, author)
-      #TODO: Authentication with client = Octokit::Client.new(:access_token => "<your 40 char token>")
-      #TODO: Create Branch for new post
-      #TODO: Commit and push new post
-      #TODO: Create pull request for new post
+      # TODO: Authentication with client = Octokit::Client.new(:access_token => "<your 40 char token>")
+      # TODO: Create Branch for new post
+      # TODO: Commit and push new post
+      # TODO: Create pull request for new post
     end
 
     private
-
-    def get_full_repo_name
-      "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
-    end
+      def full_repo_name
+        "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
+      end
   end
 end
