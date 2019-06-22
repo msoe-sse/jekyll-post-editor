@@ -1,7 +1,7 @@
 $(function() {
   $('#preview-button').click(function() {
     setActiveTab("#preview-button", '#PreviewTabContent');
-    fetch('preview', {
+    fetch('post/preview', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
