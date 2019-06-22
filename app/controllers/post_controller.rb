@@ -1,10 +1,11 @@
 ##
 # The controller responsible for dealing with views related to SSE website posts
 class PostController < BasePostEditorController
-  # GET post/list
-  def list
-    @posts = GithubService.get_all_posts(session[:access_token])
-  end
+  # This list view was started and not completed. We may come back to this post MVP
+  # # GET post/list
+  # def list
+  #   @posts = GithubService.get_all_posts(session[:access_token])
+  # end
   
   # GET post/edit
   def edit
