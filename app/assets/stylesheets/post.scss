@@ -19,12 +19,20 @@ label {
   margin-top: 10px;
 }
 
+#title, #author, #tags {
+  width: 350px;
+}
+
 #title {
-  margin-left: 21px;
+  margin-left: 22px;
 }
 
 #author {
   margin-left: 5px;
+}
+
+#tags {
+  margin-left: 20px;
 }
 
 #middle-container {
