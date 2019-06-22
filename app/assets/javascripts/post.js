@@ -1,13 +1,10 @@
 $(function() {
   $('#preview-button').click(function() {
     setActiveTab("#preview-button", '#PreviewTabContent');
-    fetch('post/preview', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({'text': $('#markdownArea').val()})
-    })
+    let url = new URL(`${window.location.origin}/post/preview`);
+    let params = {text: $('#markdownArea').val()};
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
+    fetch(url)
     .then(resp => resp.json())
     .then(function(data) {
       $('#previewArea').html(data.html);

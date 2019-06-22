@@ -13,7 +13,7 @@ class PostController < BasePostEditorController
     @post = GithubService.get_post_by_title(session[:access_token], params[:title]) if params[:title]
   end
 
-  # POST post/preview
+  # GET post/preview
   def preview
     kramdown_html = KramdownService.get_html(params[:text])
     render json: {
@@ -25,6 +25,6 @@ class PostController < BasePostEditorController
   def submit
     full_post_text = KramdownService.create_jekyll_post_text(params[:markdownArea], params[:author], params[:title])
     GithubService.submit_post(full_post_text, params[:markdownArea])
-    redirect_to action: 'index'
+    redirect_to action: 'edit'
   end
 end
