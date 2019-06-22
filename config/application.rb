@@ -22,6 +22,5 @@ module JekyllPostEditor
     # the framework and any gems in your application.
     config.github_org = 'msoe-sse'
     config.github_repo_name = 'msoe-sse.github.io'
-    config.oauth_token_name = 'SSE Post Editor Token'
   end
 end
