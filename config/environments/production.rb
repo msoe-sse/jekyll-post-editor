@@ -89,6 +89,5 @@ Rails.application.configure do
     config.logger    = ActiveSupport::TaggedLogging.new(logger)
   end
 
-  config.github_org = 'msoe-sse'
   config.github_repo_name = 'msoe-sse.github.io'
 end
