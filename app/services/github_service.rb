@@ -15,7 +15,7 @@ module GithubService
     # write access to an orginization's repository
     def get_authorization_url
       client = Octokit::Client.new
-      client.authorize_url(CLIENT_ID, scope: 'write:org')
+      client.authorize_url(CLIENT_ID, scope: 'public_repo')
     end
 
     ##
