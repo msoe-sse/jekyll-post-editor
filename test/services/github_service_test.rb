@@ -4,90 +4,68 @@ require 'octokit'
 require 'base64'
 
 class GithubServiceTest < ActiveSupport::TestCase
-  test 'authenticate should return :unauthorized on failed authentication' do 
+  # Note the client id and client secret values are set in test_helper.rb
+  test 'get_authorization_url should get the correct authorization url with the write:org scope' do 
     # Arrange
-    Octokit::Client.any_instance.expects(:user).raises(Octokit::Unauthorized)
+    Octokit::Client.any_instance.expects(:authorize_url).with('github client id', scope: 'write:org').returns('https://github.com/login/oauth/authorize?scope=write:org&client_id=github%20client%20id')
 
     # Act
-    result = GithubService.authenticate('test', 'test')
+    result = GithubService.get_authorization_url
 
     # Assert
-    assert_equal :unauthorized, result
-  end
-  
-  test 'authenticate should return :not_in_organization if a user does not belong to the msoe-sse orginization' do 
-    # Arrange
-    user = _create_dummy_api_resource(login: 'test')
-
-    Octokit::Client.any_instance.expects(:user).returns(user)
-    Octokit::Client.any_instance.expects(:organization_member?).with('msoe-sse', 'test').returns(false)
-
-    # Act
-    result = GithubService.authenticate('test', 'test')
-
-    # Assert
-    assert_equal :not_in_organization, result
+    assert_equal 'https://github.com/login/oauth/authorize?scope=write:org&client_id=github%20client%20id', result
   end
 
-  test 'authenticate should return a oauth access token on successful authentication' do
+  test 'get_oauth_access_token should return a oauth access token for a GitHub user' do 
     # Arrange
-    user = _create_dummy_api_resource(login: 'test')
-    authorizations = []
-
-    Octokit::Client.any_instance.expects(:user).returns(user)
-    Octokit::Client.any_instance.expects(:authorizations).returns(authorizations)
-    Octokit::Client.any_instance.expects(:organization_member?).with('msoe-sse', 'test').returns(true)
-    Octokit::Client.any_instance.expects(:create_authorization).returns('access token').at_most_once
+    Octokit.expects(:exchange_code_for_token).with('session code', 'github client id', 'github client secret')
+           .returns(access_token: 'oauth access token')
 
     # Act
-    result = GithubService.authenticate('test', 'test')
+    access_token = GithubService.get_oauth_access_token('session code')
 
     # Assert
-    assert_equal 'access token', result
+    assert_equal 'oauth access token', access_token
   end
 
-  test 'authenticate should be able to handle a GitHub user already having a post editor oauth token created' do 
+  test 'check_access_token should return false if the oauth access token provided is invalid' do 
     # Arrange
-    user = _create_dummy_api_resource(login: 'test')
-
-    authorizations = [
-      {
-        app: { name: 'some app' },
-        hashed_token: 'a wrong token'
-      },
-      {
-        app: { name: 'SSE Post Editor Token' },
-        hashed_token: 'premade token'
-      }
-    ]
-
-    Octokit::Client.any_instance.expects(:user).returns(user)
-    Octokit::Client.any_instance.expects(:authorizations).returns(authorizations)
-    Octokit::Client.any_instance.expects(:organization_member?).with('msoe-sse', 'test').returns(true)
-    Octokit::Client.any_instance.expects(:create_authorization).returns('access token').never
+    Octokit::Client.any_instance.expects(:check_application_authorization)
+                                .with('access token').raises(Octokit::Unauthorized)
 
     # Act
-    result = GithubService.authenticate('test', 'test')
+    result = GithubService.check_access_token('access token')
 
     # Assert
-    assert_equal 'premade token', result
+    assert_not result
+  end
+
+  test 'check_access_token should return true if the oauth access token provided is valid' do 
+    # Arrange
+    Octokit::Client.any_instance.expects(:check_application_authorization).with('access token').returns('result')
+
+    # Act
+    result = GithubService.check_access_token('access token')
+
+    # Assert
+    assert result
   end
 
   test 'get_all_posts should return all posts from the msoe-sse website' do 
     # Arrange
-    post1 = _create_dummy_api_resource(path: '_posts/post1.md')
-    post2 = _create_dummy_api_resource(path: '_posts/post2.md')
-    post3 = _create_dummy_api_resource(path: '_posts/post3.md')
+    post1 = create_dummy_api_resource(path: '_posts/post1.md')
+    post2 = create_dummy_api_resource(path: '_posts/post2.md')
+    post3 = create_dummy_api_resource(path: '_posts/post3.md')
 
-    post1_content = _create_dummy_api_resource(content: 'post 1 base 64 content')
-    post2_content = _create_dummy_api_resource(content: 'post 2 base 64 content')
-    post3_content = _create_dummy_api_resource(content: 'post 3 base 64 content')
+    post1_content = create_dummy_api_resource(content: 'post 1 base 64 content')
+    post2_content = create_dummy_api_resource(content: 'post 2 base 64 content')
+    post3_content = create_dummy_api_resource(content: 'post 3 base 64 content')
     
-    post1_model = _create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
+    post1_model = create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
                                      overlay: 'overlay 1', contents: '#post1', tags: ['announcement', 'info'])
-    post2_model = _create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
+    post2_model = create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
                                      overlay: 'overlay 2', contents: '##post2', tags: ['announcement'])
-    post3_model = _create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
+    post3_model = create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
                                      overlay: 'overlay 3', contents: '###post3', tags: ['info'])
 
     Octokit::Client.any_instance.expects(:contents).with('msoe-sse/msoe-sse.github.io', path: '_posts')
@@ -116,11 +94,11 @@ class GithubServiceTest < ActiveSupport::TestCase
   
   test 'get_post_by_title should return nil if the post does not exist' do
     # Arrange
-    post1_model = _create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
+    post1_model = create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
                                      overlay: 'overlay 1', contents: '#post1', tags: ['announcement', 'info'])
-    post2_model = _create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
+    post2_model = create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
                                      overlay: 'overlay 2', contents: '##post2', tags: ['announcement'])
-    post3_model = _create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
+    post3_model = create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
                                      overlay: 'overlay 3', contents: '###post3', tags: ['info'])
 
     GithubService.expects(:get_all_posts).with('my token').returns([post1_model, post2_model, post3_model])
@@ -134,11 +112,11 @@ class GithubServiceTest < ActiveSupport::TestCase
 
   test 'get_post_by_title should return a given post by its title' do
     # Arrange
-    post1_model = _create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
+    post1_model = create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
                                      overlay: 'overlay 1', contents: '#post1', tags: ['announcement', 'info'])
-    post2_model = _create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
+    post2_model = create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
                                      overlay: 'overlay 2', contents: '##post2', tags: ['announcement'])
-    post3_model = _create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
+    post3_model = create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
                                      overlay: 'overlay 3', contents: '###post3', tags: ['info'])
 
     GithubService.expects(:get_all_posts).with('my token').returns([post1_model, post2_model, post3_model])
@@ -150,28 +128,27 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert_equal post2_model, result
   end
 
-  def _create_dummy_api_resource(parameters)
-    resource = DummyApiResource.new
-    resource.login = parameters[:login]
-    resource.path = parameters[:path]
-    resource.content = parameters[:content]
-    resource
-  end
+  private
+    def create_dummy_api_resource(parameters)
+      resource = DummyApiResource.new
+      resource.path = parameters[:path]
+      resource.content = parameters[:content]
+      resource
+    end
 
-  def _create_post_model(parameters)
-    post_model = Post.new
-    post_model.title = parameters[:title]
-    post_model.author = parameters[:author]
-    post_model.hero = parameters[:hero]
-    post_model.overlay = parameters[:overlay]
-    post_model.contents = parameters[:contents]
-    post_model.tags = parameters[:tags]
-    post_model
-  end
+    def create_post_model(parameters)
+      post_model = Post.new
+      post_model.title = parameters[:title]
+      post_model.author = parameters[:author]
+      post_model.hero = parameters[:hero]
+      post_model.overlay = parameters[:overlay]
+      post_model.contents = parameters[:contents]
+      post_model.tags = parameters[:tags]
+      post_model
+    end
 
-  class DummyApiResource
-    attr_accessor :login
-    attr_accessor :path
-    attr_accessor :content
-  end
+    class DummyApiResource
+      attr_accessor :path
+      attr_accessor :content
+    end
 end

@@ -5,27 +5,45 @@ require 'base64'
 # This module contains all operations involving interacting with the GitHub API
 module GithubService
   class << self
+    CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
+    CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
+
     ##
-    # This method authenticates a GitHub user given their username and password
-    # and checks to see if the user belongs to the msoe-sse github orginization.
-    #
-    # Returns a new oauth token for the Post Editor to use or an existing oauth token
-    # that the Post Editor previously created. If the login credentials are incorrect
-    # the symbol :unauthorized is returned and if the user is not apart of the msoe-sse
-    # GitHub orginization the symbol :not_in_organization is returned
+    # This method get the authorization url which authorizes the post editor app
+    # to use a user's GitHub account. The scope is write:org so that we're able
+    # to make changes to the msoe-sse/mseo-sse.github.io repository which requires
+    # write access to an orginization's repository
+    def get_authorization_url
+      client = Octokit::Client.new
+      client.authorize_url(CLIENT_ID, scope: 'write:org')
+    end
+
+    ##
+    # This method exchanges a session code, which gets created after a user authorizes
+    # the app to use their GitHub account, and fetches their oauth access token
+    # to be used when making GitHub API requests with the post editor
     # 
     # Params:
-    # +username+:: a user's GitHub username
-    # +password+:: a user's GitHub password
-    def authenticate(username, password)
-      client = Octokit::Client.new(login: username, password: password)
-      github_org = Rails.configuration.github_org
-      begin
-        return get_oauth_token(client) if client.organization_member?(github_org, client.user.login)
+    # +session_code+:: a GitHub session code
+    def get_oauth_access_token(session_code)
+      result = Octokit.exchange_code_for_token(session_code, CLIENT_ID, CLIENT_SECRET)
+      result[:access_token]
+    end
 
-        return :not_in_organization
-      rescue Octokit::Unauthorized
-        return :unauthorized
+    ##
+    # This method checks to see if a oauth access token is valid for use in the post editor.
+    # A token could no longer be valid if it's been revoked, which means we need to start
+    # the oauth authentication flow again.
+    #
+    # Params:
+    # +access_token+:: a GitHub oauth access token
+    def check_access_token(access_token)
+      client = Octokit::Client.new(client_id: CLIENT_ID, client_secret: CLIENT_SECRET)
+      begin
+        client.check_application_authorization access_token
+        return true
+      rescue
+        return false
       end
     end
 
@@ -65,16 +83,9 @@ module GithubService
       # TODO: Create pull request for new post
     end
 
-  private
-    def get_oauth_token(client)
-      authorization = client.authorizations.find { |x| x[:app][:name] == Rails.configuration.oauth_token_name }
-      return authorization[:hashed_token] if authorization
-
-      client.create_authorization(scopes: ['user'], note: Rails.configuration.oauth_token_name)
-    end
-
-    def full_repo_name
-      "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
-    end
+    private
+      def full_repo_name
+        "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
+      end
   end
 end
