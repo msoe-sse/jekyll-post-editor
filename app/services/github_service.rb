@@ -101,7 +101,7 @@ module GithubService
       sha_base_tree = client.commit(full_repo_name, master_head_sha)[:commit][:tree][:sha]
 
       # This creates the new branch to create the post in
-      client.create_ref(full_repo_name, new_ref, master_head_sha)[:object][:sha]
+      client.create_ref(full_repo_name, new_ref, master_head_sha)
 
       new_tree_sha = create_new_tree_for_post(client, post_markdown, post_title, sha_base_tree)
       commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, new_ref)
