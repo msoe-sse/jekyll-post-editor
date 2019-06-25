@@ -76,31 +76,48 @@ module GithubService
       get_all_posts(oauth_token).find { |x| x.title == title }
     end
 
-    def submit_post(oauth_token, post_markdown, postTitle)
-      new_ref = "heads/createPost#{postTitle}"
-
+    def submit_post(oauth_token, post_markdown, post_title)
+      # This new_ref variable represents the new branch we are creating
+      # for submiting a post. At the end we strip out all of the whitespace in 
+      # the post_title to create a valid branch name
+      new_ref = "heads/createPost#{post_title.gsub(/\s+/, '')}"
       client = Octokit::Client.new(access_token: oauth_token)
+
+      # These two calls get required information for us to branch from master.
+      # First we we get the sha string of the commit at the head of master and next we
+      # grab the sha string of the tree at the head of master
       master_head_sha = client.ref(full_repo_name, 'heads/master')[:object][:sha]
       sha_base_tree = client.commit(full_repo_name, master_head_sha)[:commit][:tree][:sha]
-      ref_sha = client.create_ref(full_repo_name, new_ref, master_head_sha)[:object][:sha]
 
-      blob_sha = client.create_blob(full_repo_name, post_markdown)
-      new_tree_sha = client.create_tree(full_repo_name, 
-                                        [ { path: "_posts/#{postTitle}.md",
-                                            mode: '100644',
-                                            type: 'blob',
-                                            sha: blob_sha } ],
-                                          { base_tree: sha_base_tree })[:sha]
-      
-      commit_message = "Created post #{postTitle}"
-      sha_new_commit = client.create_commit(full_repo_name, commit_message, new_tree_sha, master_head_sha)[:sha]
-      client.update_ref(full_repo_name, new_ref, sha_new_commit)
+      # This creates the new branch to create the post in
+      client.create_ref(full_repo_name, new_ref, master_head_sha)[:object][:sha]
+
+      new_tree_sha = create_new_tree_for_post(post_markdown, post_title, sha_base_tree)
+      commit_and_push_post_to_repo(post_title, new_tree_sha, master_head_sha, new_ref)
+
       # TODO: Create pull request for new post
     end
 
     private
       def full_repo_name
         "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
+      end
+
+      def create_new_tree_for_post(post_markdown, post_title, sha_base_tree)
+        # This blob represents the content we're going to create which in this case is markdown
+        blob_sha = client.create_blob(full_repo_name, post_markdown)
+        client.create_tree(full_repo_name, 
+                          [ { path: "_posts/#{post_title}.md",
+                              mode: '100644',
+                              type: 'blob',
+                              sha: blob_sha } ],
+                             base_tree: sha_base_tree)[:sha]
+      end
+
+      def commit_and_push_post_to_repo(post_title, new_tree_sha, master_head_sha, new_ref)
+        commit_message = "Created post #{post_title}"
+        sha_new_commit = client.create_commit(full_repo_name, commit_message, new_tree_sha, master_head_sha)[:sha]
+        client.update_ref(full_repo_name, new_ref, sha_new_commit)
       end
   end
 end
