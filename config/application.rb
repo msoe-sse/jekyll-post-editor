@@ -21,5 +21,6 @@ module JekyllPostEditor
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
     config.github_org = 'msoe-sse'
+    config.webmaster_github_username = 'msoe-sse-webmaster'
   end
 end
