@@ -23,8 +23,9 @@ class PostController < BasePostEditorController
 
   # POST post/submit
   def submit
-    full_post_text = KramdownService.create_jekyll_post_text(params[:markdownArea], params[:author], params[:title])
-    GithubService.submit_post(full_post_text, params[:markdownArea])
+    full_post_text = KramdownService.create_jekyll_post_text(params[:markdownArea], params[:author], 
+                                                                    params[:title], params[:tags], params[:overlay])
+    GithubService.submit_post(session[:access_token], full_post_text, params[:markdownArea])
     redirect_to action: 'edit'
   end
 end

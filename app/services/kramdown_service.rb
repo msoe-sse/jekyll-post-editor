@@ -13,8 +13,8 @@ module KramdownService
       Kramdown::Document.new(text).to_html
     end
 
-    def create_jekyll_post_text(text, author, title)
-      # TODO: Implement This
+    def create_jekyll_post_text(text, author, title, tags, overlay)
+      # TODO: Implement This, Note default the hero to https://source.unsplash.com/collection/145103/
     end
   end
 end

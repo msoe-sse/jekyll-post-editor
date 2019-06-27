@@ -10,6 +10,9 @@
         <%= simple_format("\n") %>
         <%= label_tag('Tags:') %>
         <%= text_field_tag(:tags, @post.tags) %>
+        <%= simple_format("\n") %>
+        <%= label_tag('Overlay:') %>
+        <%= select_tag('overlay', raw('<option>Red</option><option>Blue</option><option>Green</option>')) %>
       <% end %>
       <%= content_tag(:div, id: 'tab-container') do %>
         <%= button_tag('Markdown', id: 'markdown-button', type: 'button') %>
