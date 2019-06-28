@@ -38,13 +38,15 @@ class PostController < BasePostEditorController
 
   private
     def validate_submission_parameters(title, author, markdown_text)
+      validation_message = nil
       if title.empty?
-        return 'A post cannot be submited with a blank title.'
+        validation_message = 'A post cannot be submited with a blank title.'
       elsif author.empty?
-        return 'A post cannot be submited without an author.'
+        validation_message = 'A post cannot be submited without an author.'
       elsif markdown_text.empty?
-        return 'A post cannot be submited with no markdown content.'
+        validation_message = 'A post cannot be submited with no markdown content.'
       end
+      validation_message
     end
 
     def store_post_parameters_in_session

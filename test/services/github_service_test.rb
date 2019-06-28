@@ -207,7 +207,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     # Act
     GithubService.submit_post('my token', '# hello', 'Test Post')
 
-     # No Assert - Taken care of with mocha mock setups
+    # No Assert - Taken care of with mocha mock setups
   end
 
   private
