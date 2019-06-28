@@ -69,7 +69,7 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     get '/post/edit'
 
     # Assert
-    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
   end
 
   test 'an authenticated user should be able to navigate to post/edit successfully with a title parameter' do
@@ -85,6 +85,69 @@ class PostControllerTest < ActionDispatch::IntegrationTest
 
     # Assert
     assert_response :success
+  end
+
+  test 'post/submit should redirect back to the edit screen 
+        with an error message if a post was submited without a title' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:submit_post).never
+    KramdownService.expects(:create_jekyll_post_text).never
+
+    # Act
+    post '/post/submit', params: { title: '', author: 'author', 
+                                   markdownArea: '# hello', tags: '', overlay: 'red' }
+
+    # Assert
+    assert_redirected_to '/'
+    assert_equal 'A post cannot be submited with a blank title.', flash[:alert]
+  end
+
+  test 'post/submit should redirect back to the edit screen 
+        with an error message if a post was submited without a author' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:submit_post).never
+    KramdownService.expects(:create_jekyll_post_text).never
+    
+    # Act
+    post '/post/submit', params: { title: 'title', author: '', 
+                                   markdownArea: '# hello', tags: '', overlay: 'red' }
+    
+    # Assert
+    assert_redirected_to '/'
+    assert_equal 'A post cannot be submited without an author.', flash[:alert]
+  end
+
+  test 'post/submit should redirect back to the edit screen 
+        with an error message if a post was submited without markdown' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:submit_post).never
+    KramdownService.expects(:create_jekyll_post_text).never
+        
+    # Act
+    post '/post/submit', params: { title: 'title', author: 'author', 
+                                   markdownArea: '', tags: '', overlay: 'red' }
+        
+    # Assert
+    assert_redirected_to '/'
+    assert_equal 'A post cannot be submited with no markdown content.', flash[:alert]
+  end
+
+  test 'post/submit should submit the post to GitHub and redirect back to the edit screen with a valid post' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:submit_post).with('access token', 'post text', 'title').once
+    KramdownService.expects(:create_jekyll_post_text)
+                   .with('# hello', 'author', 'title', 'tags', 'red').returns('post text')
+            
+    # Act
+    post '/post/submit', params: { title: 'title', author: 'author', 
+                                   markdownArea: '# hello', tags: 'tags', overlay: 'red' }
+            
+    # Assert
+    assert_redirected_to '/post/edit'
   end
 
   private
