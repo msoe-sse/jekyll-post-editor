@@ -86,3 +86,9 @@ label {
   margin-top: 3px;
   margin-left: 7px;
 }
+
+.validation-message {
+  display: flex;
+  justify-content: center;
+  color: red;
+}
