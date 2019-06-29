@@ -51,6 +51,30 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert result
   end
 
+  test 'check_sse_github_org_membership should return true if a user is a member of the msoe-sse GitHub org' do 
+    # Arrange
+    Octokit::Client.any_instance.expects(:user).returns(login: 'username')
+    Octokit::Client.any_instance.expects(:organization_member?).with('msoe-sse', 'username').returns(true)
+
+    # Act
+    result = GithubService.check_sse_github_org_membership('access token')
+
+    # Assert
+    assert result
+  end
+
+  test 'check_sse_github_org_membership should return false if a user is a member of the msoe-sse GitHub org' do 
+    # Arrange
+    Octokit::Client.any_instance.expects(:user).returns(login: 'username')
+    Octokit::Client.any_instance.expects(:organization_member?).with('msoe-sse', 'username').returns(false)
+
+    # Act
+    result = GithubService.check_sse_github_org_membership('access token')
+
+    # Assert
+    assert_not result
+  end
+
   test 'get_all_posts should return all posts from the msoe-sse website' do 
     # Arrange
     post1 = create_dummy_api_resource(path: '_posts/post1.md')

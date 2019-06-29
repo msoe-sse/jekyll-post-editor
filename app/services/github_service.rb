@@ -48,6 +48,17 @@ module GithubService
     end
 
     ##
+    # Checks to see if a user authenticated with an oauth access token is a member
+    # of the SSE GitHub organization or not
+    #
+    # Params
+    # +access_token+:: a GitHub oauth access token
+    def check_sse_github_org_membership(access_token)
+      client = Octokit::Client.new(access_token: access_token)
+      client.organization_member?(Rails.configuration.github_org, client.user[:login])
+    end
+
+    ##
     # This method fetches all the markdown contents of all the posts on the SSE website
     # and returns a list of models representing a Post
     #

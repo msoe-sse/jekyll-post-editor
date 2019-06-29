@@ -56,6 +56,7 @@ class PostControllerTest < ActionDispatch::IntegrationTest
   test 'an authenticated user should be able to navigate to post/edit successfully' do 
     # Arrange
     setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
     # Act
     get '/post/edit'
@@ -64,9 +65,22 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test 'an authenticated user should be redirected to /GitHubOrgerror.html when navigating to post/eidt' do
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(false)
+    
+    # Act
+    get '/post/edit'
+    
+    # Assert
+    assert_redirected_to '/GitHubOrgError.html'
+  end
+
   test 'an unauthenticated user should be redirected to GitHub when navigating to post/edit' do
     # Act
     get '/post/edit'
+    GithubService.expects(:check_sse_github_org_membership).never
 
     # Assert
     assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
@@ -75,6 +89,7 @@ class PostControllerTest < ActionDispatch::IntegrationTest
   test 'an authenticated user should be able to navigate to post/edit successfully with a title parameter' do
     # Arrange
     setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
     post = create_post_model(title: 'title', author: 'author', hero: 'hero', 
                               overlay: 'overlay', contents: 'contents',  tags: ['tag1', 'tag2'])
@@ -91,6 +106,8 @@ class PostControllerTest < ActionDispatch::IntegrationTest
         with an error message if a post was submited without a title' do 
     # Arrange
     setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
     GithubService.expects(:submit_post).never
     KramdownService.expects(:create_jekyll_post_text).never
 
@@ -107,6 +124,8 @@ class PostControllerTest < ActionDispatch::IntegrationTest
         with an error message if a post was submited without a author' do 
     # Arrange
     setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
     GithubService.expects(:submit_post).never
     KramdownService.expects(:create_jekyll_post_text).never
     
@@ -123,6 +142,8 @@ class PostControllerTest < ActionDispatch::IntegrationTest
         with an error message if a post was submited without markdown' do 
     # Arrange
     setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
     GithubService.expects(:submit_post).never
     KramdownService.expects(:create_jekyll_post_text).never
         
@@ -138,6 +159,8 @@ class PostControllerTest < ActionDispatch::IntegrationTest
   test 'post/submit should submit the post to GitHub and redirect back to the edit screen with a valid post' do 
     # Arrange
     setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
     GithubService.expects(:submit_post).with('access token', 'post text', 'title').once
     KramdownService.expects(:create_jekyll_post_text)
                    .with('# hello', 'author', 'title', 'tags', 'red').returns('post text')
