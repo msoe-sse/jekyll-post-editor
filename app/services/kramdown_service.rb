@@ -13,6 +13,16 @@ module KramdownService
       Kramdown::Document.new(text).to_html
     end
 
+    ##
+    # This method takes parameters for a given post and formats them
+    # as a valid jekyll post for the SSE website
+    #
+    # Params:
+    # +text+:: the markdown contents of the post
+    # +author+:: the author of the post
+    # +title+:: the title of the post
+    # +tags+:: tags specific to the post
+    # +overlay+:: the overlay cikir of the post
     def create_jekyll_post_text(text, author, title, tags, overlay)
       # https://source.unsplash.com/collection/145103/
       parsed_tags = parse_tags(tags)
