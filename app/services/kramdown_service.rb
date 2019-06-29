@@ -14,7 +14,40 @@ module KramdownService
     end
 
     def create_jekyll_post_text(text, author, title, tags, overlay)
-      # TODO: Implement This, Note default the hero to https://source.unsplash.com/collection/145103/
+      # https://source.unsplash.com/collection/145103/
+      parsed_tags = parse_tags(tags)
+
+      tag_section = %(tags:
+#{parsed_tags})
+      
+      lead_break_section = "{: .lead}\r\n<!--break-->"
+          
+      result = %(---
+layout: post
+title: #{title}
+author: #{author}\r\n)
+
+      result << "#{tag_section}\r\n" if !parsed_tags.empty?
+      result << %(hero: https://source.unsplash.com/collection/145103/
+overlay: #{overlay.downcase}
+published: true
+---
+#{lead_break_section}
+#{text})
+
+      result
     end
+
+    private
+      def parse_tags(tags)
+        tags_no_whitepsace = tags.gsub(/\s+/, '')
+        tag_array = tags_no_whitepsace.split(',')
+        result = ''
+        tag_array.each do |tag|
+          result << "  - #{tag}"
+          result << "\r\n" if tag != tag_array.last
+        end
+        result
+      end
   end
 end
