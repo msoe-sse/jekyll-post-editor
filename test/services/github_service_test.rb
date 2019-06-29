@@ -168,12 +168,13 @@ class GithubServiceTest < ActiveSupport::TestCase
 
     Octokit::Client.any_instance.expects(:create_blob).with('msoe-sse/jekyll-post-editor-test-repo', '# hello')
                    .returns('blob sha')
-    Octokit::Client.any_instance.expects(:create_tree).with('msoe-sse/jekyll-post-editor-test-repo', 
-                                                            [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md",
-                                                                mode: '100644',
-                                                                type: 'blob',
-                                                                sha: 'blob sha' } ],
-                                                            base_tree: 'base tree sha').returns(sha: 'new tree sha')
+    Octokit::Client.any_instance.expects(:create_tree)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 
+                         [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md",
+                             mode: '100644',
+                             type: 'blob',
+                             sha: 'blob sha' } ],
+                           base_tree: 'base tree sha').returns(sha: 'new tree sha')
 
     Octokit::Client.any_instance.expects(:create_commit)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 
@@ -207,12 +208,13 @@ class GithubServiceTest < ActiveSupport::TestCase
     
     Octokit::Client.any_instance.expects(:create_blob).with('msoe-sse/jekyll-post-editor-test-repo', '# hello')
                    .returns('blob sha')
-    Octokit::Client.any_instance.expects(:create_tree).with('msoe-sse/jekyll-post-editor-test-repo', 
-                                                            [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md",
-                                                                mode: '100644',
-                                                                type: 'blob',
-                                                                sha: 'blob sha' } ],
-                                                            base_tree: 'base tree sha').returns(sha: 'new tree sha')
+    Octokit::Client.any_instance.expects(:create_tree)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 
+                         [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md",
+                             mode: '100644',
+                             type: 'blob',
+                             sha: 'blob sha' } ],
+                           base_tree: 'base tree sha').returns(sha: 'new tree sha')
     
     Octokit::Client.any_instance.expects(:create_commit)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 
