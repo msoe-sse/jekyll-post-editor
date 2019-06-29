@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class KramdownServiceTest < ActiveSupport::TestCase
-  LEAD_BREAK_SECTION = "{: .lead}\r\n<!--break-->"
+  LEAD_BREAK_SECTION = "{: .lead}\r\n<!–-break-–>"
 
   test 'get_html should convert markdown to html' do
     # Arrange

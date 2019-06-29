@@ -20,7 +20,7 @@ module KramdownService
       tag_section = %(tags:
 #{parsed_tags})
       
-      lead_break_section = "{: .lead}\r\n<!--break-->"
+      lead_break_section = "{: .lead}\r\n<!–-break-–>"
           
       result = %(---
 layout: post
