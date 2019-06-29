@@ -1,5 +1,6 @@
 require 'octokit'
 require 'base64'
+require 'date'
 
 ##
 # This module contains all operations involving interacting with the GitHub API
@@ -129,7 +130,7 @@ module GithubService
         # This blob represents the content we're going to create which in this case is markdown
         blob_sha = client.create_blob(full_repo_name, post_markdown)
         client.create_tree(full_repo_name, 
-                          [ { path: "_posts/#{post_title}.md",
+                          [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-#{post_title.gsub(/\s+/, '')}.md",
                               mode: '100644',
                               type: 'blob',
                               sha: blob_sha } ],

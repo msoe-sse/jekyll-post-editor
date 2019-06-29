@@ -2,6 +2,7 @@ require 'test_helper'
 require 'mocha/setup'
 require 'octokit'
 require 'base64'
+require 'date'
 
 class GithubServiceTest < ActiveSupport::TestCase
   # Note the client id and client secret values are set in test_helper.rb
@@ -168,7 +169,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     Octokit::Client.any_instance.expects(:create_blob).with('msoe-sse/jekyll-post-editor-test-repo', '# hello')
                    .returns('blob sha')
     Octokit::Client.any_instance.expects(:create_tree).with('msoe-sse/jekyll-post-editor-test-repo', 
-                                                            [ { path: '_posts/TestPost.md',
+                                                            [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md",
                                                                 mode: '100644',
                                                                 type: 'blob',
                                                                 sha: 'blob sha' } ],
@@ -207,7 +208,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     Octokit::Client.any_instance.expects(:create_blob).with('msoe-sse/jekyll-post-editor-test-repo', '# hello')
                    .returns('blob sha')
     Octokit::Client.any_instance.expects(:create_tree).with('msoe-sse/jekyll-post-editor-test-repo', 
-                                                            [ { path: '_posts/Test Post.md',
+                                                            [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md",
                                                                 mode: '100644',
                                                                 type: 'blob',
                                                                 sha: 'blob sha' } ],
