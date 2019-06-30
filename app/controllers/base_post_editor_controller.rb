@@ -3,7 +3,7 @@
 # Controllers should extend this class if we want the user to be authenticated
 # before accessing an action in a controller
 class BasePostEditorController < ApplicationController
-  before_action :check_authentication
+  before_action :check_user
 
   private
     ##
@@ -12,7 +12,11 @@ class BasePostEditorController < ApplicationController
     # If not, we redirect to the GitHub authorization url to authorize a user's GitHub account
     # with the post editor. If we do have an access token in the session we check to see if it's valid
     # and if it's not we restart the authenticate flow.
-    def check_authentication
+    #
+    # If this user is also fully authenticated but is not apart of the msoe-sse organization
+    # an error page will render saying they need to be apart of the msoe-sse organization 
+    # in order to use this application
+    def check_user
       if !authenticated?
         authenticate!
       else
@@ -21,6 +25,10 @@ class BasePostEditorController < ApplicationController
         if !valid_token
           session[:access_token] = nil
           authenticate!
+        end
+
+        if !GithubService.check_sse_github_org_membership(session[:access_token])
+          redirect_to '/GitHubOrgError.html'
         end
       end
     end

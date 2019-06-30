@@ -1,17 +1,35 @@
-<%= form_tag('/submit', method: 'post') do %>
-    <%= content_tag(:div, id: 'header-container') do %>
-      <%= label_tag('Title:')%>
-      <%= text_field_tag(:title, @post.title) %>
-      <%= simple_format("\n") %>
-      <%= label_tag('Author:') %>
-      <%= text_field_tag(:author,  @post.author) %>
-    <% end %>
-    <%= content_tag(:div, id: 'edit-container') do %>
-      <%= text_area_tag(:markdownArea, @post.contents) %>
-      <%= content_tag(:div, id: 'previewArea') do %>
-        <%= @kramdown_html %>
-      <% end %>
-    <% end %>
-    <%= submit_tag('Submit', id: 'submit-button') %>
+<%= form_tag('/post/submit', method: 'post') do %>
+  <% flash.each do |name, msg| %>
+    <%= content_tag :div, msg, class: 'validation-message' %>
   <% end %>
-  <%= button_tag('Get Preview', id: 'get-preview-button', class: 'btn btn-primary')%>
+  <%= content_tag(:div, id: 'container') do %>
+    <%= content_tag(:div, id: 'middle-container') do %>
+      <%= content_tag(:div, id: 'header-container') do %>
+        <%= label_tag('Title:')%>
+        <%= text_field_tag(:title, @post.title) %>
+        <%= simple_format("\n") %>
+        <%= label_tag('Author:') %>
+        <%= text_field_tag(:author,  @post.author) %>
+        <%= simple_format("\n") %>
+        <%= label_tag('Tags:') %>
+        <%= text_field_tag(:tags, @post.tags) %>
+        <%= simple_format("\n") %>
+        <%= label_tag('Overlay:') %>
+        <%= select_tag('overlay', raw('<option>Red</option><option>Blue</option><option>Green</option>')) %>
+      <% end %>
+      <%= content_tag(:div, id: 'tab-container') do %>
+        <%= button_tag('Markdown', id: 'markdown-button', type: 'button') %>
+        <%= button_tag('Preview', id: 'preview-button', type: 'button') %>
+      <% end %>
+      <%= content_tag(:div, id: 'MarkdownTabContent', class: 'tabcontent') do %>
+        <%= text_area_tag(:markdownArea, @post.contents) %>
+      <% end %>
+      <%= content_tag(:div, id: 'PreviewTabContent', class: 'tabcontent') do %>
+        <%= content_tag(:div, id: 'previewArea') do %>
+          <%= @kramdown_html %>
+        <% end %>
+      <% end %>      
+      <%= submit_tag('Submit', id: 'submit-button', class: 'btn') %>
+    <% end %>
+  <% end %>
+<% end %>

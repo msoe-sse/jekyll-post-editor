@@ -1,5 +1,6 @@
 require 'octokit'
 require 'base64'
+require 'date'
 
 ##
 # This module contains all operations involving interacting with the GitHub API
@@ -15,7 +16,7 @@ module GithubService
     # write access to an orginization's repository
     def get_authorization_url
       client = Octokit::Client.new
-      client.authorize_url(CLIENT_ID, scope: 'write:org')
+      client.authorize_url(CLIENT_ID, scope: 'public_repo')
     end
 
     ##
@@ -48,6 +49,17 @@ module GithubService
     end
 
     ##
+    # Checks to see if a user authenticated with an oauth access token is a member
+    # of the SSE GitHub organization or not
+    #
+    # Params
+    # +access_token+:: a GitHub oauth access token
+    def check_sse_github_org_membership(access_token)
+      client = Octokit::Client.new(access_token: access_token)
+      client.organization_member?(Rails.configuration.github_org, client.user[:login])
+    end
+
+    ##
     # This method fetches all the markdown contents of all the posts on the SSE website
     # and returns a list of models representing a Post
     #
@@ -76,16 +88,67 @@ module GithubService
       get_all_posts(oauth_token).find { |x| x.title == title }
     end
 
-    def submit_post(post_markdown, author)
-      # TODO: Authentication with client = Octokit::Client.new(:access_token => "<your 40 char token>")
-      # TODO: Create Branch for new post
-      # TODO: Commit and push new post
-      # TODO: Create pull request for new post
+    ##
+    # This method submits a post to GitHub by checking out a new branch for the post.
+    # Commiting and pushing the markdown to the branch. And then finally opening 
+    # a pull request into master for the new post. The SSE webmaster will be requested
+    # for review on the created pull request
+    #
+    # Params
+    # +oauth_token+::a user's oauth access token
+    # +post_markdown+:: the markdown contents of a post
+    # +post_title+:: the title of the new post to be submited
+    def submit_post(oauth_token, post_markdown, post_title)
+      # This new_ref variable represents the new branch we are creating
+      # for submiting a post. At the end we strip out all of the whitespace in 
+      # the post_title to create a valid branch name
+      branch_name = "createPost#{post_title.gsub(/\s+/, '')}"
+      new_ref = "heads/#{branch_name}"
+      client = Octokit::Client.new(access_token: oauth_token)
+
+      # These two calls get required information for us to branch from master.
+      # First we we get the sha string of the commit at the head of master and next we
+      # grab the sha string of the tree at the head of master
+      master_head_sha = client.ref(full_repo_name, 'heads/master')[:object][:sha]
+      sha_base_tree = client.commit(full_repo_name, master_head_sha)[:commit][:tree][:sha]
+
+      # This creates the new branch to create the post in
+      client.create_ref(full_repo_name, new_ref, master_head_sha)
+
+      new_tree_sha = create_new_tree_for_post(client, post_markdown, post_title, sha_base_tree)
+      commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, new_ref)
+
+      open_pull_request_for_post(client, branch_name, post_title)
     end
 
     private
       def full_repo_name
         "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
+      end
+
+      def create_new_tree_for_post(client, post_markdown, post_title, sha_base_tree)
+        # This blob represents the content we're going to create which in this case is markdown
+        blob_sha = client.create_blob(full_repo_name, post_markdown)
+        client.create_tree(full_repo_name, 
+                          [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-#{post_title.gsub(/\s+/, '')}.md",
+                              mode: '100644',
+                              type: 'blob',
+                              sha: blob_sha } ],
+                             base_tree: sha_base_tree)[:sha]
+      end
+
+      def commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, new_ref)
+        commit_message = "Created post #{post_title}"
+        sha_new_commit = client.create_commit(full_repo_name, commit_message, new_tree_sha, master_head_sha)[:sha]
+        client.update_ref(full_repo_name, new_ref, sha_new_commit)
+      end
+
+      def open_pull_request_for_post(client, new_branch, post_title)
+        pull_request_body = 'This pull request was opened automatically by the jekyll-post-editor.'
+        pull_number = client.create_pull_request(full_repo_name, 'master', 
+                                             new_branch, "Created Post #{post_title}", pull_request_body)[:number]
+        client.request_pull_request_review(full_repo_name, pull_number, 
+                                           reviewers: [Rails.configuration.webmaster_github_username])
       end
   end
 end

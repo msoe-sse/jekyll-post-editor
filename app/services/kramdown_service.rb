@@ -13,8 +13,51 @@ module KramdownService
       Kramdown::Document.new(text).to_html
     end
 
-    def create_jekyll_post_text(text, author, title)
-      # TODO: Implement This
+    ##
+    # This method takes parameters for a given post and formats them
+    # as a valid jekyll post for the SSE website
+    #
+    # Params:
+    # +text+:: the markdown contents of the post
+    # +author+:: the author of the post
+    # +title+:: the title of the post
+    # +tags+:: tags specific to the post
+    # +overlay+:: the overlay cikir of the post
+    def create_jekyll_post_text(text, author, title, tags, overlay)
+      # https://source.unsplash.com/collection/145103/
+      parsed_tags = parse_tags(tags)
+
+      tag_section = %(tags:
+#{parsed_tags})
+      
+      lead_break_section = "{: .lead}\r\n<!–-break-–>"
+          
+      result = %(---
+layout: post
+title: #{title}
+author: #{author}\r\n)
+
+      result << "#{tag_section}\r\n" if !parsed_tags.empty?
+      result << %(hero: https://source.unsplash.com/collection/145103/
+overlay: #{overlay.downcase}
+published: true
+---
+#{lead_break_section}
+#{text})
+
+      result
     end
+
+    private
+      def parse_tags(tags)
+        tags_no_whitepsace = tags.gsub(/\s+/, '')
+        tag_array = tags_no_whitepsace.split(',')
+        result = ''
+        tag_array.each do |tag|
+          result << "  - #{tag}"
+          result << "\r\n" if tag != tag_array.last
+        end
+        result
+      end
   end
 end

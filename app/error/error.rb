@@ -17,6 +17,6 @@ module ErrorHandlers
   
 private
   def rate_limit_error
-    render template: 'public/RateLimitError.html'
+    redirect_to '/RateLimitError.html'
   end
 end

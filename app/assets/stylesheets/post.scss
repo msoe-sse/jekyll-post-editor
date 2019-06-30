@@ -1,30 +1,94 @@
-// Place all the styles related to the Home controller here.
-// They will automatically be included in application.scss.
-// You can use Sass (SCSS) here: http://sass-lang.com/
-
 textarea {
-  width: 500px;
+  width: 98%;
   height: 500px;
+  border: none;
+  resize: none;
+}
+
+label {
+  display: inline-block;
+  margin: 0;
+}
+
+#container {
+  display: grid;
+  grid-template-columns: 12.5% 75% 12.5%;
+}
+
+#header-container {
+  margin-top: 10px;
+}
+
+#title, #author, #tags {
+  width: 350px;
+}
+
+#title {
+  margin-left: 22px;
+}
+
+#author {
+  margin-left: 5px;
+}
+
+#tags {
+  margin-left: 20px;
+}
+
+#middle-container {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+
+#tab-container {
+  border: 1px solid black;
+  background-color: #f1f1f1;
+  margin-top: 10px;
+}
+
+#tab-container button {
+  background-color: inherit;
+  border: none;
+  outline: none;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+#tab-container button:hover {
+  background-color: #ddd;
+}
+
+#tab-container button.active {
+  background-color: #ccc;
+}
+
+#submit-button {
+  width: 100px;
+  background-color: lightgray;
+  margin-top: 5px;
+}
+
+.tabcontent {
+  display: none;
+  border: 1px solid black;
+  border-top: none;
 }
 
 #previewArea {
-  width: 500px;
+  width: 100%;
   height: 500px;
-  border: 1px solid black;
+  overflow: auto;
+  margin-left: 7px;
+  margin-right: 7px;
 }
 
-#header-container,
-#submit-button {
-  display: block;
+#markdownArea {
+  margin-top: 3px;
+  margin-left: 7px;
 }
 
-#edit-container {
-  margin-top: 5px;
-  margin-left: 5px;
-  margin-bottom: 5px;
-  display: inline-flex;
-}
-
-#get-preview-button {
-  margin-left: 5px;
+.validation-message {
+  display: flex;
+  justify-content: center;
+  color: red;
 }
