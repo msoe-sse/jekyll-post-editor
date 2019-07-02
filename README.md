@@ -4,8 +4,8 @@
     - Check version with `ruby -v`
 2. Clone the repository and navigate to your project directory in cmd, git bash
 3. Ask the webmaster for the development GitHub Client ID and Client Secret values
-4. Run `export GH_BASIC_CLIENT_ID="<Client ID Here>"
-5. Run `export GH_BASIC_SECRET_ID="<Client Secret Here>"
+4. Run `export GH_BASIC_CLIENT_ID="<Client ID Here>"`
+5. Run `export GH_BASIC_SECRET_ID="<Client Secret Here>"`
 6. Run `gem install bundler`
 7. Run `bundle install`
 8. If 6 and 7 succeed you should be able to run the post editor application locally by running `rails server` and navigating to http://localhost:3000 in a brower.
