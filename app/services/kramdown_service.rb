@@ -22,9 +22,10 @@ module KramdownService
     # +author+:: the author of the post
     # +title+:: the title of the post
     # +tags+:: tags specific to the post
-    # +overlay+:: the overlay cikir of the post
+    # +overlay+:: the overlay color of the post
     def create_jekyll_post_text(text, author, title, tags, overlay)
-      # https://source.unsplash.com/collection/145103/
+      header_converted_text = fix_header_syntax(text)
+
       parsed_tags = parse_tags(tags)
 
       tag_section = %(tags:
@@ -58,6 +59,18 @@ published: true
           result << "\r\n" if tag != tag_array.last
         end
         result
+      end
+
+      def fix_header_syntax(text)
+        document = Kramdown::Document.new(text)
+        header_elements = document.root.children.select { |x| x.type == :header}
+        lines = text.split("\n")
+        lines = lines.map do |line|
+          if header_elements.any? { |x| line.include? x.options[:raw_text] }
+            line_match = line.match(/(.)\1+(.*)/)
+            puts line_match.captures
+          end
+        end
       end
   end
 end
