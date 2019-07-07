@@ -62,7 +62,7 @@ published: true
 
       def fix_header_syntax(text)
         document = Kramdown::Document.new(text)
-        header_elements = document.root.children.select { |x| x.type == :header}
+        header_elements = document.root.children.select { |x| x.type == :header }
         lines = text.split("\n")
         lines = lines.map do |line|
           if header_elements.any? { |x| line.include? x.options[:raw_text] }
