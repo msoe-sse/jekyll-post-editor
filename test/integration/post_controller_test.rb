@@ -102,6 +102,18 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test 'post/preview should return a successful response' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
+    # Act
+    get '/post/preview?text=#hello'
+
+    # Assert
+    assert_response :success
+  end
+
   test 'post/submit should redirect back to the edit screen 
         with an error message if a post was submited without a title' do 
     # Arrange
