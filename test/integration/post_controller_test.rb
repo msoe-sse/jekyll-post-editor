@@ -111,6 +111,21 @@ class PostControllerTest < BaseIntegrationTest
     assert_response :success
   end
 
+  test 'post/edit should create a post from the session if session[:post_stored] is true' do 
+    # Arrange
+    session = { access_token: 'access token', post_stored: true, author: 'Andy', title: 'My Post', 
+                contents: '# hello', tags: 'Tag', overlay: 'red' }
+    PostController.any_instance.expects(:session).at_least_once.returns(session)
+    GithubService.expects(:check_access_token).with('access token').returns(true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
+    # Act
+    get '/post/edit'
+
+    # Assert
+    assert_response :success
+  end
+
   test 'post/preview should return a successful response' do 
     # Arrange
     setup_session('access token', true)
