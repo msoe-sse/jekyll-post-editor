@@ -60,36 +60,36 @@ published: true
     assert_equal expected_post, result
   end
 
-#   test 'create_jekyll_post_text should add a space after the # symbols indicating a header tag' do 
-#     # Arrange
-#     expected_post = %(---
-# layout: post
-# title: Some Post
-# author: Andy Wojciechowski\r
-# hero: https://source.unsplash.com/collection/145103/
-# overlay: green
-# published: true
-# ---
-# #{LEAD_BREAK_SECTION}
-# # H1 header\r
-# \r
-# ## H2 header\r
-# \r
-# ### H3 header\r
-# \r
-# #### H4 header\r
-# \r
-# ##### H5 header\r
-# \r
-# ###### H6 header)
+  test 'create_jekyll_post_text should add a space after the # symbols indicating a header tag' do 
+    # Arrange
+    expected_post = %(---
+layout: post
+title: Some Post
+author: Andy Wojciechowski\r
+hero: https://source.unsplash.com/collection/145103/
+overlay: green
+published: true
+---
+#{LEAD_BREAK_SECTION}
+# H1 header\r
+\r
+## H2 header\r
+\r
+### H3 header\r
+\r
+#### H4 header\r
+\r
+##### H5 header\r
+\r
+###### H6 header)
 
-#     markdown_text = "#H1 header\r\n\r\n##H2 header\r\n\r\n##H3 header\r\n\r\n####H4 header\r\n\r\n
-#                      #####H5 header\r\n\r\n######H6 header"
+    markdown_text = "#H1 header\r\n\r\n##H2 header\r\n\r\n##H3 header\r\n\r\n####H4 header\r\n\r\n
+                     #####H5 header\r\n\r\n######H6 header"
 
-#     # Act
-#     result = KramdownService.create_jekyll_post_text(markdown_text, 'Andy Wojciechowski', 'Some Post', '', 'Green')
+    # Act
+    result = KramdownService.create_jekyll_post_text(markdown_text, 'Andy Wojciechowski', 'Some Post', '', 'Green')
 
-#     # Assert
-#     assert_equal expected_post, result
-#   end
+    # Assert
+    assert_equal expected_post, result
+  end
 end

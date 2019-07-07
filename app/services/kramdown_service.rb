@@ -25,7 +25,6 @@ module KramdownService
     # +overlay+:: the overlay color of the post
     def create_jekyll_post_text(text, author, title, tags, overlay)
       header_converted_text = fix_header_syntax(text)
-
       parsed_tags = parse_tags(tags)
 
       tag_section = %(tags:
@@ -44,7 +43,7 @@ overlay: #{overlay.downcase}
 published: true
 ---
 #{lead_break_section}
-#{text})
+#{header_converted_text})
 
       result
     end
@@ -67,10 +66,15 @@ published: true
         lines = text.split("\n")
         lines = lines.map do |line|
           if header_elements.any? { |x| line.include? x.options[:raw_text] }
-            line_match = line.match(/(.)\1+(.*)/)
-            puts line_match.captures
+            # This regex matches the line into 2 groups with the first group being the repeating #
+            # characters and the beginning of the string and the second group being the rest of the string
+            line_match = line.match(/(#)\1*(.*)/)
+            line = "#{line_match.captures.first} #{line_match.captures.last}"
+          else
+            line
           end
         end
+        lines.join("\n")
       end
   end
 end
