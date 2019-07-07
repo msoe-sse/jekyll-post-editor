@@ -25,9 +25,7 @@ class BasePostEditorController < ApplicationController
         if !valid_token
           session[:access_token] = nil
           authenticate!
-        end
-
-        if !GithubService.check_sse_github_org_membership(session[:access_token])
+        elsif !GithubService.check_sse_github_org_membership(session[:access_token])
           redirect_to '/GitHubOrgError.html'
         end
       end

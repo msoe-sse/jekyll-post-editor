@@ -86,6 +86,18 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
   end
 
+  test 'an authenticated user with an expired token should be redirected to GitHub when navigating to post/edit' do 
+    # Arrange
+    setup_session('access token', false)
+    GithubService.expects(:check_sse_github_org_membership).never
+
+    # Act
+    get '/post/edit'
+
+    # Assert
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
+  end
+
   test 'an authenticated user should be able to navigate to post/edit successfully with a title parameter' do
     # Arrange
     setup_session('access token', true)
