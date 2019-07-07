@@ -118,6 +118,7 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     # Assert
     assert_redirected_to '/'
     assert_equal 'A post cannot be submited with a blank title.', flash[:alert]
+    assert_nil flash[:notice]
   end
 
   test 'post/submit should redirect back to the edit screen 
@@ -136,6 +137,7 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     # Assert
     assert_redirected_to '/'
     assert_equal 'A post cannot be submited without an author.', flash[:alert]
+    assert_nil flash[:notice]
   end
 
   test 'post/submit should redirect back to the edit screen 
@@ -154,6 +156,7 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     # Assert
     assert_redirected_to '/'
     assert_equal 'A post cannot be submited with no markdown content.', flash[:alert]
+    assert_nil flash[:notice]
   end
 
   test 'post/submit should submit the post to GitHub and redirect back to the edit screen with a valid post' do 
@@ -171,6 +174,8 @@ class PostControllerTest < ActionDispatch::IntegrationTest
             
     # Assert
     assert_redirected_to '/post/edit'
+    assert_nil flash[:alert]
+    assert_equal 'Post Successfully Submited', flash[:notice]
   end
 
   private
