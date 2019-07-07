@@ -68,7 +68,7 @@ published: true
           if header_elements.any? { |x| line.include? x.options[:raw_text] }
             # This regex matches the line into 2 groups with the first group being the repeating #
             # characters and the beginning of the string and the second group being the rest of the string
-            line_match = line.match(/(#)\1*(.*)/)
+            line_match = line.match(/(#*)(.*)/)
             line = "#{line_match.captures.first} #{line_match.captures.last}"
           else
             line
