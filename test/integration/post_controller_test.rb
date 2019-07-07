@@ -1,7 +1,4 @@
-require 'test_helper'
-require 'mocha/setup'
-
-class PostControllerTest < ActionDispatch::IntegrationTest
+class PostControllerTest < BaseIntegrationTest
   # This list view was started and not completed. We may come back to this post MVP
   # test 'an authenticated user should be able to navigate to post/list successfully' do 
   #   # Arramge
@@ -207,11 +204,5 @@ class PostControllerTest < ActionDispatch::IntegrationTest
       post_model.contents = parameters[:contents]
       post_model.tags = parameters[:tags]
       post_model
-    end
-
-    def setup_session(access_token, is_valid_token)
-      session = { access_token: access_token }
-      PostController.any_instance.expects(:session).at_least_once.returns(session)
-      GithubService.expects(:check_access_token).with(access_token).returns(is_valid_token)
     end
 end
