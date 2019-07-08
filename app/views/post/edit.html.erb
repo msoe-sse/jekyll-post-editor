@@ -1,6 +1,9 @@
 <%= form_tag('/post/submit', method: 'post') do %>
-  <% flash.each do |name, msg| %>
-    <%= content_tag :div, msg, class: 'validation-message' %>
+  <% if flash[:alert] %>
+    <%= content_tag :div, flash[:alert], class: 'validation-message' %>
+  <% end %>
+  <% if flash[:notice] %>
+    <%= content_tag :div, flash[:notice], class: 'notice' %>
   <% end %>
   <%= content_tag(:div, id: 'container') do %>
     <%= content_tag(:div, id: 'middle-container') do %>
