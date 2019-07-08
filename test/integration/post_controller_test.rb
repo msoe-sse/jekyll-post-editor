@@ -1,7 +1,4 @@
-require 'test_helper'
-require 'mocha/setup'
-
-class PostControllerTest < ActionDispatch::IntegrationTest
+class PostControllerTest < BaseIntegrationTest
   # This list view was started and not completed. We may come back to this post MVP
   # test 'an authenticated user should be able to navigate to post/list successfully' do 
   #   # Arramge
@@ -86,6 +83,18 @@ class PostControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
   end
 
+  test 'an authenticated user with an expired token should be redirected to GitHub when navigating to post/edit' do 
+    # Arrange
+    setup_session('access token', false)
+    GithubService.expects(:check_sse_github_org_membership).never
+
+    # Act
+    get '/post/edit'
+
+    # Assert
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
+  end
+
   test 'an authenticated user should be able to navigate to post/edit successfully with a title parameter' do
     # Arrange
     setup_session('access token', true)
@@ -97,6 +106,33 @@ class PostControllerTest < ActionDispatch::IntegrationTest
 
     # Act
     get '/post/edit?title=title'
+
+    # Assert
+    assert_response :success
+  end
+
+  test 'post/edit should create a post from the session if session[:post_stored] is true' do 
+    # Arrange
+    session = { access_token: 'access token', post_stored: true, author: 'Andy', title: 'My Post', 
+                contents: '# hello', tags: 'Tag', overlay: 'red' }
+    PostController.any_instance.expects(:session).at_least_once.returns(session)
+    GithubService.expects(:check_access_token).with('access token').returns(true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
+    # Act
+    get '/post/edit'
+
+    # Assert
+    assert_response :success
+  end
+
+  test 'post/preview should return a successful response' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
+    # Act
+    get '/post/preview?text=#hello'
 
     # Assert
     assert_response :success
@@ -183,11 +219,5 @@ class PostControllerTest < ActionDispatch::IntegrationTest
       post_model.contents = parameters[:contents]
       post_model.tags = parameters[:tags]
       post_model
-    end
-
-    def setup_session(access_token, is_valid_token)
-      session = { access_token: access_token }
-      PostController.any_instance.expects(:session).at_least_once.returns(session)
-      GithubService.expects(:check_access_token).with(access_token).returns(is_valid_token)
     end
 end

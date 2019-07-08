@@ -59,7 +59,6 @@ class PostController < BasePostEditorController
     end
 
     def create_post_from_session
-      puts session
       @post = Post.new
       @post.title = session[:title]
       @post.author = session[:author]
