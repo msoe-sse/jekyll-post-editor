@@ -2,7 +2,7 @@ require 'test_helper'
 require 'mocha/setup'
 
 ##
-# The base class for all integration tests. Which includes operations common to all integration tests.
+# The base class for all integration tests which includes operations common to all integration tests.
 class BaseIntegrationTest < ActionDispatch::IntegrationTest
   protected
     def setup_session(access_token, is_valid_token)
