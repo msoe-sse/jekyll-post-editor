@@ -22,9 +22,9 @@ module KramdownService
     # +author+:: the author of the post
     # +title+:: the title of the post
     # +tags+:: tags specific to the post
-    # +overlay+:: the overlay cikir of the post
+    # +overlay+:: the overlay color of the post
     def create_jekyll_post_text(text, author, title, tags, overlay)
-      # https://source.unsplash.com/collection/145103/
+      header_converted_text = fix_header_syntax(text)
       parsed_tags = parse_tags(tags)
 
       tag_section = %(tags:
@@ -43,7 +43,7 @@ overlay: #{overlay.downcase}
 published: true
 ---
 #{lead_break_section}
-#{text})
+#{header_converted_text})
 
       result
     end
@@ -58,6 +58,23 @@ published: true
           result << "\r\n" if tag != tag_array.last
         end
         result
+      end
+
+      def fix_header_syntax(text)
+        document = Kramdown::Document.new(text)
+        header_elements = document.root.children.select { |x| x.type == :header }
+        lines = text.split("\n")
+        lines = lines.map do |line|
+          if header_elements.any? { |x| line.include? x.options[:raw_text] }
+            # This regex matches the line into 2 groups with the first group being the repeating #
+            # characters and the beginning of the string and the second group being the rest of the string
+            line_match = line.match(/(#*)(.*)/)
+            line = "#{line_match.captures.first} #{line_match.captures.last}"
+          else
+            line
+          end
+        end
+        lines.join("\n")
       end
   end
 end
