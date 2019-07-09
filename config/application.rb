@@ -2,9 +2,7 @@ require_relative 'boot'
 
 require 'rails'
 require 'active_model/railtie' 
-require 'active_job/railtie'
 require 'action_controller/railtie' 
-require 'action_mailer/railtie' 
 require 'action_view/railtie' 
 require 'sprockets/railtie' 
 require 'rails/test_unit/railtie'
@@ -23,7 +21,6 @@ module JekyllPostEditor
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
     config.github_org = 'msoe-sse'
-    config.github_repo_name = 'msoe-sse.github.io'
-    config.oauth_token_name = 'SSE Post Editor Token'
+    config.webmaster_github_username = 'msoe-sse-webmaster'
   end
 end
