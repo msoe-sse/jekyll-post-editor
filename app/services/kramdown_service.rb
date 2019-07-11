@@ -69,12 +69,12 @@ published: true
             # This regex matches the line into 2 groups with the first group being the repeating #
             # characters and the beginning of the string and the second group being the rest of the string
             line_match = line.match(/(#*)(.*)/)
-            line = "#{line_match.captures.first} #{line_match.captures.last}"
+            line = "#{line_match.captures.first} #{line_match.captures.last.strip}"
           else
-            line
+            line.delete("\r\n")
           end
         end
-        lines.join("\n")
+        lines.join("\r\n")
       end
   end
 end
