@@ -37,6 +37,10 @@ class PostController < BasePostEditorController
     end
   end
 
+  # POST post/uploadImage
+  def uploadImage
+  end
+
   private
     def validate_submission_parameters(title, author, markdown_text)
       validation_message = nil

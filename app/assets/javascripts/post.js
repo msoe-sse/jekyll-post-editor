@@ -17,6 +17,13 @@ $(function() {
     setActiveTab('#markdown-button', '#MarkdownTabContent');
   });
 
+  $('#MarkdownTabContent').dropzone({
+    url: '/post/uploadImage',
+    success: function(file, response) {
+      console.log(file);
+    }
+  });
+
   function setActiveTab(button, tabContent) {
     $('.tabcontent').css('display', 'none');
     $('#tab-container button.active').removeClass('active');
