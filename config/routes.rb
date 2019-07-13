@@ -5,6 +5,6 @@ Rails.application.routes.draw do
   get 'post/edit'
   get 'post/preview'
   post 'post/submit'
-  post 'post/uploadImage'
   root 'post#edit'
+  post 'image/upload'
 end

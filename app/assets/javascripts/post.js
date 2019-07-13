@@ -18,9 +18,9 @@ $(function() {
   });
 
   $('#MarkdownTabContent').dropzone({
-    url: '/post/uploadImage',
+    url: '/image/upload',
     success: function(file, response) {
-      console.log(file);
+      $('#MarkdownTabContent').val(`![${file.name}](/assets/img/${file.name})`);
     }
   });
 
