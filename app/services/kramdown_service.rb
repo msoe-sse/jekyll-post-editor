@@ -1,16 +1,37 @@
 require 'kramdown'
 
 ##
+# This modules contains extentions of the Kramdown::Convert module for custom kramdown converters
+module Kramdown::Converter
+  ##
+  # A custom kramdown HTML converter for getting the HTML preview for a post
+  class Preview < Html
+    ##
+    # An override of the convert_img tag which converts all image sources to pull
+    # from the CarrierWare cache location if an uploader exists with the image's filename
+    #
+    # Params:
+    # +el+::the image element to convert to html
+    # +_indent+::the indent of the HTML
+    def convert_img(el, _indent)
+      uploader = PostImageManager.instance.uploaders.find { |x| x.filename == el.attr['alt'] }
+      el.attr['src'] = "/uploads/tmp/#{uploader.cache_name}" if uploader
+      super(el, _indent)
+    end
+  end
+end
+
+##
 # This module contains all operations with interacting with the kramdown engine
 module KramdownService
   class << self
     ##
-    # This method takes given markdown and converts it to HTML
+    # This method takes given markdown and converts it to HTML for the post preview
     # 
     # Params:
     # +text+:: markdown to convert to html
-    def get_html(text)
-      Kramdown::Document.new(text).to_html
+    def get_preview(text)
+      Kramdown::Document.new(text).to_preview
     end
 
     ##

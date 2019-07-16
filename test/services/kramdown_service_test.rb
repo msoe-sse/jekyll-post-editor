@@ -3,13 +3,13 @@ require 'test_helper'
 class KramdownServiceTest < ActiveSupport::TestCase
   LEAD_BREAK_SECTION = "{: .lead}\r\n<!–-break-–>"
 
-  test 'get_html should convert markdown to html' do
+  test 'get_preview should convert markdown to html' do
     # Arrange
     markdown = %(#Andy is cool
 Andy is nice)
 
     # Act
-    result = KramdownService.get_html(markdown)
+    result = KramdownService.get_preview(markdown)
 
     # Assert
     assert_not_nil result
