@@ -8,5 +8,4 @@ class PostImageUploader < CarrierWave::Uploader::Base
   def extension_whitelist
     ['jpg', 'jpeg', 'gif', 'png']
   end
-
 end
