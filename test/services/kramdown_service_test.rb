@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'mocha/setup'
 
 class KramdownServiceTest < ActiveSupport::TestCase
   LEAD_BREAK_SECTION = "{: .lead}\r\n<!–-break-–>"
@@ -15,6 +16,40 @@ Andy is nice)
     assert_not_nil result
   end
   
+  test 'get_preview should not update the src atribute of image tags if no uploader exists in PostImageManager' do 
+    # Arrange
+    mock_uploader = MockUploader.new
+    mock_uploader.filename = 'no image.png'
+    mock_uploader.cache_name = 'my cache'
+
+    PostImageManager.instance.expects(:uploaders).returns([ mock_uploader ])
+
+    markdown = '![20170610130401_1.jpg](/assets/img/20170610130401_1.jpg)'
+
+    # Act
+    result = KramdownService.get_preview(markdown)
+
+    # Assert
+    assert_equal "<p><img src=\"/assets/img/20170610130401_1.jpg\" alt=\"20170610130401_1.jpg\" /></p>\n", result
+  end
+
+  test 'get_preview should update the src attribute of image tags if an uploader exists in PostImageManager' do 
+    # Arrange
+    mock_uploader = MockUploader.new
+    mock_uploader.filename = '20170610130401_1.jpg'
+    mock_uploader.cache_name = 'my cache/20170610130401_1.jpg'
+
+    PostImageManager.instance.expects(:uploaders).returns([ mock_uploader ])
+
+    markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
+
+    # Act
+    result = KramdownService.get_preview(markdown)
+
+    # Assert
+    assert_equal "<p><img src=\"/uploads/tmp/my cache/20170610130401_1.jpg\" alt=\"My Alt Text\" /></p>\n", result
+  end
+
   test 'create_jekyll_post_text should return text for a formatted post' do 
     # Arrange
     expected_post = %(---
@@ -124,4 +159,10 @@ published: true
     # Assert
     assert_equal expected_post, result
   end
+
+  private
+    class MockUploader
+      attr_accessor :filename
+      attr_accessor :cache_name
+    end
 end

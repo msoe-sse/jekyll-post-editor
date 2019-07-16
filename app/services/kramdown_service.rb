@@ -14,7 +14,7 @@ module Kramdown::Converter
     # +el+::the image element to convert to html
     # +_indent+::the indent of the HTML
     def convert_img(el, _indent)
-      uploader = PostImageManager.instance.uploaders.find { |x| x.filename == el.attr['alt'] }
+      uploader = PostImageManager.instance.uploaders.find { |x| x.filename == File.basename(el.attr['src']) }
       el.attr['src'] = "/uploads/tmp/#{uploader.cache_name}" if uploader
       super(el, _indent)
     end
