@@ -160,7 +160,7 @@ class GithubServiceTest < ActiveSupport::TestCase
   test 'submit_post should commit and push a new post up to the SSE website GitHub repo' do 
     # Arrange
     post_file_path = "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md"
-    
+
     PostImageManager.instance.expects(:uploaders).returns([])
 
     Octokit::Client.any_instance.expects(:ref).with('msoe-sse/jekyll-post-editor-test-repo', 'heads/master')
@@ -267,8 +267,8 @@ class GithubServiceTest < ActiveSupport::TestCase
     Octokit::Client.any_instance.expects(:create_tree)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 
                          [ create_blob_info_hash(post_file_path, 'blob sha'),
-                           create_blob_info_hash("assets/img/My Image 1.jpg", image_blob_sha1),
-                           create_blob_info_hash("assets/img/My Image 2.jpg", image_blob_sha2) ],
+                           create_blob_info_hash('assets/img/My Image 1.jpg', image_blob_sha1),
+                           create_blob_info_hash('assets/img/My Image 2.jpg', image_blob_sha2) ],
                            base_tree: 'base tree sha').returns(sha: 'new tree sha')
     
     Octokit::Client.any_instance.expects(:create_commit)
