@@ -119,6 +119,8 @@ module GithubService
       commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, new_ref)
 
       open_pull_request_for_post(client, branch_name, post_title)
+
+      PostImageManager.instance.clear
     end
 
     private
