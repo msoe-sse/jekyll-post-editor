@@ -18,9 +18,7 @@ Andy is nice)
   
   test 'get_preview should not update the src atribute of image tags if no uploader exists in PostImageManager' do 
     # Arrange
-    mock_uploader = MockUploader.new
-    mock_uploader.filename = 'no image.png'
-    mock_uploader.cache_name = 'my cache'
+    mock_uploader = create_mock_uploader('no image.png', 'my cache', nil)
 
     PostImageManager.instance.expects(:uploaders).returns([ mock_uploader ])
 
@@ -35,9 +33,7 @@ Andy is nice)
 
   test 'get_preview should update the src attribute of image tags if an uploader exists in PostImageManager' do 
     # Arrange
-    mock_uploader = MockUploader.new
-    mock_uploader.filename = '20170610130401_1.jpg'
-    mock_uploader.cache_name = 'my cache/20170610130401_1.jpg'
+    mock_uploader = create_mock_uploader('20170610130401_1.jpg', 'my cache/20170610130401_1.jpg', nil)
 
     PostImageManager.instance.expects(:uploaders).returns([ mock_uploader ])
 
@@ -159,10 +155,4 @@ published: true
     # Assert
     assert_equal expected_post, result
   end
-
-  private
-    class MockUploader
-      attr_accessor :filename
-      attr_accessor :cache_name
-    end
 end
