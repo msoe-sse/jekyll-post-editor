@@ -129,12 +129,24 @@ module GithubService
       def create_new_tree_for_post(client, post_markdown, post_title, sha_base_tree)
         # This blob represents the content we're going to create which in this case is markdown
         blob_sha = client.create_blob(full_repo_name, post_markdown)
-        client.create_tree(full_repo_name, 
-                          [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-#{post_title.gsub(/\s+/, '')}.md",
-                              mode: '100644',
-                              type: 'blob',
-                              sha: blob_sha } ],
-                             base_tree: sha_base_tree)[:sha]
+        blob_information = [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-#{post_title.gsub(/\s+/, '')}.md",
+                               mode: '100644',
+                               type: 'blob',
+                               sha: blob_sha } ]
+        create_image_blobs(client, blob_information)
+        client.create_tree(full_repo_name, blob_information, base_tree: sha_base_tree)[:sha]
+      end
+
+      def create_image_blobs(client, blob_information)
+        PostImageManager.instance.uploaders.each do |uploader|
+          # This line uses .file.file since the first .file returns a carrierware object
+          base_64_encoded_image = Base64.encode64(File.open(uploader.file.file, 'rb').read)
+          image_blob_sha = client.create_blob(full_repo_name, base_64_encoded_image, 'base64')
+          blob_information << { path: "assets/img/#{uploader.filename}",
+                                mode: '100644',
+                                type: 'blob',
+                                sha: image_blob_sha }
+        end
       end
 
       def commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, new_ref)
