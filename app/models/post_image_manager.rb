@@ -22,7 +22,7 @@ class PostImageManager
   def add_file(file)
     uploader_to_add = PostImageUploader.new
     uploader_to_add.cache!(file)
-    @uploaders.delete_if { |x| x.filename == File.basename(file.path) }
+    @uploaders.delete_if { |x| x.filename == file.original_filename }
     @uploaders << uploader_to_add
   end
 

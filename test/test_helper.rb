@@ -30,7 +30,7 @@ class ActiveSupport::TestCase
     end
 
     class MockActionDispatchFile
-      attr_accessor :path
+      attr_accessor :original_filename
     end
 
     def create_mock_uploader(filename, cache_name, file)
@@ -67,9 +67,9 @@ class ActiveSupport::TestCase
       result
     end
 
-    def create_mock_action_dispatch_file(path)
+    def create_mock_action_dispatch_file(filename)
       result = MockActionDispatchFile.new
-      result.path = path
+      result.original_filename = filename
       result
     end
 end
