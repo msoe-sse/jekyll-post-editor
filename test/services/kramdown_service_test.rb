@@ -18,9 +18,10 @@ Andy is nice)
   
   test 'get_preview should not update the src atribute of image tags if no uploader exists in PostImageManager' do 
     # Arrange
-    mock_uploader = create_mock_uploader('no image.png', 'my cache', nil)
+    mock_uploader = create_mock_uploader('preview_no image.png', 'my cache', nil)
+    preview_uploader = create_preview_uploader('no image.png', mock_uploader)
 
-    PostImageManager.instance.expects(:uploaders).returns([ mock_uploader ])
+    PostImageManager.instance.expects(:uploaders).returns([ preview_uploader ])
 
     markdown = '![20170610130401_1.jpg](/assets/img/20170610130401_1.jpg)'
 
@@ -33,9 +34,10 @@ Andy is nice)
 
   test 'get_preview should update the src attribute of image tags if an uploader exists in PostImageManager' do 
     # Arrange
-    mock_uploader = create_mock_uploader('20170610130401_1.jpg', 'my cache/20170610130401_1.jpg', nil)
+    mock_uploader = create_mock_uploader('preview_20170610130401_1.jpg', 'my cache/preview_20170610130401_1.jpg', nil)
+    preview_uploader = create_preview_uploader('20170610130401_1.jpg', mock_uploader)
 
-    PostImageManager.instance.expects(:uploaders).returns([ mock_uploader ])
+    PostImageManager.instance.expects(:uploaders).returns([ preview_uploader ])
 
     markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
 
@@ -43,7 +45,7 @@ Andy is nice)
     result = KramdownService.get_preview(markdown)
 
     # Assert
-    assert_equal "<p><img src=\"/uploads/tmp/my cache/20170610130401_1.jpg\" alt=\"My Alt Text\" /></p>\n", result
+    assert_equal "<p><img src=\"/uploads/tmp/my cache/preview_20170610130401_1.jpg\" alt=\"My Alt Text\" /></p>\n", result
   end
 
   test 'create_jekyll_post_text should return text for a formatted post' do 

@@ -142,7 +142,7 @@ module GithubService
       def create_image_blobs(client, blob_information)
         PostImageManager.instance.uploaders.each do |uploader|
           # This line uses .file.file since the first .file returns a carrierware object
-          base_64_encoded_image = Base64.encode64(File.open(uploader.file.file, 'rb').read)
+          base_64_encoded_image = Base64.encode64(File.open(uploader.post_image.file.file, 'rb').read)
           image_blob_sha = client.create_blob(full_repo_name, base_64_encoded_image, 'base64')
           blob_information << { path: "assets/img/#{uploader.filename}",
                                 mode: '100644',

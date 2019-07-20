@@ -243,17 +243,20 @@ class GithubServiceTest < ActiveSupport::TestCase
     # Arrange
     post_file_path = "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md"
 
-    mock_uploader1 = create_mock_uploader('My Image 1.jpg', 'cache 1', 
-                                           create_mock_carrierware_file('C:\My Image 1.jpg'))
-    mock_uploader2 = create_mock_uploader('My Image 2.jpg', 'cache 2', 
-                                           create_mock_carrierware_file('C:\My Image 2.jpg'))
+    mock_uploader1 = create_mock_uploader('post_image-My Image 1.jpg', 'cache 1', 
+                                           create_mock_carrierware_file('C:\post_image-My Image 1.jpg'))
+    post_image_uploader1 = create_post_image_uploader('My Image 1.jpg', mock_uploader1)
+
+    mock_uploader2 = create_mock_uploader('post_image-My Image 2.jpg', 'cache 2', 
+                                           create_mock_carrierware_file('C:\post_image-My Image 2.jpg'))
+    post_image_uploader2 = create_post_image_uploader('My Image 2.jpg', mock_uploader2)
     
-    image_blob_sha1 = mock_image_blob_and_return_sha(mock_uploader1)
-    image_blob_sha2 = mock_image_blob_and_return_sha(mock_uploader2)
+    image_blob_sha1 = mock_image_blob_and_return_sha(post_image_uploader1)
+    image_blob_sha2 = mock_image_blob_and_return_sha(post_image_uploader2)
     
     test_markdown = "# hello\r\n![My File.jpg](/assets/img/My File.jpg)\r\n![My File2.jpg](/assets/img/My File2.jpg)"
 
-    PostImageManager.instance.expects(:uploaders).returns([ mock_uploader1, mock_uploader2 ])
+    PostImageManager.instance.expects(:uploaders).returns([ post_image_uploader1, post_image_uploader2 ])
 
     Octokit::Client.any_instance.expects(:ref).with('msoe-sse/jekyll-post-editor-test-repo', 'heads/master')
                    .returns(object: { sha: 'master head sha' }) 
@@ -320,7 +323,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     def mock_image_blob_and_return_sha(mock_uploader)
       mock_ruby_file = MockRubyFile.new
       mock_ruby_file.filename = mock_uploader.filename
-      File.expects(:open).with(mock_uploader.file.file, 'rb').returns(mock_ruby_file)
+      File.expects(:open).with(mock_uploader.post_image.file.file, 'rb').returns(mock_ruby_file)
       Base64.expects(:encode64).with("File Contents for #{mock_uploader.filename}")
             .returns("base 64 for #{mock_uploader.filename}")
       

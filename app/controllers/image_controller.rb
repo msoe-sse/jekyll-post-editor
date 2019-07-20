@@ -1,6 +1,9 @@
 ##
 # This controller deals with routes for attaching photos to an SSE post
-class ImageController < ApplicationController # TODO: Make this inherit from base_post_editor_controller.rb
+# Note: this should really inherit from BasePostEditorController but doesn't
+# since this controller makes AJAX POST requests which won't save the session[:access_token]
+# variable
+class ImageController < ApplicationController
   # POST image/upload
   def upload
     PostImageManager.instance.add_file(params[:file])

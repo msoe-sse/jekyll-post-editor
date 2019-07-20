@@ -13,9 +13,11 @@ class ActiveSupport::TestCase
       attr_accessor :filename
       attr_accessor :cache_name
       attr_accessor :file
+      attr_accessor :preview
+      attr_accessor :post_image
     end
 
-    class MockCarrierwareFile
+    class MockCarrierWaveFile
       attr_accessor :file # This actually represents the filepath which matches the carrierware file object
     end
 
@@ -35,8 +37,22 @@ class ActiveSupport::TestCase
       result
     end
 
+    def create_preview_uploader(filename, preview)
+      result = MockUploader.new
+      result.filename = filename
+      result.preview = preview
+      result
+    end
+
+    def create_post_image_uploader(filename, post_image)
+      result = MockUploader.new
+      result.filename = filename
+      result.post_image = post_image
+      result
+    end
+
     def create_mock_carrierware_file(file)
-      result = MockCarrierwareFile.new
+      result = MockCarrierWaveFile.new
       result.file = file
       result
     end
