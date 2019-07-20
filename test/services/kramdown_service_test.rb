@@ -40,12 +40,13 @@ Andy is nice)
     PostImageManager.instance.expects(:uploaders).returns([ preview_uploader ])
 
     markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
+    expected_html = "<p><img src=\"/uploads/tmp/my cache/preview_20170610130401_1.jpg\" alt=\"My Alt Text\" /></p>\n"
 
     # Act
     result = KramdownService.get_preview(markdown)
 
     # Assert
-    assert_equal "<p><img src=\"/uploads/tmp/my cache/preview_20170610130401_1.jpg\" alt=\"My Alt Text\" /></p>\n", result
+    assert_equal expected_html, result
   end
 
   test 'create_jekyll_post_text should return text for a formatted post' do 
