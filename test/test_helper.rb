@@ -29,6 +29,10 @@ class ActiveSupport::TestCase
       end
     end
 
+    class MockActionDispatchFile
+      attr_accessor :path
+    end
+
     def create_mock_uploader(filename, cache_name, file)
       result = MockUploader.new
       result.filename = filename
@@ -54,6 +58,18 @@ class ActiveSupport::TestCase
     def create_mock_carrierware_file(file)
       result = MockCarrierWaveFile.new
       result.file = file
+      result
+    end
+
+    def create_mock_ruby_file(filename)
+      result = MockRubyFile.new
+      result.filename = filename
+      result
+    end
+
+    def create_mock_action_dispatch_file(path)
+      result = MockActionDispatchFile.new
+      result.path = path
       result
     end
 end

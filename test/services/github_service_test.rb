@@ -323,8 +323,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     end
 
     def mock_image_blob_and_return_sha(mock_uploader)
-      mock_ruby_file = MockRubyFile.new
-      mock_ruby_file.filename = mock_uploader.filename
+      mock_ruby_file = create_mock_ruby_file(mock_uploader.filename)
       File.expects(:open).with(mock_uploader.post_image.file.file, 'rb').returns(mock_ruby_file)
       Base64.expects(:encode64).with("File Contents for #{mock_uploader.filename}")
             .returns("base 64 for #{mock_uploader.filename}")
