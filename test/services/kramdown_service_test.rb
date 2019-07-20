@@ -49,6 +49,29 @@ Andy is nice)
     assert_equal expected_html, result
   end
 
+  test 'does_markdown_include_image should return false if the markdown doesnt 
+        include an image with a given filename' do 
+    # Arrange
+    markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
+
+    # Act
+    result = KramdownService.does_markdown_include_image('my file.jpg', markdown)
+
+    # Assert
+    assert_not result
+  end
+
+  test 'does_markdown_include_image should return true if the markdown does include an image with a given filename' do 
+    # Arrange
+    markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
+
+    # Act
+    result = KramdownService.does_markdown_include_image('20170610130401_1.jpg', markdown)
+
+    # Assert
+    assert result
+  end
+
   test 'create_jekyll_post_text should return text for a formatted post' do 
     # Arrange
     expected_post = %(---

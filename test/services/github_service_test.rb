@@ -242,6 +242,7 @@ class GithubServiceTest < ActiveSupport::TestCase
   test 'submit_post should upload images if any exist in the PostImageManager' do 
     # Arrange
     post_file_path = "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md"
+    test_markdown = "# hello\r\n![My File.jpg](/assets/img/My File.jpg)"
 
     mock_uploader1 = create_mock_uploader('post_image-My Image 1.jpg', 'cache 1', 
                                            create_mock_carrierware_file('C:\post_image-My Image 1.jpg'))
@@ -251,11 +252,13 @@ class GithubServiceTest < ActiveSupport::TestCase
                                            create_mock_carrierware_file('C:\post_image-My Image 2.jpg'))
     post_image_uploader2 = create_post_image_uploader('My Image 2.jpg', mock_uploader2)
     
-    image_blob_sha1 = mock_image_blob_and_return_sha(post_image_uploader1)
-    image_blob_sha2 = mock_image_blob_and_return_sha(post_image_uploader2)
+    KramdownService.expects(:does_markdown_include_image)
+                   .with('My Image 1.jpg', test_markdown).returns(true)
+    KramdownService.expects(:does_markdown_include_image)
+                   .with('My Image 2.jpg', test_markdown).returns(false)
     
-    test_markdown = "# hello\r\n![My File.jpg](/assets/img/My File.jpg)\r\n![My File2.jpg](/assets/img/My File2.jpg)"
-
+    image_blob_sha1 = mock_image_blob_and_return_sha(post_image_uploader1)
+    
     PostImageManager.instance.expects(:uploaders).returns([ post_image_uploader1, post_image_uploader2 ])
 
     Octokit::Client.any_instance.expects(:ref).with('msoe-sse/jekyll-post-editor-test-repo', 'heads/master')
@@ -270,8 +273,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     Octokit::Client.any_instance.expects(:create_tree)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 
                          [ create_blob_info_hash(post_file_path, 'blob sha'),
-                           create_blob_info_hash('assets/img/My Image 1.jpg', image_blob_sha1),
-                           create_blob_info_hash('assets/img/My Image 2.jpg', image_blob_sha2) ],
+                           create_blob_info_hash('assets/img/My Image 1.jpg', image_blob_sha1) ],
                            base_tree: 'base tree sha').returns(sha: 'new tree sha')
     
     Octokit::Client.any_instance.expects(:create_commit)

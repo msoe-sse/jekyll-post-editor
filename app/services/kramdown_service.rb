@@ -35,6 +35,25 @@ module KramdownService
     end
 
     ##
+    # This method returns if an image tag exists with a given filename in some markdown text
+    #
+    # Params:
+    # +image_file_name+:: a filename of a image to look for in markdown
+    # +markdown+:: text of a markdown post
+    def does_markdown_include_image(image_file_name, markdown)
+      document = Kramdown::Document.new(markdown)
+      all_p_tags = document.root.children.select { |x| x.type == :p }
+      all_p_tags.each do |tag|
+        first_child_element = tag.children.first
+        does_file_name_match = first_child_element && 
+                               first_child_element.attr['src'] &&
+                               File.basename(first_child_element.attr['src']) == image_file_name
+        return true if does_file_name_match
+      end
+      false
+    end
+
+    ##
     # This method takes parameters for a given post and formats them
     # as a valid jekyll post for the SSE website
     #

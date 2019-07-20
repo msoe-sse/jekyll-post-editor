@@ -135,19 +135,22 @@ module GithubService
                                mode: '100644',
                                type: 'blob',
                                sha: blob_sha } ]
-        create_image_blobs(client, blob_information)
+        create_image_blobs(client, blob_information, post_markdown)
         client.create_tree(full_repo_name, blob_information, base_tree: sha_base_tree)[:sha]
       end
 
-      def create_image_blobs(client, blob_information)
+      def create_image_blobs(client, blob_information, post_markdown)
         PostImageManager.instance.uploaders.each do |uploader|
-          # This line uses .file.file since the first .file returns a carrierware object
-          base_64_encoded_image = Base64.encode64(File.open(uploader.post_image.file.file, 'rb').read)
-          image_blob_sha = client.create_blob(full_repo_name, base_64_encoded_image, 'base64')
-          blob_information << { path: "assets/img/#{uploader.filename}",
-                                mode: '100644',
-                                type: 'blob',
-                                sha: image_blob_sha }
+          # This check prevents against images that have been removed from the markdown
+          if KramdownService.does_markdown_include_image(uploader.filename, post_markdown)
+            # This line uses .file.file since the first .file returns a carrierware object
+            base_64_encoded_image = Base64.encode64(File.open(uploader.post_image.file.file, 'rb').read)
+            image_blob_sha = client.create_blob(full_repo_name, base_64_encoded_image, 'base64')
+            blob_information << { path: "assets/img/#{uploader.filename}",
+                                  mode: '100644',
+                                  type: 'blob',
+                                  sha: image_blob_sha }
+          end
         end
       end
 
