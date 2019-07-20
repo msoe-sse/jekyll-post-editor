@@ -42,15 +42,10 @@ module KramdownService
     # +markdown+:: text of a markdown post
     def does_markdown_include_image(image_file_name, markdown)
       document = Kramdown::Document.new(markdown)
-      all_p_tags = document.root.children.select { |x| x.type == :p }
-      all_p_tags.each do |tag|
-        first_child_element = tag.children.first
-        does_file_name_match = first_child_element && 
-                               first_child_element.attr['src'] &&
-                               File.basename(first_child_element.attr['src']) == image_file_name
-        return true if does_file_name_match
-      end
-      false
+      document_descendants = []
+      get_document_descendants(document.root, document_descendants)
+      all_img_tags = document_descendants.select { |x| x.type == :img }
+      all_img_tags.any? { |x| File.basename(x.attr['src']) == image_file_name }
     end
 
     ##
@@ -115,6 +110,13 @@ published: true
           end
         end
         lines.join("\r\n")
+      end
+
+      def get_document_descendants(current_element, result)
+        current_element.children.each do |element|
+          result << element
+          get_document_descendants(element, result)
+        end
       end
   end
 end
