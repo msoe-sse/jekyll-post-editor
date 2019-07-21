@@ -89,21 +89,21 @@ module GithubService
     end
 
     ##
-    # This method submits a post to GitHub by checking out a new branch for the post.
-    # Commiting and pushing the markdown to the branch. And then finally opening 
-    # a pull request into master for the new post. The SSE webmaster will be requested
-    # for review on the created pull request
+    # This method submits a post to GitHub by checking out a new branch for the post,
+    # if the branch already doesn't exist Commiting and pushing the markdown to the branch. 
+    # And then finally opening a pull request into master for the new post. The SSE webmaster 
+    # will be requested for review on the created pull request
     #
     # Params
     # +oauth_token+::a user's oauth access token
     # +post_markdown+:: the markdown contents of a post
     # +post_title+:: the title of the new post to be submited
     def submit_post(oauth_token, post_markdown, post_title)
-      # This new_ref variable represents the new branch we are creating
+      # This ref_name variable represents the branch name
       # for submiting a post. At the end we strip out all of the whitespace in 
       # the post_title to create a valid branch name
       branch_name = "createPost#{post_title.gsub(/\s+/, '')}"
-      new_ref = "heads/#{branch_name}"
+      ref_name = "heads/#{branch_name}"
       client = Octokit::Client.new(access_token: oauth_token)
 
       # These two calls get required information for us to branch from master.
@@ -112,11 +112,10 @@ module GithubService
       master_head_sha = client.ref(full_repo_name, 'heads/master')[:object][:sha]
       sha_base_tree = client.commit(full_repo_name, master_head_sha)[:commit][:tree][:sha]
 
-      # This creates the new branch to create the post in
-      client.create_ref(full_repo_name, new_ref, master_head_sha)
+      create_ref_if_necessary(client, ref_name, master_head_sha)
 
       new_tree_sha = create_new_tree_for_post(client, post_markdown, post_title, sha_base_tree)
-      commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, new_ref)
+      commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, ref_name)
 
       open_pull_request_for_post(client, branch_name, post_title)
     end
@@ -137,18 +136,27 @@ module GithubService
                              base_tree: sha_base_tree)[:sha]
       end
 
-      def commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, new_ref)
+      def commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, ref_name)
         commit_message = "Created post #{post_title}"
         sha_new_commit = client.create_commit(full_repo_name, commit_message, new_tree_sha, master_head_sha)[:sha]
-        client.update_ref(full_repo_name, new_ref, sha_new_commit)
+        client.update_ref(full_repo_name, ref_name, sha_new_commit)
       end
 
-      def open_pull_request_for_post(client, new_branch, post_title)
+      def open_pull_request_for_post(client, branch_name, post_title)
         pull_request_body = 'This pull request was opened automatically by the jekyll-post-editor.'
         pull_number = client.create_pull_request(full_repo_name, 'master', 
-                                             new_branch, "Created Post #{post_title}", pull_request_body)[:number]
+                                                 branch_name, "Created Post #{post_title}", pull_request_body)[:number]
         client.request_pull_request_review(full_repo_name, pull_number, 
                                            reviewers: [Rails.configuration.webmaster_github_username])
+      end
+
+      def create_ref_if_necessary(client, ref_name, master_head_sha)
+        # This method creates a new ref if the ref already doesn't exist
+        begin
+          client.ref(full_repo_name, ref_name)
+        rescue Octokit::NotFound
+          client.create_ref(full_repo_name, ref_name, master_head_sha)
+        end
       end
   end
 end
