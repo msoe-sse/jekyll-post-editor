@@ -1,0 +1,9 @@
+#container {
+  display: grid;
+  grid-template-columns: 25% 50% 25%;
+}
+
+#middle-container {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}

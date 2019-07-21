@@ -1,5 +1,12 @@
-<%= content_tag :ul do %>
-  <% @posts.each do |post| %>
-    <% concat(content_tag(:li, link_to(post.title, {:controller => 'post', :action => 'edit', :title => post.title}) )) %>
+<%= stylesheet_link_tag('/stylesheets/styles/post-edit.scss') %>
+<%= content_tag(:div, id: 'container') do %>
+  <%= content_tag(:div, id: 'middle-container') do %>
+    <%= content_tag(:div, id: 'header-container') do %>
+    <% end %>
+    <%= content_tag :ul do %>
+      <% @posts.each do |post| %>
+        <% concat(content_tag(:li, link_to(post.title, {controller: 'post', action: 'edit', title: post.title}) )) %>
+      <% end %>
+    <% end %>
   <% end %>
 <% end %>

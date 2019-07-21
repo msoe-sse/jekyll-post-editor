@@ -1,3 +1,4 @@
+<%= stylesheet_link_tag('/stylesheets/styles/post-edit.scss') %>
 <%= form_tag('/post/submit', method: 'post') do %>
   <% if flash[:alert] %>
     <%= content_tag :div, flash[:alert], class: 'validation-message' %>
