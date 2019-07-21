@@ -163,6 +163,8 @@ class GithubServiceTest < ActiveSupport::TestCase
                    .returns(object: { sha: 'master head sha' }) 
     Octokit::Client.any_instance.expects(:commit).with('msoe-sse/jekyll-post-editor-test-repo', 'master head sha')
                    .returns(commit: { tree: { sha: 'base tree sha' } })
+    Octokit::Client.any_instance.expects(:ref)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/createPostTestPost').raises(Octokit::NotFound)
     Octokit::Client.any_instance.expects(:create_ref)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/createPostTestPost', 'master head sha').once
 
@@ -203,8 +205,52 @@ class GithubServiceTest < ActiveSupport::TestCase
                    .returns(object: { sha: 'master head sha' }) 
     Octokit::Client.any_instance.expects(:commit).with('msoe-sse/jekyll-post-editor-test-repo', 'master head sha')
                    .returns(commit: { tree: { sha: 'base tree sha' } })
+    Octokit::Client.any_instance.expects(:ref)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/createPostTestPost').raises(Octokit::NotFound)
     Octokit::Client.any_instance.expects(:create_ref)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/createPostTestPost', 'master head sha').once
+    
+    Octokit::Client.any_instance.expects(:create_blob).with('msoe-sse/jekyll-post-editor-test-repo', '# hello')
+                   .returns('blob sha')
+    Octokit::Client.any_instance.expects(:create_tree)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 
+                         [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md",
+                             mode: '100644',
+                             type: 'blob',
+                             sha: 'blob sha' } ],
+                           base_tree: 'base tree sha').returns(sha: 'new tree sha')
+    
+    Octokit::Client.any_instance.expects(:create_commit)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 
+                         'Created post Test Post', 'new tree sha', 'master head sha').returns(sha: 'new commit sha')
+    Octokit::Client.any_instance.expects(:update_ref)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/createPostTestPost', 'new commit sha').once
+    
+    Octokit::Client.any_instance.expects(:create_pull_request)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 
+                         'master', 
+                         'createPostTestPost', 
+                         'Created Post Test Post', 
+                         'This pull request was opened automatically by the jekyll-post-editor.').returns(number: 1)
+    Octokit::Client.any_instance.expects(:request_pull_request_review)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 1, reviewers: ['msoe-sse-webmaster']).once
+    
+    # Act
+    GithubService.submit_post('my token', '# hello', 'Test Post')
+
+    # No Assert - Taken care of with mocha mock setups
+  end
+
+  test 'submit_post should not create a new ref if it already exists' do 
+    # Arrange
+    Octokit::Client.any_instance.expects(:ref).with('msoe-sse/jekyll-post-editor-test-repo', 'heads/master')
+                   .returns(object: { sha: 'master head sha' }) 
+    Octokit::Client.any_instance.expects(:commit).with('msoe-sse/jekyll-post-editor-test-repo', 'master head sha')
+                   .returns(commit: { tree: { sha: 'base tree sha' } })
+    Octokit::Client.any_instance.expects(:ref)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/createPostTestPost').returns('sample resource')
+    Octokit::Client.any_instance.expects(:create_ref)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/createPostTestPost', 'master head sha').never
     
     Octokit::Client.any_instance.expects(:create_blob).with('msoe-sse/jekyll-post-editor-test-repo', '# hello')
                    .returns('blob sha')
