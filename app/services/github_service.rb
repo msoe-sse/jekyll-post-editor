@@ -90,9 +90,9 @@ module GithubService
 
     ##
     # This method submits a post to GitHub by checking out a new branch for the post.
-    # Commiting and pushing the markdown to the branch. And then finally opening 
-    # a pull request into master for the new post. The SSE webmaster will be requested
-    # for review on the created pull request
+    # Commiting and pushing the markdown to the branch and any photos attached to the post. 
+    # And then finally opening a pull request into master for the new post. The SSE webmaster 
+    # will be requested for review on the created pull request
     #
     # Params
     # +oauth_token+::a user's oauth access token
