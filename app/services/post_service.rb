@@ -1,6 +1,6 @@
 ##
-# This module contains the logic for creating a post for the SSE website
-module CreatePostService
+# This module contains operations related to posts on the SSE website
+module PostService
   class << self
     ##
     # This method submits a post to GitHub by checking out a new branch for the post.
