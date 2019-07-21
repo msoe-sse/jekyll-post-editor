@@ -1,54 +1,53 @@
 class PostControllerTest < BaseIntegrationTest
-  # This list view was started and not completed. We may come back to this post MVP
-  # test 'an authenticated user should be able to navigate to post/list successfully' do 
-  #   # Arramge
-  #   setup_session('access token', true)
+  test 'an authenticated user should be able to navigate to post/list successfully' do 
+    # Arramge
+    setup_session('access token', true)
 
-  #   post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
-  #                             overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
-  #   post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
-  #                             overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
-  #   GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
+    post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
+                              overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
+    post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
+                              overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
+    GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
 
-  #   # Act
-  #   get '/post/list'
+    # Act
+    get '/post/list'
 
-  #   # Assert
-  #   assert_response :success
-  # end
+    # Assert
+    assert_response :success
+  end
 
-  # test 'an authenticated user should be able to navigate to / successfully' do 
-  #   # Arramge
-  #   setup_session('access token', true)
+  test 'an authenticated user should be able to navigate to / successfully' do 
+    # Arramge
+    setup_session('access token', true)
 
-  #   post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
-  #                             overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
-  #   post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
-  #                             overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
-  #   GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
+    post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
+                              overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
+    post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
+                              overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
+    GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
 
-  #   # Act
-  #   get '/'
+    # Act
+    get '/'
 
-  #   # Assert
-  #   assert_response :success
-  # end
+    # Assert
+    assert_response :success
+  end
 
-  # test 'an unauthenticated user should be redirected to GitHub when navigating to post/list' do
-  #   # Act
-  #   get '/post/list'
+  test 'an unauthenticated user should be redirected to GitHub when navigating to post/list' do
+    # Act
+    get '/post/list'
 
-  #   # Assert
-  #   assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
-  # end
+    # Assert
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
+  end
 
-  # test 'an unauthenticated user should be redirected to GitHub when navigating to /' do
-  #   # Act
-  #   get '/'
+  test 'an unauthenticated user should be redirected to GitHub when navigating to /' do
+    # Act
+    get '/'
 
-  #   # Assert
-  #   assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
-  # end
+    # Assert
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
+  end
 
   test 'an authenticated user should be able to navigate to post/edit successfully' do 
     # Arrange
