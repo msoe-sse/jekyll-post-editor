@@ -152,11 +152,9 @@ module GithubService
 
       def create_ref_if_necessary(client, ref_name, master_head_sha)
         # This method creates a new ref if the ref already doesn't exist
-        begin
-          client.ref(full_repo_name, ref_name)
+        client.ref(full_repo_name, ref_name)
         rescue Octokit::NotFound
           client.create_ref(full_repo_name, ref_name, master_head_sha)
-        end
       end
   end
 end
