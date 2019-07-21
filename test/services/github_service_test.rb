@@ -157,71 +157,77 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert_equal post2_model, result
   end
 
-  test 'submit_post should commit and push a new post up to the SSE website GitHub repo' do 
+  test 'get_master_head_sha should return the sha of the head of master' do 
     # Arrange
     Octokit::Client.any_instance.expects(:ref).with('msoe-sse/jekyll-post-editor-test-repo', 'heads/master')
-                   .returns(object: { sha: 'master head sha' }) 
-    Octokit::Client.any_instance.expects(:commit).with('msoe-sse/jekyll-post-editor-test-repo', 'master head sha')
-                   .returns(commit: { tree: { sha: 'base tree sha' } })
-    Octokit::Client.any_instance.expects(:create_ref)
-                   .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/createPostTestPost', 'master head sha').once
-
-    Octokit::Client.any_instance.expects(:create_blob).with('msoe-sse/jekyll-post-editor-test-repo', '# hello')
-                   .returns('blob sha')
-    Octokit::Client.any_instance.expects(:create_tree)
-                   .with('msoe-sse/jekyll-post-editor-test-repo', 
-                         [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md",
-                             mode: '100644',
-                             type: 'blob',
-                             sha: 'blob sha' } ],
-                           base_tree: 'base tree sha').returns(sha: 'new tree sha')
-
-    Octokit::Client.any_instance.expects(:create_commit)
-                   .with('msoe-sse/jekyll-post-editor-test-repo', 
-                         'Created post TestPost', 'new tree sha', 'master head sha').returns(sha: 'new commit sha')
-    Octokit::Client.any_instance.expects(:update_ref)
-                   .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/createPostTestPost', 'new commit sha').once
-
-    Octokit::Client.any_instance.expects(:create_pull_request)
-                   .with('msoe-sse/jekyll-post-editor-test-repo', 
-                         'master', 
-                         'createPostTestPost', 
-                         'Created Post TestPost', 
-                         'This pull request was opened automatically by the jekyll-post-editor.').returns(number: 1)
-    Octokit::Client.any_instance.expects(:request_pull_request_review)
-                   .with('msoe-sse/jekyll-post-editor-test-repo', 1, reviewers: ['msoe-sse-webmaster']).once
+                   .returns(object: { sha: 'master head sha' })
 
     # Act
-    GithubService.submit_post('my token', '# hello', 'TestPost')
+    result = GithubService.get_master_head_sha('my token')
 
-    # No Assert - Taken care of with mocha mock setups
+    # Assert
+    assert_equal 'master head sha', result
   end
 
-  test 'submit_post should create a valid branch name if the post title has whitespace' do 
+  test 'get_base_tree_for_branch should return the sha of the base tree for a branch' do 
     # Arrange
-    Octokit::Client.any_instance.expects(:ref).with('msoe-sse/jekyll-post-editor-test-repo', 'heads/master')
-                   .returns(object: { sha: 'master head sha' }) 
     Octokit::Client.any_instance.expects(:commit).with('msoe-sse/jekyll-post-editor-test-repo', 'master head sha')
                    .returns(commit: { tree: { sha: 'base tree sha' } })
+
+    # Act
+    result = GithubService.get_base_tree_for_branch('my token', 'master head sha')
+
+    # Assert
+    assert_equal 'base tree sha', result
+  end
+
+  test 'create_ref should create a new branch for the SSE website repo' do 
+    # Arrange
     Octokit::Client.any_instance.expects(:create_ref)
-                   .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/createPostTestPost', 'master head sha').once
-    
+                   .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/newBranch', 'master head sha').once
+
+    # Act
+    GithubService.create_ref('my token', 'master head sha', 'heads/newBranch')
+
+    # No Assert - taken care of with mocha mock setups
+  end
+
+  test 'create_new_tree should create a new tree in the SSE website repo and return the sha of the tree' do 
+    # Arrange
     Octokit::Client.any_instance.expects(:create_blob).with('msoe-sse/jekyll-post-editor-test-repo', '# hello')
                    .returns('blob sha')
     Octokit::Client.any_instance.expects(:create_tree)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 
-                         [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md",
+                         [ { path: "filename.md",
                              mode: '100644',
                              type: 'blob',
                              sha: 'blob sha' } ],
-                           base_tree: 'base tree sha').returns(sha: 'new tree sha')
-    
+                        base_tree: 'base tree sha').returns(sha: 'new tree sha')
+
+    # Act
+    result = GithubService.create_new_tree('my token', 'filename.md', '# hello', 'base tree sha')
+
+    # Assert
+    assert_equal 'new tree sha', result
+  end
+
+  test 'commit_and_push_to_repo should create a commit and push the commit up to the SSE website repo' do 
+    # Arrange
     Octokit::Client.any_instance.expects(:create_commit)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 
                          'Created post Test Post', 'new tree sha', 'master head sha').returns(sha: 'new commit sha')
     Octokit::Client.any_instance.expects(:update_ref)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/createPostTestPost', 'new commit sha').once
-    
+
+    # Act
+    GithubService.commit_and_push_to_repo('my token', 'Created post Test Post', 'new tree sha', 
+                                          'master head sha', 'heads/createPostTestPost')
+
+    # No Assert - taken care of with mocha mock setups
+  end
+
+  test 'create_pull_request should open a new pull request for the SSE website repo' do 
+    # Arrange
     Octokit::Client.any_instance.expects(:create_pull_request)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 
                          'master', 
@@ -230,11 +236,14 @@ class GithubServiceTest < ActiveSupport::TestCase
                          'This pull request was opened automatically by the jekyll-post-editor.').returns(number: 1)
     Octokit::Client.any_instance.expects(:request_pull_request_review)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 1, reviewers: ['msoe-sse-webmaster']).once
-    
-    # Act
-    GithubService.submit_post('my token', '# hello', 'Test Post')
 
-    # No Assert - Taken care of with mocha mock setups
+    # Act
+    GithubService.create_pull_request('my token', 'createPostTestPost', 'master', 
+                                      'Created Post Test Post', 
+                                      'This pull request was opened automatically by the jekyll-post-editor.',
+                                      ['msoe-sse-webmaster'])
+
+    # No Assert - taken care of with mocha mock setups
   end
 
   private
