@@ -19,7 +19,7 @@ class PostImageManagerTest < ActiveSupport::TestCase
     # Arrange
     mock_file = create_mock_action_dispatch_file('my file.jpg')
     PostImageUploader.any_instance.expects(:cache!).with(mock_file).twice
-    PostImageUploader.any_instance.expects(:filename).returns('my file.jpg')
+    PostImageUploader.any_instance.expects(:filename).returns('my file.jpg').at_least_once
 
     # Act
     PostImageManager.instance.add_file(mock_file)
