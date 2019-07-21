@@ -2,6 +2,7 @@ class PostControllerTest < BaseIntegrationTest
   test 'an authenticated user should be able to navigate to post/list successfully' do 
     # Arramge
     setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
     post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
                               overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
@@ -19,6 +20,7 @@ class PostControllerTest < BaseIntegrationTest
   test 'an authenticated user should be able to navigate to / successfully' do 
     # Arramge
     setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
     post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
                               overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
@@ -38,7 +40,7 @@ class PostControllerTest < BaseIntegrationTest
     get '/post/list'
 
     # Assert
-    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
   end
 
   test 'an unauthenticated user should be redirected to GitHub when navigating to /' do
@@ -46,7 +48,7 @@ class PostControllerTest < BaseIntegrationTest
     get '/'
 
     # Assert
-    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
   end
 
   test 'an authenticated user should be able to navigate to post/edit successfully' do 
@@ -143,7 +145,7 @@ class PostControllerTest < BaseIntegrationTest
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
-    GithubService.expects(:submit_post).never
+    PostService.expects(:submit_post).never
     KramdownService.expects(:create_jekyll_post_text).never
 
     # Act
@@ -162,7 +164,7 @@ class PostControllerTest < BaseIntegrationTest
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
-    GithubService.expects(:submit_post).never
+    PostService.expects(:submit_post).never
     KramdownService.expects(:create_jekyll_post_text).never
     
     # Act
@@ -181,7 +183,7 @@ class PostControllerTest < BaseIntegrationTest
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
-    GithubService.expects(:submit_post).never
+    PostService.expects(:submit_post).never
     KramdownService.expects(:create_jekyll_post_text).never
         
     # Act
@@ -199,7 +201,7 @@ class PostControllerTest < BaseIntegrationTest
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
-    GithubService.expects(:submit_post).with('access token', 'post text', 'title').once
+    PostService.expects(:submit_post).with('access token', 'post text', 'title').once
     KramdownService.expects(:create_jekyll_post_text)
                    .with('# hello', 'author', 'title', 'tags', 'red').returns('post text')
             
