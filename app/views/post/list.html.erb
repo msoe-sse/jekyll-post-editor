@@ -2,10 +2,14 @@
 <%= content_tag(:div, id: 'container') do %>
   <%= content_tag(:div, id: 'middle-container') do %>
     <%= content_tag(:div, id: 'header-container') do %>
+      <%= content_tag(:span) do %>
+        <%= content_tag(:h1, 'Post List') %>
+        <%= link_to('Create Post', { controller: 'post', action: 'edit'}, class: 'btn btn-primary active') %>
+      <% end %>
     <% end %>
-    <%= content_tag :ul do %>
+    <%= content_tag(:ul, id: 'post-list') do %>
       <% @posts.each do |post| %>
-        <% concat(content_tag(:li, link_to(post.title, {controller: 'post', action: 'edit', title: post.title}) )) %>
+        <% concat(content_tag(:li, link_to(post.title, { controller: 'post', action: 'edit', title: post.title }) )) %>
       <% end %>
     <% end %>
   <% end %>
