@@ -304,6 +304,8 @@ class GithubServiceTest < ActiveSupport::TestCase
 
   test 'submit_post should not create a new ref if it already exists' do 
     # Arrange
+    post_file_path = "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md"
+
     Octokit::Client.any_instance.expects(:ref).with('msoe-sse/jekyll-post-editor-test-repo', 'heads/master')
                    .returns(object: { sha: 'master head sha' }) 
     Octokit::Client.any_instance.expects(:commit).with('msoe-sse/jekyll-post-editor-test-repo', 'master head sha')
@@ -317,10 +319,7 @@ class GithubServiceTest < ActiveSupport::TestCase
                    .returns('blob sha')
     Octokit::Client.any_instance.expects(:create_tree)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 
-                         [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md",
-                             mode: '100644',
-                             type: 'blob',
-                             sha: 'blob sha' } ],
+                         [ create_blob_info_hash(post_file_path, 'blob sha') ],
                            base_tree: 'base tree sha').returns(sha: 'new tree sha')
 
     Octokit::Client.any_instance.expects(:create_commit)
