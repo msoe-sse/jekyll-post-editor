@@ -149,7 +149,7 @@ module GithubService
         blob_information << { path: file[:path],
                               mode: '100644',
                               type: 'blob',
-                              sha: file[:blob_sha]}
+                              sha: file[:blob_sha] }
       end
       client.create_tree(full_repo_name, blob_information, base_tree: sha_base_tree)[:sha]
     end

@@ -159,8 +159,6 @@ class GithubServiceTest < ActiveSupport::TestCase
 
   test 'get_master_head_sha should return the sha of the head of master' do 
     # Arrange
-    post_file_path = "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md"
-
     Octokit::Client.any_instance.expects(:ref).with('msoe-sse/jekyll-post-editor-test-repo', 'heads/master')
                    .returns(object: { sha: 'master head sha' })
 
