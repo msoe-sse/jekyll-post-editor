@@ -278,6 +278,22 @@ class GithubServiceTest < ActiveSupport::TestCase
     
     # No Assert - taken care of with mocha mock setups
   end
+
+  test 'create_ref_if_necessary should create a new branch if the branch doesnt exist' do 
+    # Arrange
+    Octokit::Client.any_instance.expects(:ref)
+                                .with('msoe-sse/jekyll-post-editor-test-repo', 'branchName')
+                                .raises(Octokit::NotFound)
+    
+    Octokit::Client.any_instance.expects(:create_ref)
+                                .with('msoe-sse/jekyll-post-editor-test-repo', 'branchName', 'master head sha')
+                                .returns('sample response').once
+
+    # Act
+    GithubService.create_ref_if_necessary('oauth token', 'branchName', 'master head sha')
+    
+    # No Assert - taken care of with mocha mock setups
+  end
   
   private
     def create_dummy_api_resource(parameters)
