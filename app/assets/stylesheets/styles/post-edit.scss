@@ -10,12 +10,12 @@ label {
   margin: 0;
 }
 
-#container {
+#edit-container {
   display: grid;
   grid-template-columns: 12.5% 75% 12.5%;
 }
 
-#header-container {
+#edit-header-container {
   margin-top: 10px;
 }
 
@@ -35,7 +35,7 @@ label {
   margin-left: 20px;
 }
 
-#middle-container {
+#edit-middle-container {
   grid-column-start: 2;
   grid-column-end: 3;
 }

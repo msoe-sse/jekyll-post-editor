@@ -1,7 +1,6 @@
-<%= stylesheet_link_tag('/stylesheets/styles/post-edit.scss') %>
-<%= content_tag(:div, id: 'container') do %>
-  <%= content_tag(:div, id: 'middle-container') do %>
-    <%= content_tag(:div, id: 'header-container') do %>
+<%= content_tag(:div, id: 'list-container') do %>
+  <%= content_tag(:div, id: 'list-middle-container') do %>
+    <%= content_tag(:div, id: 'list-header-container') do %>
       <%= content_tag(:span) do %>
         <%= content_tag(:h1, 'Post List') %>
         <%= link_to('Create Post', { controller: 'post', action: 'edit'}, class: 'btn btn-primary active', id: 'create-post-link') %>

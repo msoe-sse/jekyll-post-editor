@@ -1,14 +1,14 @@
-#container {
+#list-container {
   display: grid;
   grid-template-columns: 25% 50% 25%;
 }
 
-#middle-container {
+#list-middle-container {
   grid-column-start: 2;
   grid-column-end: 3;
 }
 
-#header-container {
+#list-header-container {
   border-bottom: 1px solid black;
 }
 
