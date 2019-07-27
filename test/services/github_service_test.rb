@@ -196,20 +196,44 @@ class GithubServiceTest < ActiveSupport::TestCase
     # No Assert - taken care of with mocha mock setups
   end
 
-  test 'create_new_tree should create a new tree in the SSE website repo and return the sha of the tree' do 
+  test 'create_text_blob should create a new blob with text content 
+        in the SSE website repo and return the sha of the blob' do 
     # Arrange
+    Octokit::Client.any_instance.expects(:create_blob).with('my text').returns('blob sha')
+
+    # Act
+    result = GithubService.create_text_blob('my token', 'my text')
+
+    # Assert
+    assert_equal 'blob sha', result
+  end
+
+  test 'create_base64_encoded_blob should create a new blob with base 64 encoded content 
+        in the SSE website repo and return the sha of the blob' do 
+    # Arrange
+    Octokit::Client.any_instance.expects(:create_base64_encoded_blob).with('my content').returns('blob sha')
+
+    # Act
+    result = GithubService.create_text_blob('my token', 'my content')
+
+    # Assert
+    assert_equal 'blob sha', result
+  end
+
+  test 'create_new_tree_with_blobs should create a new tree in the SSE website repo and return the sha of the tree' do 
+    # Arrange
+    file_information = [ { path: 'filename1.md', blob_sha: 'blob1 sha' }, 
+                         { path: 'filename2.md', blob_sha: 'blob2 sha' }]
     Octokit::Client.any_instance.expects(:create_blob).with('msoe-sse/jekyll-post-editor-test-repo', '# hello')
                    .returns('blob sha')
     Octokit::Client.any_instance.expects(:create_tree)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 
-                         [ { path: "filename.md",
-                             mode: '100644',
-                             type: 'blob',
-                             sha: 'blob sha' } ],
+                         [ create_blob_info_hash(file_information[0][:path], file_information[0][:blob_sha]),
+                           create_blob_info_hash(file_information[1][:path]), file_information[1][:blob_sha] ],
                         base_tree: 'base tree sha').returns(sha: 'new tree sha')
 
     # Act
-    result = GithubService.create_new_tree('my token', 'filename.md', '# hello', 'base tree sha')
+    result = GithubService.create_new_tree('my token', file_information, 'base tree sha')
 
     # Assert
     assert_equal 'new tree sha', result

@@ -122,22 +122,46 @@ module GithubService
     end
 
     ##
-    # This method creates a new tree in the SSE website repo and returns the tree's sha
+    # This method create a new blob in the SSE website repo with text content
+    #
+    # Params
+    # +oauth_token+::a user's oauth access token
+    # +text+::the text content to create a blob for
+    def create_text_blob(oauth_token, text)
+      client = Octokit::Client.new(access_token: oauth_token)
+      client.create_blob(full_repo_name, text)
+    end
+
+    ##
+    # This method creates a new blob in the SSE website repo with base 64 encoded content
+    #
+    # Params
+    # +oauth_token+::a user's oauth access token
+    # +content+::the base 64 encoded content to create a blob for
+    def create_base64_encoded_blob(oauth_token, content)
+      client = Octokit::Client.new(access_token: oauth_token)
+      client.create_blob(full_repo_name, content, 'base64')
+    end
+
+    ##
+    # This method creates a new tree in the SSE website repo and returns the tree's sha.
+    # The method assumes that the paths passed into the method have corresponding blobs
+    # created for the files
     #
     # Params:
     # +oauth_token+::a user's oauth access token
-    # +path+::the path for the file to create for the tree
-    # +text+::the text to include in the tree
+    # +file_information+::an array of hashes containing the file path and the blob sha for a file
     # +sha_base_tree+::the sha of the base tree
-    def create_new_tree(oauth_token, path, text, sha_base_tree)
+    def create_new_tree_with_blobs(oauth_token, file_information, sha_base_tree)
       client = Octokit::Client.new(access_token: oauth_token)
-      blob_sha = client.create_blob(full_repo_name, text)
-      client.create_tree(full_repo_name, 
-                        [ { path: path,
-                            mode: '100644',
-                            type: 'blob',
-                            sha: blob_sha } ],
-                           base_tree: sha_base_tree)[:sha]
+      blob_information = []
+      file_information.each do |file|
+        blob_information << { path: file[:path]
+                              mode: '100644',
+                              type: 'blob',
+                              sha: file[:blob_sha]}
+      end
+      client.create_tree(full_repo_name, blob_information, base_tree: sha_base_tree)[:sha]
     end
 
     ##
