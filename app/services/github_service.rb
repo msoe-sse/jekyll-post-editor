@@ -90,9 +90,9 @@ module GithubService
 
     ##
     # This method submits a post to GitHub by checking out a new branch for the post.
-    # Commiting and pushing the markdown to the branch. And then finally opening 
-    # a pull request into master for the new post. The SSE webmaster will be requested
-    # for review on the created pull request
+    # Commiting and pushing the markdown to the branch and any photos attached to the post. 
+    # And then finally opening a pull request into master for the new post. The SSE webmaster 
+    # will be requested for review on the created pull request
     #
     # Params
     # +oauth_token+::a user's oauth access token
@@ -119,6 +119,8 @@ module GithubService
       commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, new_ref)
 
       open_pull_request_for_post(client, branch_name, post_title)
+
+      PostImageManager.instance.clear
     end
 
     private
@@ -129,12 +131,32 @@ module GithubService
       def create_new_tree_for_post(client, post_markdown, post_title, sha_base_tree)
         # This blob represents the content we're going to create which in this case is markdown
         blob_sha = client.create_blob(full_repo_name, post_markdown)
-        client.create_tree(full_repo_name, 
-                          [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-#{post_title.gsub(/\s+/, '')}.md",
-                              mode: '100644',
-                              type: 'blob',
-                              sha: blob_sha } ],
-                             base_tree: sha_base_tree)[:sha]
+
+        # This mode property on this hash represents the file mode for a GitHub tree. 
+        # The mode is 100644 for a file blob. See https://developer.github.com/v3/git/trees/ for more information
+        blob_information = [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-#{post_title.gsub(/\s+/, '')}.md",
+                               mode: '100644', 
+                               type: 'blob',
+                               sha: blob_sha } ]
+        create_image_blobs(client, blob_information, post_markdown)
+        client.create_tree(full_repo_name, blob_information, base_tree: sha_base_tree)[:sha]
+      end
+
+      def create_image_blobs(client, blob_information, post_markdown)
+        PostImageManager.instance.uploaders.each do |uploader|
+          # This check prevents against images that have been removed from the markdown
+          if KramdownService.does_markdown_include_image(uploader.filename, post_markdown)
+            # This line uses .file.file since the first .file returns a carrierware object
+            base_64_encoded_image = Base64.encode64(File.open(uploader.post_image.file.file, 'rb').read)
+            image_blob_sha = client.create_blob(full_repo_name, base_64_encoded_image, 'base64')
+            # This mode property on this hash represents the file mode for a GitHub tree. 
+            # The mode is 100644 for a file blob. See https://developer.github.com/v3/git/trees/ for more information
+            blob_information << { path: "assets/img/#{uploader.filename}",
+                                  mode: '100644',
+                                  type: 'blob',
+                                  sha: image_blob_sha }
+          end
+        end
       end
 
       def commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, new_ref)
