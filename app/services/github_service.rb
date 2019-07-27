@@ -110,18 +110,6 @@ module GithubService
     end
 
     ##
-    # This method creates a new branch in the SSE website repo
-    #
-    # Params
-    # +oauth_token+::a user's oauth access token
-    # +head_sha+::the sha of the head to branch from
-    # +ref_name+::the name of the branch to create
-    def create_ref(oauth_token, head_sha, ref_name)
-      client = Octokit::Client.new(access_token: oauth_token)
-      client.create_ref(full_repo_name, ref_name, head_sha)
-    end
-
-    ##
     # This method create a new blob in the SSE website repo with text content
     #
     # Params
@@ -156,6 +144,8 @@ module GithubService
       client = Octokit::Client.new(access_token: oauth_token)
       blob_information = []
       file_information.each do |file|
+        # This mode property on this hash represents the file mode for a GitHub tree. 
+        # The mode is 100644 for a file blob. See https://developer.github.com/v3/git/trees/ for more information
         blob_information << { path: file[:path]
                               mode: '100644',
                               type: 'blob',

@@ -1,3 +1,5 @@
+require 'base64'
+
 ##
 # This module contains operations related to posts on the SSE website
 module PostService
@@ -23,10 +25,11 @@ module PostService
       master_head_sha = GithubService.get_master_head_sha(oauth_token)
       sha_base_tree = GithubService.get_base_tree_for_branch(oauth_token, master_head_sha)
 
-      GithubService.create_ref(oauth_token, new_ref)
-
-      new_tree_sha = GithubService.create_new_tree(oauth_token, create_new_filename_for_post(post_title), 
-                                                   post_markdown, sha_base_tree)
+      GithubService.create_ref_if_necessary(oauth_token, new_ref)
+      
+      file_information = [ create_blob_for_post(oauth_token, post_markdown, post_title) ]
+      create_image_blobs(oauth_token, file_information)
+      new_tree_sha = GithubService.create_new_tree(oauth_token, file_information, sha_base_tree)
       
       GithubService.commit_and_push_to_repo(oauth_token, "Created post #{post_title}", 
                                             new_tree_sha, master_head_sha, new_ref)
@@ -39,6 +42,23 @@ module PostService
     private
       def create_new_filename_for_post(post_title)
         "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-#{post_title.gsub(/\s+/, '')}.md"
+      end
+
+      def create_blob_for_post(oauth_token, post_markdown, post_title)
+        blob_sha = GithubService.create_text_blob(oauth_token, post_markdown)
+        { path: create_new_filename_for_post(post_title), blob_sha: blob_sha }
+      end
+
+      def create_image_blobs(oauth_token, current_file_information)
+        PostImageManager.instance.uploaders.each do |uploader|
+           # This check prevents against images that have been removed from the markdown
+          if KramdownService.does_markdown_include_image(uploader.filename, post_markdown)
+            # This line uses .file.file since the first .file returns a carrierware object
+            base_64_encoded_image = Base64.encode64(File.open(uploader.post_image.file.file, 'rb').read)
+            image_blob_sha = GithubService.create_base64_encoded_blob(oauth_token, base_64_encoded_image)
+            current_file_information << { path: "assets/img/#{uploader.filename}", blob_sha: image_blob_sha}
+          end
+        end
       end
   end
 end

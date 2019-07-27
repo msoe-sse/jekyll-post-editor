@@ -185,17 +185,6 @@ class GithubServiceTest < ActiveSupport::TestCase
     assert_equal 'base tree sha', result
   end
 
-  test 'create_ref should create a new branch for the SSE website repo' do 
-    # Arrange
-    Octokit::Client.any_instance.expects(:create_ref)
-                   .with('msoe-sse/jekyll-post-editor-test-repo', 'heads/newBranch', 'master head sha').once
-
-    # Act
-    GithubService.create_ref('my token', 'master head sha', 'heads/newBranch')
-
-    # No Assert - taken care of with mocha mock setups
-  end
-
   test 'create_text_blob should create a new blob with text content 
         in the SSE website repo and return the sha of the blob' do 
     # Arrange
