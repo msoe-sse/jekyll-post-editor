@@ -3,17 +3,16 @@
 module PostService
   class << self
     ##
-    # This method submits a post to GitHub by checking out a new branch for the post.
-    # Commiting and pushing the markdown to the branch. And then finally opening 
-    # a pull request into master for the new post. The SSE webmaster will be requested
-    # for review on the created pull request
+    # This method submits a post to GitHub by checking out a new branch for the post,
+    # if the branch already doesn't exist Commiting and pushing the markdown and any photos 
+    # attached to the post to the branch. And then finally opening a pull request into master 
+    # for the new post. The SSE webmaster will be requested for review on the created pull request
     #
     # Params
     # +oauth_token+::a user's oauth access token
     # +post_markdown+:: the markdown contents of a post
-    # +post_title+:: the title of the new post to be submited
     def submit_post(oauth_token, post_markdown, post_title)
-      # This new_ref variable represents the new branch we are creating
+      # This ref_name variable represents the branch name
       # for submiting a post. At the end we strip out all of the whitespace in 
       # the post_title to create a valid branch name
       branch_name = "createPost#{post_title.gsub(/\s+/, '')}"
@@ -33,6 +32,8 @@ module PostService
                                             new_tree_sha, master_head_sha, new_ref)
       GithubService.create_pull_request(oauth_token, branch_name, 'master', "Created Post #{post_title}", 
                                         pull_request_body, [Rails.configuration.webmaster_github_username])
+      
+      PostImageManager.instance.clear
     end
 
     private

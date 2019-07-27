@@ -5,4 +5,5 @@ Rails.application.routes.draw do
   get 'post/preview'
   post 'post/submit'
   root 'post#list'
+  post 'image/upload'
 end

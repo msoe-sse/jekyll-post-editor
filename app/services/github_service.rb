@@ -11,9 +11,9 @@ module GithubService
 
     ##
     # This method get the authorization url which authorizes the post editor app
-    # to use a user's GitHub account. The scope is write:org so that we're able
+    # to use a user's GitHub account. The scope is public_repo so that we're able
     # to make changes to the msoe-sse/mseo-sse.github.io repository which requires
-    # write access to an orginization's repository
+    # access a user's public repositories
     def get_authorization_url
       client = Octokit::Client.new
       client.authorize_url(CLIENT_ID, scope: 'public_repo')
@@ -169,6 +169,21 @@ module GithubService
       client = Octokit::Client.new(access_token: oauth_token)
       pull_number = client.create_pull_request(full_repo_name, base_branch, source_branch, pr_title, pr_body)[:number]
       client.request_pull_request_review(full_repo_name, pull_number, reviewers: reviewers)
+    end
+
+    ##
+    # This method will create a branch in the SSE website repo
+    # if it already doesn't exist
+    #
+    # Params:
+    # +oauth_token+::a user's oauth access token
+    # +ref_name+:: the name of the branch to create if necessary
+    # +master_head_sha+:: the sha representing the head of master
+    def create_ref_if_necessary(oauth_token, ref_name, master_head_sha)
+      client = Octokit::Client.new(access_token: oauth_token)
+      client.ref(full_repo_name, ref_name)
+      rescue Octokit::NotFound
+        client.create_ref(full_repo_name, ref_name, master_head_sha)
     end
 
     private

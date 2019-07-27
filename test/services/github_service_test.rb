@@ -159,6 +159,10 @@ class GithubServiceTest < ActiveSupport::TestCase
 
   test 'get_master_head_sha should return the sha of the head of master' do 
     # Arrange
+    post_file_path = "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md"
+
+    PostImageManager.instance.expects(:uploaders).returns([])
+
     Octokit::Client.any_instance.expects(:ref).with('msoe-sse/jekyll-post-editor-test-repo', 'heads/master')
                    .returns(object: { sha: 'master head sha' })
 
@@ -246,6 +250,22 @@ class GithubServiceTest < ActiveSupport::TestCase
     # No Assert - taken care of with mocha mock setups
   end
 
+  test 'create_ref_if_necessary should not create a new branch if the branch already exists' do 
+    # Arrange
+    Octokit::Client.any_instance.expects(:ref)
+                                .with('msoe-sse/jekyll-post-editor-test-repo', 'branchName')
+                                .returns('my ref')
+    
+    Octokit::Client.any_instance.expects(:create_ref)
+                                .with('msoe-sse/jekyll-post-editor-test-repo', 'branchName', 'master head sha')
+                                .return('sample response').never
+
+    # Act
+    GithubService.create_ref_if_necessary('oauth token', 'branchName', 'master head sha')
+    
+    # No Assert - taken care of with mocha mock setups
+  end
+  
   private
     def create_dummy_api_resource(parameters)
       resource = DummyApiResource.new
@@ -263,6 +283,27 @@ class GithubServiceTest < ActiveSupport::TestCase
       post_model.contents = parameters[:contents]
       post_model.tags = parameters[:tags]
       post_model
+    end
+
+    def create_blob_info_hash(file_path, blob_sha)
+      { path: file_path,
+        mode: '100644',
+        type: 'blob',
+        sha: blob_sha } 
+    end
+
+    def mock_image_blob_and_return_sha(mock_uploader)
+      mock_ruby_file = create_mock_ruby_file(mock_uploader.filename)
+      File.expects(:open).with(mock_uploader.post_image.file.file, 'rb').returns(mock_ruby_file)
+      Base64.expects(:encode64).with("File Contents for #{mock_uploader.filename}")
+            .returns("base 64 for #{mock_uploader.filename}")
+      
+      sha_to_return = "blob sha for #{mock_uploader.filename}"
+      Octokit::Client.any_instance.expects(:create_blob)
+                     .with('msoe-sse/jekyll-post-editor-test-repo', "base 64 for #{mock_uploader.filename}", 'base64')
+                     .returns(sha_to_return)
+      
+      sha_to_return
     end
 
     class DummyApiResource
