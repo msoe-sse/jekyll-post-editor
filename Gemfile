@@ -46,3 +46,6 @@ gem 'octokit', '~> 4.0'
 
 gem 'rubocop', '~> 0.71'
 gem 'rubocop-rails_config'
+
+gem 'carrierwave', '>= 2.0.0.rc', '< 3.0'
+gem 'dropzonejs-rails'

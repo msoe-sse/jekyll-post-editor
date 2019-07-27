@@ -16,7 +16,7 @@ class PostController < BasePostEditorController
 
   # GET post/preview
   def preview
-    kramdown_html = KramdownService.get_html(params[:text])
+    kramdown_html = KramdownService.get_preview(params[:text])
     render json: {
       html: kramdown_html
     }
