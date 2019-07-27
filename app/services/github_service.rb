@@ -146,7 +146,7 @@ module GithubService
       file_information.each do |file|
         # This mode property on this hash represents the file mode for a GitHub tree. 
         # The mode is 100644 for a file blob. See https://developer.github.com/v3/git/trees/ for more information
-        blob_information << { path: file[:path]
+        blob_information << { path: file[:path],
                               mode: '100644',
                               type: 'blob',
                               sha: file[:blob_sha]}

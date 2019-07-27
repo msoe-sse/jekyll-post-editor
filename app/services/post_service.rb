@@ -28,7 +28,7 @@ module PostService
       GithubService.create_ref_if_necessary(oauth_token, new_ref)
       
       file_information = [ create_blob_for_post(oauth_token, post_markdown, post_title) ]
-      create_image_blobs(oauth_token, file_information)
+      create_image_blobs(oauth_token, post_markdown, file_information)
       new_tree_sha = GithubService.create_new_tree(oauth_token, file_information, sha_base_tree)
       
       GithubService.commit_and_push_to_repo(oauth_token, "Created post #{post_title}", 
@@ -49,7 +49,7 @@ module PostService
         { path: create_new_filename_for_post(post_title), blob_sha: blob_sha }
       end
 
-      def create_image_blobs(oauth_token, current_file_information)
+      def create_image_blobs(oauth_token, post_markdown, current_file_information)
         PostImageManager.instance.uploaders.each do |uploader|
            # This check prevents against images that have been removed from the markdown
           if KramdownService.does_markdown_include_image(uploader.filename, post_markdown)

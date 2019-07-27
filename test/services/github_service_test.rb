@@ -161,8 +161,6 @@ class GithubServiceTest < ActiveSupport::TestCase
     # Arrange
     post_file_path = "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md"
 
-    PostImageManager.instance.expects(:uploaders).returns([])
-
     Octokit::Client.any_instance.expects(:ref).with('msoe-sse/jekyll-post-editor-test-repo', 'heads/master')
                    .returns(object: { sha: 'master head sha' })
 
@@ -188,7 +186,9 @@ class GithubServiceTest < ActiveSupport::TestCase
   test 'create_text_blob should create a new blob with text content 
         in the SSE website repo and return the sha of the blob' do 
     # Arrange
-    Octokit::Client.any_instance.expects(:create_blob).with('my text').returns('blob sha')
+    Octokit::Client.any_instance.expects(:create_blob)
+                                .with('msoe-sse/jekyll-post-editor-test-repo', 'my text')
+                                .returns('blob sha')
 
     # Act
     result = GithubService.create_text_blob('my token', 'my text')
@@ -200,10 +200,12 @@ class GithubServiceTest < ActiveSupport::TestCase
   test 'create_base64_encoded_blob should create a new blob with base 64 encoded content 
         in the SSE website repo and return the sha of the blob' do 
     # Arrange
-    Octokit::Client.any_instance.expects(:create_base64_encoded_blob).with('my content').returns('blob sha')
+    Octokit::Client.any_instance.expects(:create_blob)
+                                .with('msoe-sse/jekyll-post-editor-test-repo', 'my content', 'base64')
+                                .returns('blob sha')
 
     # Act
-    result = GithubService.create_text_blob('my token', 'my content')
+    result = GithubService.create_base64_encoded_blob('my token', 'my content')
 
     # Assert
     assert_equal 'blob sha', result
@@ -213,16 +215,14 @@ class GithubServiceTest < ActiveSupport::TestCase
     # Arrange
     file_information = [ { path: 'filename1.md', blob_sha: 'blob1 sha' }, 
                          { path: 'filename2.md', blob_sha: 'blob2 sha' }]
-    Octokit::Client.any_instance.expects(:create_blob).with('msoe-sse/jekyll-post-editor-test-repo', '# hello')
-                   .returns('blob sha')
     Octokit::Client.any_instance.expects(:create_tree)
                    .with('msoe-sse/jekyll-post-editor-test-repo', 
                          [ create_blob_info_hash(file_information[0][:path], file_information[0][:blob_sha]),
-                           create_blob_info_hash(file_information[1][:path]), file_information[1][:blob_sha] ],
+                           create_blob_info_hash(file_information[1][:path], file_information[1][:blob_sha]) ],
                         base_tree: 'base tree sha').returns(sha: 'new tree sha')
 
     # Act
-    result = GithubService.create_new_tree('my token', file_information, 'base tree sha')
+    result = GithubService.create_new_tree_with_blobs('my token', file_information, 'base tree sha')
 
     # Assert
     assert_equal 'new tree sha', result
@@ -271,7 +271,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     
     Octokit::Client.any_instance.expects(:create_ref)
                                 .with('msoe-sse/jekyll-post-editor-test-repo', 'branchName', 'master head sha')
-                                .return('sample response').never
+                                .returns('sample response').never
 
     # Act
     GithubService.create_ref_if_necessary('oauth token', 'branchName', 'master head sha')
@@ -303,20 +303,6 @@ class GithubServiceTest < ActiveSupport::TestCase
         mode: '100644',
         type: 'blob',
         sha: blob_sha } 
-    end
-
-    def mock_image_blob_and_return_sha(mock_uploader)
-      mock_ruby_file = create_mock_ruby_file(mock_uploader.filename)
-      File.expects(:open).with(mock_uploader.post_image.file.file, 'rb').returns(mock_ruby_file)
-      Base64.expects(:encode64).with("File Contents for #{mock_uploader.filename}")
-            .returns("base 64 for #{mock_uploader.filename}")
-      
-      sha_to_return = "blob sha for #{mock_uploader.filename}"
-      Octokit::Client.any_instance.expects(:create_blob)
-                     .with('msoe-sse/jekyll-post-editor-test-repo', "base 64 for #{mock_uploader.filename}", 'base64')
-                     .returns(sha_to_return)
-      
-      sha_to_return
     end
 
     class DummyApiResource
