@@ -29,11 +29,11 @@ module PostFactory
       # What this regular expression does is it matches two groups
       # The first group represents the header of the post which appears
       # between the two --- lines. The second group represents the actual post contents
-      match_obj = post_contents.match(/---(.*)---\n(.*)/m)
+      match_obj = post_contents.match(/---(.*)---(\r\n|\r|\n)(.*)/m)
       header = match_obj.captures[0]
       
       parse_post_header(header, result)
-      result.contents = match_obj.captures[1]
+      result.contents = match_obj.captures[2]
       result.tags = parse_tags(header)
       result
     end
@@ -41,10 +41,10 @@ module PostFactory
     def parse_post_header(header, post_model)
       # The following regular expressions in this method look for specific properities
       # located in the post header.
-      post_model.title = header.match(/title:\s*(.*)\n/).captures.first
-      post_model.author = header.match(/author:\s*(.*)\n/).captures.first
-      post_model.hero = header.match(/hero:\s*(.*)\n/).captures.first
-      post_model.overlay = header.match(/overlay:\s*(.*)\n/).captures.first
+      post_model.title = header.match(/title:\s*(.*)(\r\n|\r|\n)/).captures.first
+      post_model.author = header.match(/author:\s*(.*)(\r\n|\r|\n)/).captures.first
+      post_model.hero = header.match(/hero:\s*(.*)(\r\n|\r|\n)/).captures.first
+      post_model.overlay = header.match(/overlay:\s*(.*)(\r\n|\r|\n)/).captures.first
     end
   end
 end

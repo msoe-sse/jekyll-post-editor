@@ -43,4 +43,31 @@ overlay: green
     assert_equal 'green', result.overlay
     assert_equal "#An H1 tag\n##An H2 tag", result.contents
   end
+
+  test 'create_post should return a post model with correct values given a post with \r\n line breaks' do 
+    # Arrange
+    post_contents = %(---
+layout: post\r
+title: Some Post\r
+author: Andrew Wojciechowski\r
+tags:\r
+  - announcement\r
+  - info\r
+hero: https://source.unsplash.com/collection/145103/\r
+overlay: green\r
+---\r
+#An H1 tag\r
+##An H2 tag)
+        
+    # Act
+    result = PostFactory.create_post(post_contents)
+        
+    # Assert
+    assert_equal "Some Post\r", result.title
+    assert_equal "Andrew Wojciechowski\r", result.author
+    assert_equal "announcement\r, info\r", result.tags
+    assert_equal "https://source.unsplash.com/collection/145103/\r", result.hero
+    assert_equal "green\r", result.overlay
+    assert_equal "#An H1 tag\r\n##An H2 tag", result.contents
+  end
 end
