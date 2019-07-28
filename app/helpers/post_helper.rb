@@ -11,4 +11,12 @@ module PostHelper
     return "/post/submit?path=#{post_path}" if post_path
     '/post/submit'
   end
+
+  def get_selected_overlay(post_overlay)
+    if post_overlay
+      return 'Red' if post_overlay.downcase == 'red'
+      return 'Blue' if post_overlay.downcase == 'blue'
+      return 'Green' if post_overlay.downcase == 'green'
+    end
+  end
 end

@@ -6,7 +6,7 @@ class ErrorTest < BaseIntegrationTest
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
-    PostService.expects(:submit_post).with('access token', 'post text', 'title').raises(Octokit::TooManyRequests)
+    PostService.expects(:create_post).with('access token', 'post text', 'title').raises(Octokit::TooManyRequests)
     KramdownService.expects(:create_jekyll_post_text)
                    .with('# hello', 'author', 'title', 'tags', 'red').returns('post text')
             
