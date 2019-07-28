@@ -3,6 +3,9 @@ require_relative '../models/post'
 ##
 # This module is a factory for parsing post text and creating a correseponding post model
 module PostFactory
+  LEAD = '{: .lead}'
+  BREAK = '<!–-break-–>'
+
   class << self
     ##
     # This method parses markdown in a post a returns a post model
@@ -34,6 +37,10 @@ module PostFactory
       
       parse_post_header(header, result)
       result.contents = match_obj.captures[2]
+                                 .remove("#{LEAD}\r\n")
+                                 .remove("#{LEAD}\n")
+                                 .remove("#{BREAK}\r\n")
+                                 .remove("#{BREAK}\n")
       result.tags = parse_tags(header)
       result
     end

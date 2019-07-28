@@ -1,6 +1,9 @@
 require 'test_helper'
 
 class PostFactoryTest < ActiveSupport::TestCase
+  LEAD_BREAK_SECTION1 = "{: .lead}\r\n<!–-break-–>"
+  LEAD_BREAK_SECTION2 = "{: .lead}\n<!–-break-–>"
+
   test 'create_post should return nil if given a nil value for post_contents' do 
     # Act
     result = PostFactory.create_post(nil)
@@ -29,6 +32,7 @@ tags:
 hero: https://source.unsplash.com/collection/145103/
 overlay: green
 ---
+#{LEAD_BREAK_SECTION1}
 #An H1 tag
 ##An H2 tag)
 
@@ -56,6 +60,7 @@ tags:\r
 hero: https://source.unsplash.com/collection/145103/\r
 overlay: green\r
 ---\r
+#{LEAD_BREAK_SECTION2}
 #An H1 tag\r
 ##An H2 tag)
         
