@@ -36,17 +36,21 @@ module KramdownService
     end
 
     ##
-    # This method returns if an image tag exists with a given filename in some markdown text
+    # This method returns the image filename given some markdown
     #
     # Params:
     # +image_file_name+:: a filename of a image to look for in markdown
     # +markdown+:: text of a markdown post
-    def does_markdown_include_image(image_file_name, markdown)
+    def get_image_filename_from_markdown(image_file_name, markdown)
       document = Kramdown::Document.new(markdown)
       document_descendants = []
+
       get_document_descendants(document.root, document_descendants)
       all_img_tags = document_descendants.select { |x| x.type == :img }
-      all_img_tags.any? { |x| File.basename(x.attr['src']).tr(' ', '_') == image_file_name }
+      matching_image_tag = all_img_tags.find { |x| get_filename_for_image_tag(x).tr(' ', '_') == image_file_name }
+      
+      return get_filename_for_image_tag(matching_image_tag) if matching_image_tag
+      nil
     end
 
     ##
@@ -118,6 +122,10 @@ published: true
           result << element
           get_document_descendants(element, result)
         end
+      end
+
+      def get_filename_for_image_tag(image_el)
+        File.basename(image_el.attr['src'])
       end
   end
 end

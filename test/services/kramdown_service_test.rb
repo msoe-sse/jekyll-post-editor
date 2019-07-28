@@ -68,40 +68,41 @@ Andy is nice)
     assert_equal expected_html, result
   end
 
-  test 'does_markdown_include_image should return false if the markdown doesnt 
+  test 'get_image_filename_from_markdown should return nil if the markdown doesnt 
         include an image with a given filename' do 
     # Arrange
     markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
 
     # Act
-    result = KramdownService.does_markdown_include_image('my file.jpg', markdown)
+    result = KramdownService.get_image_filename_from_markdown('my file.jpg', markdown)
 
     # Assert
     assert_not result
   end
 
-  test 'does_markdown_include_image should return true if the markdown does include an image with a given filename' do 
+  test 'get_image_filename_from_markdown should return a filename if the markdown does 
+        include an image with a given filename' do 
     # Arrange
     markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
 
     # Act
-    result = KramdownService.does_markdown_include_image('20170610130401_1.jpg', markdown)
+    result = KramdownService.get_image_filename_from_markdown('20170610130401_1.jpg', markdown)
 
     # Assert
-    assert result
+    assert_equal '20170610130401_1.jpg', result
   end
 
   # Test Case for Issue 22 on GitHub
-  test 'does_markdown_include_image should return true if the markdown does include an image with a given filename 
+  test 'get_image_filename_from_markdown should return true if the markdown does include an image with a given filename 
         and the filename has been formatted by CarrierWave' do 
     # Arrange
     markdown = '![My Alt Text](/assets/img/My File.jpg)'
 
     # Act
-    result = KramdownService.does_markdown_include_image('My_File.jpg', markdown)
+    result = KramdownService.get_image_filename_from_markdown('My_File.jpg', markdown)
 
     # Assert
-    assert result
+    assert_equal 'My File.jpg', result
   end
 
   test 'create_jekyll_post_text should return text for a formatted post' do 
