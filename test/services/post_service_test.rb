@@ -8,9 +8,10 @@ class PostServiceTest < ActiveSupport::TestCase
 
     GithubService.expects(:get_master_head_sha).with('my token').returns('master head sha')
     GithubService.expects(:get_base_tree_for_branch).with('my token', 'master head sha').returns('master tree sha')
-    GithubService.expects(:create_ref_if_necessary).with('my token', 'heads/createPostTestPost').once
+    GithubService.expects(:create_ref_if_necessary)
+                 .with('my token', 'heads/createPostTestPost', 'master head sha').once
     GithubService.expects(:create_text_blob).with('my token', '# hello').returns('post blob sha')
-    GithubService.expects(:create_new_tree)
+    GithubService.expects(:create_new_tree_with_blobs)
                  .with('my token', [ create_file_info_hash(post_file_path, 'post blob sha')], 'master tree sha')
                  .returns('new tree sha')
     GithubService.expects(:commit_and_push_to_repo)
@@ -38,9 +39,10 @@ class PostServiceTest < ActiveSupport::TestCase
 
     GithubService.expects(:get_master_head_sha).with('my token').returns('master head sha')
     GithubService.expects(:get_base_tree_for_branch).with('my token', 'master head sha').returns('master tree sha')
-    GithubService.expects(:create_ref_if_necessary).with('my token', 'heads/createPostTestPost').once
+    GithubService.expects(:create_ref_if_necessary)
+                 .with('my token', 'heads/createPostTestPost', 'master head sha').once
     GithubService.expects(:create_text_blob).with('my token', '# hello').returns('post blob sha')
-    GithubService.expects(:create_new_tree)
+    GithubService.expects(:create_new_tree_with_blobs)
                  .with('my token', [ create_file_info_hash(post_file_path, 'post blob sha')], 'master tree sha')
                  .returns('new tree sha')
     GithubService.expects(:commit_and_push_to_repo)
@@ -85,9 +87,10 @@ class PostServiceTest < ActiveSupport::TestCase
 
     GithubService.expects(:get_master_head_sha).with('my token').returns('master head sha')
     GithubService.expects(:get_base_tree_for_branch).with('my token', 'master head sha').returns('master tree sha')
-    GithubService.expects(:create_ref_if_necessary).with('my token', 'heads/createPostTestPost').once
+    GithubService.expects(:create_ref_if_necessary)
+                 .with('my token', 'heads/createPostTestPost', 'master head sha').once
     GithubService.expects(:create_text_blob).with('my token', test_markdown).returns('post blob sha')
-    GithubService.expects(:create_new_tree)
+    GithubService.expects(:create_new_tree_with_blobs)
                  .with('my token', [ create_file_info_hash(post_file_path, 'post blob sha'), 
                                      create_file_info_hash('assets/img/My Image 1.jpg', image_blob_sha1)], 
                         'master tree sha')

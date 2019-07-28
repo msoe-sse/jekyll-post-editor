@@ -25,11 +25,11 @@ module PostService
       master_head_sha = GithubService.get_master_head_sha(oauth_token)
       sha_base_tree = GithubService.get_base_tree_for_branch(oauth_token, master_head_sha)
 
-      GithubService.create_ref_if_necessary(oauth_token, new_ref)
+      GithubService.create_ref_if_necessary(oauth_token, new_ref, master_head_sha)
       
       file_information = [ create_blob_for_post(oauth_token, post_markdown, post_title) ]
       create_image_blobs(oauth_token, post_markdown, file_information)
-      new_tree_sha = GithubService.create_new_tree(oauth_token, file_information, sha_base_tree)
+      new_tree_sha = GithubService.create_new_tree_with_blobs(oauth_token, file_information, sha_base_tree)
       
       GithubService.commit_and_push_to_repo(oauth_token, "Created post #{post_title}", 
                                             new_tree_sha, master_head_sha, new_ref)
