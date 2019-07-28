@@ -12,6 +12,11 @@ module PostHelper
     '/post/submit'
   end
 
+  ##
+  # Returns the valid selected value for the overlay dropdown given an existing post's overlay
+  #
+  # Params:
+  # +post_overlay+::the overlay for an existing post
   def get_selected_overlay(post_overlay)
     if post_overlay
       return 'Red' if post_overlay.downcase == 'red'

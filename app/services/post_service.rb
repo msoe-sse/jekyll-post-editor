@@ -7,8 +7,8 @@ module PostService
     PULL_REQUEST_BODY = 'This pull request was opened automatically by the jekyll-post-editor.'
 
     ##
-    # This method submits a post to GitHub by checking out a new branch for the post,
-    # if the branch already doesn't exist Commiting and pushing the markdown and any photos 
+    # This method submits a new post to GitHub by checking out a new branch for the post,
+    # if the branch already doesn't exist. Commiting and pushing the markdown and any photos 
     # attached to the post to the branch. And then finally opening a pull request into master 
     # for the new post. The SSE webmaster will be requested for review on the created pull request
     #
@@ -38,6 +38,17 @@ module PostService
       PostImageManager.instance.clear
     end
 
+    ##
+    # This method submits changes to an existing post to GitHub by checking out a new branch for the post,
+    # if the branch already doesn't exist. Commiting and pushing the markdown changes and any added photos
+    # for the existing post to the branch. And the finally opening a pull request into master for the new post.
+    # The SSE webmaster will be requested for review on the created pull request
+    #
+    # Params
+    # +oauth_token+::a user's oauth access token
+    # +post_markdown+::the modified markdown to submit
+    # +post_title+::the title for the existing post
+    # +existing_post_file_path+::the file path to the existing post on GitHub
     def edit_post(oauth_token, post_markdown, post_title, existing_post_file_path)
       # This ref_name variable represents the branch name
       # for editing a post. At the end we strip out all of the whitespace in 
