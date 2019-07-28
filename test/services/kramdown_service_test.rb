@@ -91,6 +91,19 @@ Andy is nice)
     assert result
   end
 
+  # Test Case for Issue 22 on GitHub
+  test 'does_markdown_include_image should return true if the markdown does include an image with a given filename 
+        and the filename has been formatted by CarrierWave' do 
+    # Arrange
+    markdown = '![My Alt Text](/assets/img/My File.jpg)'
+
+    # Act
+    result = KramdownService.does_markdown_include_image('My_File.jpg', markdown)
+
+    # Assert
+    assert result
+  end
+
   test 'create_jekyll_post_text should return text for a formatted post' do 
     # Arrange
     expected_post = %(---

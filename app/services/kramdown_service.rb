@@ -46,7 +46,7 @@ module KramdownService
       document_descendants = []
       get_document_descendants(document.root, document_descendants)
       all_img_tags = document_descendants.select { |x| x.type == :img }
-      all_img_tags.any? { |x| File.basename(x.attr['src']) == image_file_name }
+      all_img_tags.any? { |x| File.basename(x.attr['src']).tr(' ', '_') == image_file_name }
     end
 
     ##
