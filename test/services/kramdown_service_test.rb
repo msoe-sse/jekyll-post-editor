@@ -49,6 +49,25 @@ Andy is nice)
     assert_equal expected_html, result
   end
 
+  # Test Case for Issue 22 on GitHub
+  test 'get_preview should update the src attribute of images tags if an uploader 
+        with a formatted filename exists in PostImageManager' do 
+    # Arrange
+    mock_uploader = create_mock_uploader('preview_My_File.jpg', 'my cache/preview_My_File.jpg', nil)
+    preview_uploader = create_preview_uploader('My_File.jpg', mock_uploader)
+
+    PostImageManager.instance.expects(:uploaders).returns([ preview_uploader ])
+
+    markdown = '![My Alt Text](/assets/img/My File.jpg)'
+    expected_html = "<p><img src=\"/uploads/tmp/my cache/preview_My_File.jpg\" alt=\"My Alt Text\" /></p>\n"
+
+    # Act
+    result = KramdownService.get_preview(markdown)
+
+    # Assert
+    assert_equal expected_html, result
+  end
+
   test 'does_markdown_include_image should return false if the markdown doesnt 
         include an image with a given filename' do 
     # Arrange
