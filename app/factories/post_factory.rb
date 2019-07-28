@@ -3,17 +3,18 @@ require_relative '../models/post'
 ##
 # This module is a factory for parsing post text and creating a correseponding post model
 module PostFactory
-  LEAD = '{: .lead}'
-  BREAK = '<!–-break-–>'
-
   class << self
+    LEAD = '{: .lead}'
+    BREAK = '<!–-break-–>'
+
     ##
     # This method parses markdown in a post a returns a post model
     # 
     # Params:
     # +post_contents+::markdown in a given post
-    def create_post(post_contents)      
-      return create_post_model(post_contents) if !post_contents.nil? && post_contents.is_a?(String)
+    # +file_path+::the path on GitHub to the post
+    def create_post(post_contents, file_path)      
+      return create_post_model(post_contents, file_path) if !post_contents.nil? && post_contents.is_a?(String)
     end
 
   private
@@ -26,8 +27,10 @@ module PostFactory
       result.join(', ')
     end
 
-    def create_post_model(post_contents)
+    def create_post_model(post_contents, file_path)
       result = Post.new
+
+      result.file_path = file_path
 
       # What this regular expression does is it matches two groups
       # The first group represents the header of the post which appears

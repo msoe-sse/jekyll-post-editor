@@ -74,7 +74,7 @@ module GithubService
         # Base64.decode64 will convert our string into a ASCII string
         # calling force_encoding('UTF-8') will fix that problem
         text_contents = Base64.decode64(post_api_response.content).force_encoding('UTF-8')
-        result << PostFactory.create_post(text_contents)
+        result << PostFactory.create_post(text_contents, post.path)
       end
       result
     end
