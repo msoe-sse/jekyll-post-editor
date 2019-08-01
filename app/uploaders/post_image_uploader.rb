@@ -17,6 +17,13 @@ class PostImageUploader < CarrierWave::Uploader::Base
     ['jpg', 'jpeg', 'gif', 'png']
   end
 
+  def size_range
+    # 5 mb is a very large photo it will probably never be reached. But
+    # this will prevent people from passing off very large files as an image.
+    # If you change this limit please document the reason for changing it below
+    1..5.megabytes
+  end
+
   version :preview do 
     process resize_to_limit: PREVIEW_LIMIT
   end
