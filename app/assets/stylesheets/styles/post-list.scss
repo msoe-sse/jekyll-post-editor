@@ -1,18 +1,18 @@
-#list-container {
+.listContainer {
   display: grid;
   grid-template-columns: 25% 50% 25%;
 }
 
-#list-middle-container {
+.listMiddleContainer {
   grid-column-start: 2;
   grid-column-end: 3;
 }
 
-#list-header-container {
+.listHeaderContainer {
   border-bottom: 1px solid black;
 }
 
-#post-list {
+.postList {
   margin-top: 3px;
 }
 
