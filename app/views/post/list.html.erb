@@ -3,7 +3,7 @@
     <%= content_tag(:div, class: 'listHeaderContainer') do %>
       <%= content_tag(:span) do %>
         <%= content_tag(:h1, 'Post List') %>
-        <%= link_to('Create Post', { controller: 'post', action: 'edit'}, class: 'btn btn-primary active', id: 'create-post-link') %>
+        <%= link_to('Create Post', { controller: 'post', action: 'edit'}, class: 'btn btn-primary active createPostLink') %>
       <% end %>
     <% end %>
     <%= content_tag(:ul, class: 'postList') do %>
