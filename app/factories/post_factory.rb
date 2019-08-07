@@ -20,7 +20,7 @@ module PostFactory
         tag_match = line.match(/\s*-\s*(.*)/)
         result << tag_match.captures.first if tag_match
       end
-      result
+      result.join(', ')
     end
 
     def create_post_model(post_contents)

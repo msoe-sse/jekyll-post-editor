@@ -1,11 +1,10 @@
 ##
 # The controller responsible for dealing with views related to SSE website posts
 class PostController < BasePostEditorController
-  # This list view was started and not completed. We may come back to this post MVP
-  # # GET post/list
-  # def list
-  #   @posts = GithubService.get_all_posts(session[:access_token])
-  # end
+  # GET post/list
+  def list
+    @posts = GithubService.get_all_posts(session[:access_token])
+  end
   
   # GET post/edit
   def edit
@@ -31,7 +30,7 @@ class PostController < BasePostEditorController
     else
       full_post_text = KramdownService.create_jekyll_post_text(params[:markdownArea], params[:author], 
                                                                params[:title], params[:tags], params[:overlay])
-      GithubService.submit_post(session[:access_token], full_post_text, params[:title])
+      PostService.submit_post(session[:access_token], full_post_text, params[:title])
       flash[:notice] = 'Post Successfully Submited'
       redirect_to action: 'edit'
     end

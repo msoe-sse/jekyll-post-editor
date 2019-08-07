@@ -38,7 +38,7 @@ overlay: green
     # Assert
     assert_equal 'Some Post', result.title
     assert_equal 'Andrew Wojciechowski', result.author
-    assert_equal ['announcement', 'info'], result.tags
+    assert_equal 'announcement, info', result.tags
     assert_equal 'https://source.unsplash.com/collection/145103/', result.hero
     assert_equal 'green', result.overlay
     assert_equal "#An H1 tag\n##An H2 tag", result.contents
