@@ -1,6 +1,6 @@
 class PostControllerTest < BaseIntegrationTest
   test 'an authenticated user should be able to navigate to post/list successfully' do 
-    # Arramge
+    # Arrange
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
@@ -18,7 +18,7 @@ class PostControllerTest < BaseIntegrationTest
   end
 
   test 'an authenticated user should be able to navigate to / successfully' do 
-    # Arramge
+    # Arrange
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
