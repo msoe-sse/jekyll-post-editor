@@ -36,7 +36,7 @@ $(function() {
   
   function setActiveTab(button, tabContent) {
     $('.tabcontent').css('display', 'none');
-    $('#tab-container button.active').removeClass('active');
+    $('.tabContainer button.active').removeClass('active');
     $(tabContent).css('display', 'block');
     $(button).addClass('active');
   }
