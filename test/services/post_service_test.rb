@@ -67,20 +67,20 @@ class PostServiceTest < ActiveSupport::TestCase
   test 'submit_post should upload any images if any exist in the PostImageManager' do 
     # Arrange
     post_file_path = "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-TestPost.md"
-    test_markdown = "# hello\r\n![My File.jpg](/assets/img/My File.jpg)"
+    test_markdown = "# hello\r\n![My File.jpg](/assets/img/My Image 1.jpg)"
 
-    mock_uploader1 = create_mock_uploader('post_image-My Image 1.jpg', 'cache 1', 
+    mock_uploader1 = create_mock_uploader('post_image-My_Image_1.jpg', 'cache 1', 
                                            create_mock_carrierware_file('C:\post_image-My Image 1.jpg'))
-    post_image_uploader1 = create_post_image_uploader('My Image 1.jpg', mock_uploader1)
+    post_image_uploader1 = create_post_image_uploader('My_Image_1.jpg', mock_uploader1)
 
-    mock_uploader2 = create_mock_uploader('post_image-My Image 2.jpg', 'cache 2', 
+    mock_uploader2 = create_mock_uploader('post_image-My_Image_2.jpg', 'cache 2', 
                                            create_mock_carrierware_file('C:\post_image-My Image 2.jpg'))
-    post_image_uploader2 = create_post_image_uploader('My Image 2.jpg', mock_uploader2)
+    post_image_uploader2 = create_post_image_uploader('My_Image_2.jpg', mock_uploader2)
     
-    KramdownService.expects(:does_markdown_include_image)
-                   .with('My Image 1.jpg', test_markdown).returns(true)
-    KramdownService.expects(:does_markdown_include_image)
-                   .with('My Image 2.jpg', test_markdown).returns(false)
+    KramdownService.expects(:get_image_filename_from_markdown)
+                   .with('My_Image_1.jpg', test_markdown).returns('My Image 1.jpg')
+    KramdownService.expects(:get_image_filename_from_markdown)
+                   .with('My_Image_2.jpg', test_markdown).returns(nil)
     
     image_blob_sha1 = mock_image_blob_and_return_sha(post_image_uploader1)
     PostImageManager.instance.expects(:uploaders).returns([ post_image_uploader1, post_image_uploader2 ])
