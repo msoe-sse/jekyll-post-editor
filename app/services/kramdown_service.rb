@@ -90,11 +90,10 @@ published: true
 
     private
       def parse_tags(tags)
-        tags_no_whitepsace = tags.gsub(/\s+/, '')
-        tag_array = tags_no_whitepsace.split(',')
+        tag_array = tags.split(',')
         result = ''
         tag_array.each do |tag|
-          result << "  - #{tag}"
+          result << "  - #{tag.strip}"
           result << "\r\n" if tag != tag_array.last
         end
         result

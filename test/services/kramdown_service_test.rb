@@ -136,6 +136,7 @@ author: Andy Wojciechowski\r
 tags:
   - announcement\r
   - info\r
+  - hack n tell\r
 hero: https://source.unsplash.com/collection/145103/
 overlay: green
 published: true
@@ -145,7 +146,10 @@ published: true
 ##An H2 tag)
     # Act
     result = KramdownService.create_jekyll_post_text("#An H1 tag\r\n##An H2 tag",
-                                                     'Andy Wojciechowski', 'Some Post', 'announcement, info', 'green')
+                                                     'Andy Wojciechowski', 
+                                                     'Some Post', 
+                                                     'announcement, info,    hack n tell     ', 
+                                                     'green')
     # Assert
     assert_equal expected_post, result
   end
