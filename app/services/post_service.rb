@@ -52,11 +52,12 @@ module PostService
       def create_image_blobs(oauth_token, post_markdown, current_file_information)
         PostImageManager.instance.uploaders.each do |uploader|
           # This check prevents against images that have been removed from the markdown
-          if KramdownService.does_markdown_include_image(uploader.filename, post_markdown)
+          markdown_file_name = KramdownService.get_image_filename_from_markdown(uploader.filename, post_markdown)
+          if markdown_file_name
             # This line uses .file.file since the first .file returns a carrierware object
             base_64_encoded_image = Base64.encode64(File.open(uploader.post_image.file.file, 'rb').read)
             image_blob_sha = GithubService.create_base64_encoded_blob(oauth_token, base_64_encoded_image)
-            current_file_information << { path: "assets/img/#{uploader.filename}", blob_sha: image_blob_sha }
+            current_file_information << { path: "assets/img/#{markdown_file_name}", blob_sha: image_blob_sha }
           end
         end
       end
