@@ -22,6 +22,7 @@ $(function() {
   $('#MarkdownTabContent').dropzone({
     url: '/image/upload',
     acceptedFiles: 'image/jpeg, image/jpg, image/png, image/gif',
+    maxFilesize: 5,
     success: function(file, response) {
       let markdownTextArea = $('#markdownArea');
 
