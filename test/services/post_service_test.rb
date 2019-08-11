@@ -178,8 +178,8 @@ class PostServiceTest < ActiveSupport::TestCase
                                           create_mock_carrierware_file('C:\post_image-My Image 1.jpg'))
     post_image_uploader = create_post_image_uploader('My Image 1.jpg', mock_uploader)
 
-    KramdownService.expects(:does_markdown_include_image)
-                   .with('My Image 1.jpg', test_markdown).returns(true)
+    KramdownService.expects(:get_image_filename_from_markdown)
+                   .with('My Image 1.jpg', test_markdown).returns('My Image 1.jpg')
 
     image_blob_sha = mock_image_blob_and_return_sha(post_image_uploader)
     PostImageManager.instance.expects(:uploaders).returns([ post_image_uploader ])
