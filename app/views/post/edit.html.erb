@@ -1,16 +1,18 @@
 <%= javascript_include_tag 'postEdit', 'data-turbolinks-track': 'reload' %>
 <%= form_tag(get_post_submission_url(@post.file_path), method: 'post') do %>
-  <% if flash[:alert] %>
-    <%= content_tag :div, class: 'alert alert-danger', role: 'alert' do %>
-      <%= content_tag(:strong, flash[:alert]) %>
-    <% end %>
-  <% end %>
-  <% if flash[:notice] %>
-    <%= content_tag :div, flash[:notice], class: 'notice' %>
-  <% end %>
   <%= content_tag(:div, class: 'editContainer') do %>
     <%= content_tag(:div, class: 'editMiddleContainer') do %>
       <%= render template: 'shared/header' %>
+      <% if flash[:alert] %>
+        <%= content_tag :div, class: 'alert alert-danger', role: 'alert' do %>
+          <%= content_tag(:strong, flash[:alert]) %>
+        <% end %>
+      <% end %>
+      <% if flash[:notice] %>
+        <%= content_tag :div, class: 'alert alert-success', role: 'alert' do %>
+          <%= content_tag(:strong, flash[:notice]) %>
+        <% end %>
+      <% end %>
       <%= content_tag(:div, class: 'editHeaderContainer') do %>
         <%= content_tag(:div, class: 'form-group') do %>
           <%= label_tag('Title:')%>
