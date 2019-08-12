@@ -8,6 +8,7 @@
   <% end %>
   <%= content_tag(:div, class: 'editContainer') do %>
     <%= content_tag(:div, class: 'editMiddleContainer') do %>
+      <%= render template: 'shared/header' %>
       <%= content_tag(:div, class: 'editHeaderContainer') do %>
         <%= label_tag('Title:')%>
         <%= text_field_tag(:title, @post.title, class: 'headerTextField') %>
