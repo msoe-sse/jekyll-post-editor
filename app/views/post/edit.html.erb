@@ -32,9 +32,11 @@
           <%= select_tag('overlay', options_for_select(['Red', 'Blue', 'Green'], get_selected_overlay(@post.overlay)), class: 'form-control overlayDropdown') %>
         <% end %>
       <% end %>
-      <%= content_tag(:div, class: 'tabContainer') do %>
-        <%= button_tag('Markdown', id: 'markdown-button', type: 'button') %>
-        <%= button_tag('Preview', id: 'preview-button', type: 'button') %>
+      <%= content_tag(:div, class: 'tabContainer btn-toolbar') do %>
+        <%= content_tag(:div, class: 'btn-group') do %>
+          <%= button_tag('Markdown', id: 'markdown-button', class: 'btn btn-secondary active', type: 'button') %>
+          <%= button_tag('Preview', id: 'preview-button', class: 'btn btn-secondary', type: 'button') %>
+        <% end %>
       <% end %>
       <%= content_tag(:div, id: 'MarkdownTabContent', class: 'tabcontent') do %>
         <%= text_area_tag(:markdownArea, @post.contents) %>
