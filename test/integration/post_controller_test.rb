@@ -153,7 +153,7 @@ class PostControllerTest < BaseIntegrationTest
                                    markdownArea: '# hello', tags: '', overlay: 'red' }
 
     # Assert
-    assert_redirected_to '/'
+    assert_redirected_to '/post/edit'
     assert_equal 'A post cannot be submited with a blank title.', flash[:alert]
     assert_nil flash[:notice]
   end
@@ -172,7 +172,7 @@ class PostControllerTest < BaseIntegrationTest
                                    markdownArea: '# hello', tags: '', overlay: 'red' }
     
     # Assert
-    assert_redirected_to '/'
+    assert_redirected_to '/post/edit'
     assert_equal 'A post cannot be submited without an author.', flash[:alert]
     assert_nil flash[:notice]
   end
@@ -191,7 +191,7 @@ class PostControllerTest < BaseIntegrationTest
                                    markdownArea: '', tags: '', overlay: 'red' }
         
     # Assert
-    assert_redirected_to '/'
+    assert_redirected_to '/post/edit'
     assert_equal 'A post cannot be submited with no markdown content.', flash[:alert]
     assert_nil flash[:notice]
   end

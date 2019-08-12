@@ -26,7 +26,7 @@ class PostController < BasePostEditorController
     error_message = validate_submission_parameters(params[:title], params[:author], params[:markdownArea])
     if error_message
       store_post_parameters_in_session
-      redirect_to '/', alert: error_message
+      redirect_to '/post/edit', alert: error_message
     else
       full_post_text = KramdownService.create_jekyll_post_text(params[:markdownArea], params[:author], 
                                                                params[:title], params[:tags], params[:overlay])
