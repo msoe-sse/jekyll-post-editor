@@ -40,7 +40,7 @@ class PostControllerTest < BaseIntegrationTest
     get '/post/list'
 
     # Assert
-    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo+read%3Aorg'
   end
 
   test 'an unauthenticated user should be redirected to GitHub when navigating to /' do
@@ -48,7 +48,7 @@ class PostControllerTest < BaseIntegrationTest
     get '/'
 
     # Assert
-    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo+read%3Aorg'
   end
 
   test 'an authenticated user should be able to navigate to post/edit successfully' do 
@@ -81,7 +81,7 @@ class PostControllerTest < BaseIntegrationTest
     GithubService.expects(:check_sse_github_org_membership).never
 
     # Assert
-    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo+read%3Aorg'
   end
 
   test 'an authenticated user with an expired token should be redirected to GitHub when navigating to post/edit' do 
@@ -93,7 +93,7 @@ class PostControllerTest < BaseIntegrationTest
     get '/post/edit'
 
     # Assert
-    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
+    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo+read%3Aorg'
   end
 
   test 'an authenticated user should be able to navigate to post/edit successfully with a title parameter' do
