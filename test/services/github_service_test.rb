@@ -8,13 +8,15 @@ class GithubServiceTest < ActiveSupport::TestCase
   # Note the client id and client secret values are set in test_helper.rb
   test 'get_authorization_url should get the correct authorization url with the public_repo scope' do 
     # Arrange
-    Octokit::Client.any_instance.expects(:authorize_url).with('github client id', scope: 'public_repo read:org').returns('https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo+read%3Aorg')
+    auth_url = 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo+read%3Aorg'
+    Octokit::Client.any_instance.expects(:authorize_url)
+                   .with('github client id', scope: 'public_repo read:org').returns(auth_url)
 
     # Act
     result = GithubService.get_authorization_url
 
     # Assert
-    assert_equal 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo+read%3Aorg', result
+    assert_equal auth_url, result
   end
 
   test 'get_oauth_access_token should return a oauth access token for a GitHub user' do 
