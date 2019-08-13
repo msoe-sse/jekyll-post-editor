@@ -11,7 +11,7 @@ $(function() {
     fetch(url)
     .then(resp => resp.json())
     .then(function(data) {
-      $('#previewArea').html(data.html);
+      $('#preview-area').html(data.html);
     })
   });
 
