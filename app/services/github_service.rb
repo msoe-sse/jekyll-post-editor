@@ -11,12 +11,13 @@ module GithubService
 
     ##
     # This method get the authorization url which authorizes the post editor app
-    # to use a user's GitHub account. The scope is public_repo so that we're able
+    # to use a user's GitHub account. The scopes public_repo is used so that we're able
     # to make changes to the msoe-sse/mseo-sse.github.io repository which requires
-    # access a user's public repositories
+    # access to a user's public repositories. Also, the scope read:org is used so that
+    # we can read public and private org membership
     def get_authorization_url
       client = Octokit::Client.new
-      client.authorize_url(CLIENT_ID, scope: 'public_repo')
+      client.authorize_url(CLIENT_ID, scope: 'public_repo read:org')
     end
 
     ##
