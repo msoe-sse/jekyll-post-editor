@@ -30,7 +30,11 @@ class PostController < BasePostEditorController
     else
       full_post_text = KramdownService.create_jekyll_post_text(params[:markdownArea], params[:author], 
                                                                params[:title], params[:tags], params[:overlay])
-      PostService.submit_post(session[:access_token], full_post_text, params[:title])
+      if params[:path]
+        PostService.edit_post(session[:access_token], full_post_text, params[:title], params[:path])
+      else
+        PostService.create_post(session[:access_token], full_post_text, params[:title])
+      end
       flash[:notice] = 'Post Successfully Submited'
       redirect_to action: 'edit'
     end
