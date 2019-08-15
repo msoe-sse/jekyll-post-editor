@@ -11,12 +11,13 @@ module GithubService
 
     ##
     # This method get the authorization url which authorizes the post editor app
-    # to use a user's GitHub account. The scope is write:org so that we're able
+    # to use a user's GitHub account. The scopes public_repo is used so that we're able
     # to make changes to the msoe-sse/mseo-sse.github.io repository which requires
-    # write access to an orginization's repository
+    # access to a user's public repositories. Also, the scope read:org is used so that
+    # we can read public and private org membership
     def get_authorization_url
       client = Octokit::Client.new
-      client.authorize_url(CLIENT_ID, scope: 'public_repo')
+      client.authorize_url(CLIENT_ID, scope: 'public_repo read:org')
     end
 
     ##
@@ -71,8 +72,10 @@ module GithubService
       posts = client.contents(full_repo_name, path: '_posts')
       posts.each do |post|
         post_api_response = client.contents(full_repo_name, path: post.path)
-        text_contents = Base64.decode64(post_api_response.content)
-        result << PostFactory.create_post(text_contents)
+        # Base64.decode64 will convert our string into a ASCII string
+        # calling force_encoding('UTF-8') will fix that problem
+        text_contents = Base64.decode64(post_api_response.content).force_encoding('UTF-8')
+        result << PostFactory.create_post(text_contents, post.path)
       end
       result
     end
@@ -89,66 +92,120 @@ module GithubService
     end
 
     ##
-    # This method submits a post to GitHub by checking out a new branch for the post.
-    # Commiting and pushing the markdown to the branch. And then finally opening 
-    # a pull request into master for the new post. The SSE webmaster will be requested
-    # for review on the created pull request
+    # This method gets the sha of the commit at the head of master in the SSE website repo
     #
     # Params
     # +oauth_token+::a user's oauth access token
-    # +post_markdown+:: the markdown contents of a post
-    # +post_title+:: the title of the new post to be submited
-    def submit_post(oauth_token, post_markdown, post_title)
-      # This new_ref variable represents the new branch we are creating
-      # for submiting a post. At the end we strip out all of the whitespace in 
-      # the post_title to create a valid branch name
-      branch_name = "createPost#{post_title.gsub(/\s+/, '')}"
-      new_ref = "heads/#{branch_name}"
+    def get_master_head_sha(oauth_token)
       client = Octokit::Client.new(access_token: oauth_token)
+      client.ref(full_repo_name, 'heads/master')[:object][:sha]
+    end
 
-      # These two calls get required information for us to branch from master.
-      # First we we get the sha string of the commit at the head of master and next we
-      # grab the sha string of the tree at the head of master
-      master_head_sha = client.ref(full_repo_name, 'heads/master')[:object][:sha]
-      sha_base_tree = client.commit(full_repo_name, master_head_sha)[:commit][:tree][:sha]
+    ##
+    # This method gets the sha of the base tree for a given branch in the SSE website repo
+    #
+    # Params
+    # +oauth_token+::a user's oauth access token
+    # +head_sha+::the sha of the head of a certain branch
+    def get_base_tree_for_branch(oauth_token, head_sha)
+      client = Octokit::Client.new(access_token: oauth_token)
+      client.commit(full_repo_name, head_sha)[:commit][:tree][:sha]
+    end
 
-      # This creates the new branch to create the post in
-      client.create_ref(full_repo_name, new_ref, master_head_sha)
+    ##
+    # This method create a new blob in the SSE website repo with text content
+    #
+    # Params
+    # +oauth_token+::a user's oauth access token
+    # +text+::the text content to create a blob for
+    def create_text_blob(oauth_token, text)
+      client = Octokit::Client.new(access_token: oauth_token)
+      client.create_blob(full_repo_name, text)
+    end
 
-      new_tree_sha = create_new_tree_for_post(client, post_markdown, post_title, sha_base_tree)
-      commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, new_ref)
+    ##
+    # This method creates a new blob in the SSE website repo with base 64 encoded content
+    #
+    # Params
+    # +oauth_token+::a user's oauth access token
+    # +content+::the base 64 encoded content to create a blob for
+    def create_base64_encoded_blob(oauth_token, content)
+      client = Octokit::Client.new(access_token: oauth_token)
+      client.create_blob(full_repo_name, content, 'base64')
+    end
 
-      open_pull_request_for_post(client, branch_name, post_title)
+    ##
+    # This method creates a new tree in the SSE website repo and returns the tree's sha.
+    # The method assumes that the paths passed into the method have corresponding blobs
+    # created for the files
+    #
+    # Params:
+    # +oauth_token+::a user's oauth access token
+    # +file_information+::an array of hashes containing the file path and the blob sha for a file
+    # +sha_base_tree+::the sha of the base tree
+    def create_new_tree_with_blobs(oauth_token, file_information, sha_base_tree)
+      client = Octokit::Client.new(access_token: oauth_token)
+      blob_information = []
+      file_information.each do |file|
+        # This mode property on this hash represents the file mode for a GitHub tree. 
+        # The mode is 100644 for a file blob. See https://developer.github.com/v3/git/trees/ for more information
+        blob_information << { path: file[:path],
+                              mode: '100644',
+                              type: 'blob',
+                              sha: file[:blob_sha] }
+      end
+      client.create_tree(full_repo_name, blob_information, base_tree: sha_base_tree)[:sha]
+    end
+
+    ##
+    # This method commits and pushes a tree to the SSE website repo
+    #
+    # Params:
+    # +oauth_token+::a user's oauth access token
+    # +commit_message+::the message for the new commit
+    # +tree_sha+::the sha of the tree to commit
+    # +head_sha+::the sha of the head to commit from
+    def commit_and_push_to_repo(oauth_token, commit_message, 
+                                tree_sha, head_sha, ref_name)
+      client = Octokit::Client.new(access_token: oauth_token)
+      sha_new_commit = client.create_commit(full_repo_name, commit_message, tree_sha, head_sha)[:sha]
+      client.update_ref(full_repo_name, ref_name, sha_new_commit)
+    end
+
+    ##
+    # This method creates a pull request for a branch in the SSE website repo
+    #
+    # Params:
+    # +oauth_token+::a user's oauth access token
+    # +source_branch+::the source branch for the PR
+    # +base_branch+::the base branch for the PR
+    # +pr_title+::the title for the PR
+    # +pr_body+::the body for the PR
+    # +reviewers+::an array of pull request reviewers for the PR
+    def create_pull_request(oauth_token, source_branch, base_branch, pr_title, pr_body, reviewers)
+      client = Octokit::Client.new(access_token: oauth_token)
+      pull_number = client.create_pull_request(full_repo_name, base_branch, source_branch, pr_title, pr_body)[:number]
+      client.request_pull_request_review(full_repo_name, pull_number, reviewers: reviewers)
+    end
+
+    ##
+    # This method will create a branch in the SSE website repo
+    # if it already doesn't exist
+    #
+    # Params:
+    # +oauth_token+::a user's oauth access token
+    # +ref_name+:: the name of the branch to create if necessary
+    # +master_head_sha+:: the sha representing the head of master
+    def create_ref_if_necessary(oauth_token, ref_name, master_head_sha)
+      client = Octokit::Client.new(access_token: oauth_token)
+      client.ref(full_repo_name, ref_name)
+      rescue Octokit::NotFound
+        client.create_ref(full_repo_name, ref_name, master_head_sha)
     end
 
     private
       def full_repo_name
         "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
-      end
-
-      def create_new_tree_for_post(client, post_markdown, post_title, sha_base_tree)
-        # This blob represents the content we're going to create which in this case is markdown
-        blob_sha = client.create_blob(full_repo_name, post_markdown)
-        client.create_tree(full_repo_name, 
-                          [ { path: "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-#{post_title.gsub(/\s+/, '')}.md",
-                              mode: '100644',
-                              type: 'blob',
-                              sha: blob_sha } ],
-                             base_tree: sha_base_tree)[:sha]
-      end
-
-      def commit_and_push_post_to_repo(client, post_title, new_tree_sha, master_head_sha, new_ref)
-        commit_message = "Created post #{post_title}"
-        sha_new_commit = client.create_commit(full_repo_name, commit_message, new_tree_sha, master_head_sha)[:sha]
-        client.update_ref(full_repo_name, new_ref, sha_new_commit)
-      end
-
-      def open_pull_request_for_post(client, new_branch, post_title)
-        pull_request_body = 'This pull request was opened automatically by the jekyll-post-editor.'
-        pull_number = client.create_pull_request(full_repo_name, 'master', 
-                                             new_branch, "Created Post #{post_title}", pull_request_body)[:number]
-        client.request_pull_request_review(full_repo_name, pull_number, 
-                                           reviewers: [Rails.configuration.webmaster_github_username])
       end
   end
 end

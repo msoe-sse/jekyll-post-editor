@@ -1,20 +1,110 @@
 require 'test_helper'
+require 'mocha/setup'
 
 class KramdownServiceTest < ActiveSupport::TestCase
   LEAD_BREAK_SECTION = "{: .lead}\r\n<!–-break-–>"
 
-  test 'get_html should convert markdown to html' do
+  test 'get_preview should convert markdown to html' do
     # Arrange
     markdown = %(#Andy is cool
 Andy is nice)
 
     # Act
-    result = KramdownService.get_html(markdown)
+    result = KramdownService.get_preview(markdown)
 
     # Assert
     assert_not_nil result
   end
   
+  test 'get_preview should not update the src atribute of image tags if no uploader exists in PostImageManager' do 
+    # Arrange
+    mock_uploader = create_mock_uploader('preview_no image.png', 'my cache', nil)
+    preview_uploader = create_preview_uploader('no image.png', mock_uploader)
+
+    PostImageManager.instance.expects(:uploaders).returns([ preview_uploader ])
+
+    markdown = '![20170610130401_1.jpg](/assets/img/20170610130401_1.jpg)'
+
+    # Act
+    result = KramdownService.get_preview(markdown)
+
+    # Assert
+    assert_equal "<p><img src=\"/assets/img/20170610130401_1.jpg\" alt=\"20170610130401_1.jpg\" /></p>\n", result
+  end
+
+  test 'get_preview should update the src attribute of image tags if an uploader exists in PostImageManager' do 
+    # Arrange
+    mock_uploader = create_mock_uploader('preview_20170610130401_1.jpg', 'my cache/preview_20170610130401_1.jpg', nil)
+    preview_uploader = create_preview_uploader('20170610130401_1.jpg', mock_uploader)
+
+    PostImageManager.instance.expects(:uploaders).returns([ preview_uploader ])
+
+    markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
+    expected_html = "<p><img src=\"/uploads/tmp/my cache/preview_20170610130401_1.jpg\" alt=\"My Alt Text\" /></p>\n"
+
+    # Act
+    result = KramdownService.get_preview(markdown)
+
+    # Assert
+    assert_equal expected_html, result
+  end
+
+  # Test Case for Issue 22 on GitHub
+  test 'get_preview should update the src attribute of images tags if an uploader 
+        with a formatted filename exists in PostImageManager' do 
+    # Arrange
+    mock_uploader = create_mock_uploader('preview_My_File.jpg', 'my cache/preview_My_File.jpg', nil)
+    preview_uploader = create_preview_uploader('My_File.jpg', mock_uploader)
+
+    PostImageManager.instance.expects(:uploaders).returns([ preview_uploader ])
+
+    markdown = '![My Alt Text](/assets/img/My File.jpg)'
+    expected_html = "<p><img src=\"/uploads/tmp/my cache/preview_My_File.jpg\" alt=\"My Alt Text\" /></p>\n"
+
+    # Act
+    result = KramdownService.get_preview(markdown)
+
+    # Assert
+    assert_equal expected_html, result
+  end
+
+  test 'get_image_filename_from_markdown should return nil if the markdown doesnt 
+        include an image with a given filename' do 
+    # Arrange
+    markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
+
+    # Act
+    result = KramdownService.get_image_filename_from_markdown('my file.jpg', markdown)
+
+    # Assert
+    assert_not result
+  end
+
+  test 'get_image_filename_from_markdown should return a filename if the markdown does 
+        include an image with a given filename' do 
+    # Arrange
+    markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
+
+    # Act
+    result = KramdownService.get_image_filename_from_markdown('20170610130401_1.jpg', markdown)
+
+    # Assert
+    assert_equal '20170610130401_1.jpg', result
+  end
+
+  # Test Case for Issue 22 on GitHub
+  test 'get_image_filename_from_markdown should return true if the markdown does include an image with a given filename 
+        and the filename has been formatted by CarrierWave' do 
+    # Arrange
+    markdown = '![My Alt Text](/assets/img/My File.jpg)'
+
+    # Act
+    result = KramdownService.get_image_filename_from_markdown('My_File.jpg', markdown)
+
+    # Assert
+    assert_equal 'My File.jpg', result
+  end
+
   test 'create_jekyll_post_text should return text for a formatted post' do 
     # Arrange
     expected_post = %(---
@@ -46,6 +136,7 @@ author: Andy Wojciechowski\r
 tags:
   - announcement\r
   - info\r
+  - hack n tell\r
 hero: https://source.unsplash.com/collection/145103/
 overlay: green
 published: true
@@ -55,7 +146,10 @@ published: true
 ##An H2 tag)
     # Act
     result = KramdownService.create_jekyll_post_text("#An H1 tag\r\n##An H2 tag",
-                                                     'Andy Wojciechowski', 'Some Post', 'announcement, info', 'green')
+                                                     'Andy Wojciechowski', 
+                                                     'Some Post', 
+                                                     'announcement, info,    hack n tell     ', 
+                                                     'green')
     # Assert
     assert_equal expected_post, result
   end

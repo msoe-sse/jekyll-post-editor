@@ -1,0 +1,26 @@
+.listContainer {
+  display: grid;
+  grid-template-columns: 25% 50% 25%;
+}
+
+.listMiddleContainer {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+
+.listHeaderContainer {
+  border-bottom: 1px solid black;
+}
+
+.postList {
+  margin-top: 3px;
+}
+
+h1 {
+  display: inline-block;
+}
+
+.createPostLink {
+  float: right;
+  margin-top: 24px;
+}

@@ -7,4 +7,5 @@ class Post
   attr_accessor :overlay
   attr_accessor :contents
   attr_accessor :tags
+  attr_accessor :file_path
 end

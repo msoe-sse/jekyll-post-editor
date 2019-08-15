@@ -1,54 +1,61 @@
 class PostControllerTest < BaseIntegrationTest
-  # This list view was started and not completed. We may come back to this post MVP
-  # test 'an authenticated user should be able to navigate to post/list successfully' do 
-  #   # Arramge
-  #   setup_session('access token', true)
+  test 'an authenticated user should be able to navigate to post/list successfully' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
-  #   post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
-  #                             overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
-  #   post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
-  #                             overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
-  #   GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
+    post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
+                              overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
+    post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
+                              overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
+    GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
 
-  #   # Act
-  #   get '/post/list'
+    # Act
+    get '/post/list'
 
-  #   # Assert
-  #   assert_response :success
-  # end
+    # Assert
+    assert_response :success
+  end
 
-  # test 'an authenticated user should be able to navigate to / successfully' do 
-  #   # Arramge
-  #   setup_session('access token', true)
+  test 'an authenticated user should be able to navigate to / successfully' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
-  #   post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
-  #                             overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
-  #   post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
-  #                             overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
-  #   GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
+    post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
+                              overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
+    post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
+                              overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
+    GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
 
-  #   # Act
-  #   get '/'
+    # Act
+    get '/'
 
-  #   # Assert
-  #   assert_response :success
-  # end
+    # Assert
+    assert_response :success
+  end
 
-  # test 'an unauthenticated user should be redirected to GitHub when navigating to post/list' do
-  #   # Act
-  #   get '/post/list'
+  test 'an unauthenticated user should be redirected to GitHub when navigating to post/list' do
+    # Arrange
+    auth_url = 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo+read%3Aorg'
 
-  #   # Assert
-  #   assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
-  # end
+    # Act
+    get '/post/list'
 
-  # test 'an unauthenticated user should be redirected to GitHub when navigating to /' do
-  #   # Act
-  #   get '/'
+    # Assert
+    assert_redirected_to auth_url
+  end
 
-  #   # Assert
-  #   assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=write%3Aorg'
-  # end
+  test 'an unauthenticated user should be redirected to GitHub when navigating to /' do
+    # Arrange
+    auth_url = 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo+read%3Aorg'
+
+    # Act
+    get '/'
+
+    # Assert
+    assert_redirected_to auth_url
+  end
 
   test 'an authenticated user should be able to navigate to post/edit successfully' do 
     # Arrange
@@ -75,24 +82,28 @@ class PostControllerTest < BaseIntegrationTest
   end
 
   test 'an unauthenticated user should be redirected to GitHub when navigating to post/edit' do
-    # Act
-    get '/post/edit'
+    # Arrange
+    auth_url = 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo+read%3Aorg'
     GithubService.expects(:check_sse_github_org_membership).never
 
+    # Act
+    get '/post/edit'
+
     # Assert
-    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
+    assert_redirected_to  auth_url
   end
 
   test 'an authenticated user with an expired token should be redirected to GitHub when navigating to post/edit' do 
     # Arrange
     setup_session('access token', false)
+    auth_url = 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo+read%3Aorg'
     GithubService.expects(:check_sse_github_org_membership).never
 
     # Act
     get '/post/edit'
 
     # Assert
-    assert_redirected_to 'https://github.com/login/oauth/authorize?client_id=github client id&scope=public_repo'
+    assert_redirected_to auth_url
   end
 
   test 'an authenticated user should be able to navigate to post/edit successfully with a title parameter' do
@@ -144,7 +155,7 @@ class PostControllerTest < BaseIntegrationTest
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
-    GithubService.expects(:submit_post).never
+    PostService.expects(:submit_post).never
     KramdownService.expects(:create_jekyll_post_text).never
 
     # Act
@@ -152,7 +163,7 @@ class PostControllerTest < BaseIntegrationTest
                                    markdownArea: '# hello', tags: '', overlay: 'red' }
 
     # Assert
-    assert_redirected_to '/'
+    assert_redirected_to '/post/edit'
     assert_equal 'A post cannot be submited with a blank title.', flash[:alert]
     assert_nil flash[:notice]
   end
@@ -163,7 +174,7 @@ class PostControllerTest < BaseIntegrationTest
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
-    GithubService.expects(:submit_post).never
+    PostService.expects(:submit_post).never
     KramdownService.expects(:create_jekyll_post_text).never
     
     # Act
@@ -171,7 +182,7 @@ class PostControllerTest < BaseIntegrationTest
                                    markdownArea: '# hello', tags: '', overlay: 'red' }
     
     # Assert
-    assert_redirected_to '/'
+    assert_redirected_to '/post/edit'
     assert_equal 'A post cannot be submited without an author.', flash[:alert]
     assert_nil flash[:notice]
   end
@@ -182,7 +193,7 @@ class PostControllerTest < BaseIntegrationTest
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
-    GithubService.expects(:submit_post).never
+    PostService.expects(:submit_post).never
     KramdownService.expects(:create_jekyll_post_text).never
         
     # Act
@@ -190,17 +201,17 @@ class PostControllerTest < BaseIntegrationTest
                                    markdownArea: '', tags: '', overlay: 'red' }
         
     # Assert
-    assert_redirected_to '/'
+    assert_redirected_to '/post/edit'
     assert_equal 'A post cannot be submited with no markdown content.', flash[:alert]
     assert_nil flash[:notice]
   end
 
-  test 'post/submit should submit the post to GitHub and redirect back to the edit screen with a valid post' do 
+  test 'post/submit should submit the new post to GitHub and redirect back to the edit screen with a valid post' do 
     # Arrange
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
-    GithubService.expects(:submit_post).with('access token', 'post text', 'title').once
+    PostService.expects(:create_post).with('access token', 'post text', 'title').once
     KramdownService.expects(:create_jekyll_post_text)
                    .with('# hello', 'author', 'title', 'tags', 'red').returns('post text')
             
@@ -208,6 +219,26 @@ class PostControllerTest < BaseIntegrationTest
     post '/post/submit', params: { title: 'title', author: 'author', 
                                    markdownArea: '# hello', tags: 'tags', overlay: 'red' }
             
+    # Assert
+    assert_redirected_to '/post/edit'
+    assert_nil flash[:alert]
+    assert_equal 'Post Successfully Submited', flash[:notice]
+  end
+
+  test 'post/submit? should submit the existing post to GitHub 
+        and redirect back to the edit screen with a valid post' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
+    PostService.expects(:edit_post).with('access token', 'post text', 'title', 'path.md').once
+    KramdownService.expects(:create_jekyll_post_text)
+                   .with('# hello', 'author', 'title', 'tags', 'red').returns('post text')
+
+    # Act
+    post '/post/submit?path=path.md', params: { title: 'title', author: 'author', 
+                                                markdownArea: '# hello', tags: 'tags', overlay: 'red' }
+
     # Assert
     assert_redirected_to '/post/edit'
     assert_nil flash[:alert]
