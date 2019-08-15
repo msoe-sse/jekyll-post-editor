@@ -1,8 +1,6 @@
 Dropzone.autoDiscover = false;
 
 $(function() {
-  $('.notice').fadeOut(5000);
-
   $('#preview-button').click(function() {
     setActiveTab("#preview-button", '#PreviewTabContent');
     let url = new URL(`${window.location.origin}/post/preview`);

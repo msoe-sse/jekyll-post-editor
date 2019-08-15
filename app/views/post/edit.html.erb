@@ -1,29 +1,44 @@
 <%= javascript_include_tag 'postEdit', 'data-turbolinks-track': 'reload' %>
 <%= form_tag(get_post_submission_url(@post.file_path), method: 'post') do %>
-  <% if flash[:alert] %>
-    <%= content_tag :div, flash[:alert], class: 'validation-message' %>
-  <% end %>
-  <% if flash[:notice] %>
-    <%= content_tag :div, flash[:notice], class: 'notice' %>
-  <% end %>
   <%= content_tag(:div, class: 'editContainer') do %>
     <%= content_tag(:div, class: 'editMiddleContainer') do %>
-      <%= content_tag(:div, class: 'editHeaderContainer') do %>
-        <%= label_tag('Title:')%>
-        <%= text_field_tag(:title, @post.title, class: 'headerTextField') %>
-        <%= simple_format("\n") %>
-        <%= label_tag('Author:') %>
-        <%= text_field_tag(:author,  @post.author, class: 'headerTextField') %>
-        <%= simple_format("\n") %>
-        <%= label_tag('Tags:') %>
-        <%= text_field_tag(:tags, @post.tags, class: 'headerTextField') %>
-        <%= simple_format("\n") %>
-        <%= label_tag('Overlay:') %>
-        <%= select_tag('overlay', options_for_select(['Red', 'Blue', 'Green'], get_selected_overlay(@post.overlay))) %>
+      <%= render template: 'shared/header' %>
+      <% if flash[:alert] %>
+        <%= content_tag :div, class: 'alert alert-danger', role: 'alert' do %>
+          <%= content_tag(:strong, flash[:alert]) %>
+        <% end %>
       <% end %>
-      <%= content_tag(:div, class: 'tabContainer') do %>
-        <%= button_tag('Markdown', id: 'markdown-button', type: 'button') %>
-        <%= button_tag('Preview', id: 'preview-button', type: 'button') %>
+      <% if flash[:notice] %>
+        <%= content_tag :div, class: 'alert alert-success', role: 'alert' do %>
+          <%= content_tag(:strong, flash[:notice]) %>
+        <% end %>
+      <% end %>
+      <%= content_tag(:div, class: 'editHeaderContainer') do %>
+        <%= content_tag(:div, class: 'form-group') do %>
+          <%= label_tag('Title:')%>
+          <%= text_field_tag(:title, @post.title, class: 'headerTextField form-control', placeholder: 'Sample Post') %>
+        <% end %>
+        <%= simple_format("\n") %>
+        <%= content_tag(:div, class: 'form-group') do %>
+          <%= label_tag('Author:') %>
+          <%= text_field_tag(:author,  @post.author, class: 'headerTextField form-control', placeholder: 'Author') %>
+        <% end %>
+        <%= simple_format("\n") %>
+        <%= content_tag(:div, class: 'form-group') do %>
+          <%= label_tag('Tags:') %>
+          <%= text_field_tag(:tags, @post.tags, class: 'headerTextField form-control', placeholder: 'tag1, tag2, etc.') %>
+        <% end %>
+        <%= simple_format("\n") %>
+        <%= content_tag(:div, class: 'form-group') do %>
+          <%= label_tag('Overlay:') %>
+          <%= select_tag('overlay', options_for_select(['Red', 'Blue', 'Green'], get_selected_overlay(@post.overlay)), class: 'form-control overlayDropdown') %>
+        <% end %>
+      <% end %>
+      <%= content_tag(:div, class: 'tabContainer btn-toolbar') do %>
+        <%= content_tag(:div, class: 'btn-group') do %>
+          <%= button_tag('Markdown', id: 'markdown-button', class: 'btn btn-secondary active', type: 'button') %>
+          <%= button_tag('Preview', id: 'preview-button', class: 'btn btn-secondary', type: 'button') %>
+        <% end %>
       <% end %>
       <%= content_tag(:div, id: 'MarkdownTabContent', class: 'tabcontent') do %>
         <%= text_area_tag(:markdownArea, @post.contents) %>
