@@ -27,9 +27,15 @@ class PostImageManager
   end
 
   ##
-  # Clears the manager of all currently exisiting image uploaders
+  # Clears the manager of all currently exisiting image uploaders and delete's their cache directories
   def clear
-    @uploaders.each { |x| x.remove! }
+    @uploaders.each do |uploader| 
+      full_preview_path = "#{Rails.root}/public/uploads/tmp/#{uploader.preview.cache_name}"
+      cache_dir = File.expand_path('..', full_preview_path)
+      uploader.remove!
+      Dir.delete(cache_dir)
+    end
+
     @uploaders.clear
   end
 end
