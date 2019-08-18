@@ -2,10 +2,13 @@ require 'test_helper'
 require 'mocha/setup'
 
 class PostImageManagerTest < ActiveSupport::TestCase
-  test 'add_file should create a new PostImageUploader and cache the file' do 
-    # Arrange
+  setup do
     setup_clear_mocks
     PostImageManager.instance.clear
+  end
+
+  test 'add_file should create a new PostImageUploader and cache the file' do 
+    # Arrange
     mock_file = create_mock_action_dispatch_file('my file.jpg')
     PostImageUploader.any_instance.expects(:cache!).with(mock_file).once
 
@@ -19,8 +22,6 @@ class PostImageManagerTest < ActiveSupport::TestCase
 
   test 'add_file should remove any previous uploaders that have the same filename as the file being added' do 
     # Arrange
-    setup_clear_mocks
-    PostImageManager.instance.clear
     mock_file = create_mock_action_dispatch_file('my file.jpg')
     PostImageUploader.any_instance.expects(:cache!).with(mock_file).twice
     PostImageUploader.any_instance.expects(:filename).returns('my file.jpg').at_least_once
@@ -36,8 +37,6 @@ class PostImageManagerTest < ActiveSupport::TestCase
 
   test 'clear should clear all PostImageUploader instances from the manager' do 
     # Arrange
-    setup_clear_mocks
-    PostImageManager.instance.clear
     mock_file = create_mock_action_dispatch_file('my file.jpg')
 
     PostImageUploader.any_instance.expects(:cache!).with(mock_file).once
