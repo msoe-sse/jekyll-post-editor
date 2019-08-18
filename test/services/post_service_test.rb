@@ -84,6 +84,7 @@ class PostServiceTest < ActiveSupport::TestCase
     
     image_blob_sha1 = mock_image_blob_and_return_sha(post_image_uploader1)
     PostImageManager.instance.expects(:uploaders).returns([ post_image_uploader1, post_image_uploader2 ])
+    PostImageManager.instance.expects(:clear).once
 
     GithubService.expects(:get_master_head_sha).with('my token').returns('master head sha')
     GithubService.expects(:get_base_tree_for_branch).with('my token', 'master head sha').returns('master tree sha')
@@ -105,8 +106,6 @@ class PostServiceTest < ActiveSupport::TestCase
                        'Created Post Test Post', 
                        'This pull request was opened automatically by the jekyll-post-editor.', 
                        ['msoe-sse-webmaster']).once
-
-    PostImageManager.instance.expects(:clear).once
 
     # Act
     PostService.create_post('my token', test_markdown, 'Test Post')
@@ -164,6 +163,8 @@ class PostServiceTest < ActiveSupport::TestCase
                              'This pull request was opened automatically by the jekyll-post-editor.', 
                              ['msoe-sse-webmaster']).once
 
+    PostImageManager.instance.expects(:clear).once
+
     # Act
     PostService.edit_post('my token', '# hello', 'Test Post', 'existing post.md')
 
@@ -183,6 +184,7 @@ class PostServiceTest < ActiveSupport::TestCase
 
     image_blob_sha = mock_image_blob_and_return_sha(post_image_uploader)
     PostImageManager.instance.expects(:uploaders).returns([ post_image_uploader ])
+    PostImageManager.instance.expects(:clear).once
 
     GithubService.expects(:get_master_head_sha).with('my token').returns('master head sha')
     GithubService.expects(:get_base_tree_for_branch).with('my token', 'master head sha').returns('master tree sha')
@@ -218,7 +220,9 @@ class PostServiceTest < ActiveSupport::TestCase
 
     def mock_image_blob_and_return_sha(mock_uploader)
       mock_ruby_file = create_mock_ruby_file(mock_uploader.filename)
-      File.expects(:open).with(mock_uploader.post_image.file.file, 'rb').returns(mock_ruby_file)
+      # The yields in this mock will execute the ruby block for File.open
+      File.expects(:open).with(mock_uploader.post_image.file.file, 'rb')
+                         .returns(mock_ruby_file).yields(mock_ruby_file)
       Base64.expects(:encode64).with("File Contents for #{mock_uploader.filename}")
             .returns("base 64 for #{mock_uploader.filename}")
       
