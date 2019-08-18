@@ -29,6 +29,7 @@ class PostImageManager
   ##
   # Clears the manager of all currently exisiting image uploaders
   def clear
+    @uploaders.each { |x| x.remove! }
     @uploaders.clear
   end
 end
