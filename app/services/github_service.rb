@@ -72,8 +72,8 @@ module GithubService
       posts = client.contents(full_repo_name, path: '_posts')
       posts.each do |post|
         oldest_commit = get_oldest_commit_for_file(client, post.path)
-        
-        if client.user == oldest_commit[:author][:login]
+
+        if client.user[:login] == oldest_commit[:author][:login]
           post_api_response = client.contents(full_repo_name, path: post.path)
           # Base64.decode64 will convert our string into a ASCII string
           # calling force_encoding('UTF-8') will fix that problem
