@@ -13,7 +13,7 @@
           <% concat(content_tag(:li, link_to(post.title, { controller: 'post', action: 'edit', title: post.title }) )) %>
         <% end %>
       <% else %>
-        <%= content_tag(:div, 'No posts are available to edit', class: 'noPostsMessage') %>
+        <%= content_tag(:div, 'No previously created posts.', class: 'noPostsMessage') %>
       <% end %>
     <% end %>
   <% end %>
