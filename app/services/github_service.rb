@@ -71,11 +71,15 @@ module GithubService
       client = Octokit::Client.new(access_token: oauth_token)
       posts = client.contents(full_repo_name, path: '_posts')
       posts.each do |post|
-        post_api_response = client.contents(full_repo_name, path: post.path)
-        # Base64.decode64 will convert our string into a ASCII string
-        # calling force_encoding('UTF-8') will fix that problem
-        text_contents = Base64.decode64(post_api_response.content).force_encoding('UTF-8')
-        result << PostFactory.create_post(text_contents, post.path)
+        oldest_commit = get_oldest_commit_for_file(client, post.path)
+        
+        if client.user == oldest_commit[:author][:login]
+          post_api_response = client.contents(full_repo_name, path: post.path)
+          # Base64.decode64 will convert our string into a ASCII string
+          # calling force_encoding('UTF-8') will fix that problem
+          text_contents = Base64.decode64(post_api_response.content).force_encoding('UTF-8')
+          result << PostFactory.create_post(text_contents, post.path)
+        end
       end
       result
     end
@@ -206,6 +210,12 @@ module GithubService
     private
       def full_repo_name
         "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
+      end
+
+      def get_oldest_commit_for_file(client, path)
+        commits = client.commits(full_repo_name, path: path)
+        min_date = commits.map { |x| x[:commit][:committer][:date] }.min
+        commits.find { |x| x[:commit][:committer][:date] == min_date }
       end
   end
 end
