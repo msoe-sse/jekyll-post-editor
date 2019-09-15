@@ -109,7 +109,7 @@ class GithubServiceTest < ActiveSupport::TestCase
                                 .with('msoe-sse/jekyll-post-editor-test-repo', path: '_posts/post3.md')
                                 .returns([ create_commit_hash('2011-04-14T16:00:49Z', 'andy-wojciechowski') ])
 
-    Octokit::Client.any_instance.expects(:user).returns({ login: 'andy-wojciechowski' }).at_least_once
+    Octokit::Client.any_instance.expects(:user).returns(login: 'andy-wojciechowski').at_least_once
 
     Octokit::Client.any_instance.expects(:contents)
                    .with('msoe-sse/jekyll-post-editor-test-repo', path: '_posts')
