@@ -62,7 +62,9 @@ module GithubService
 
     ##
     # This method fetches all the markdown contents of all the posts on the SSE website
-    # and returns a list of models representing a Post
+    # that a user has written and returns a list of models representing a Post. A user is determined
+    # to have written a post if the oldest commit for a post matches the current authenticated GitHub
+    # user.
     #
     # Params:
     # +oauth_token+::a user's oauth access token

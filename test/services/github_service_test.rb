@@ -95,6 +95,22 @@ class GithubServiceTest < ActiveSupport::TestCase
     post3_model = create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
                                      overlay: 'overlay 3', contents: '###post3', tags: ['info'])
 
+    Octokit::Client.any_instance.expects(:commits)
+                                .with('msoe-sse/jekyll-post-editor-test-repo', path: '_posts/post1.md')
+                                .returns([ create_commit_hash('2011-04-14T16:00:49Z', 'andy-wojciechowski'),
+                                           create_commit_hash('2011-05-14T16:00:49Z', 'andy-wojciechowski')])
+    
+    Octokit::Client.any_instance.expects(:commits)
+                                .with('msoe-sse/jekyll-post-editor-test-repo', path: '_posts/post2.md')
+                                .returns([ create_commit_hash('2011-04-14T16:00:49Z', 'GFLEMING133'),
+                                           create_commit_hash('2012-04-14T16:00:49Z', 'andy-wojciechowski') ])
+    
+    Octokit::Client.any_instance.expects(:commits)
+                                .with('msoe-sse/jekyll-post-editor-test-repo', path: '_posts/post3.md')
+                                .returns([ create_commit_hash('2011-04-14T16:00:49Z', 'andy-wojciechowski') ])
+
+    Octokit::Client.any_instance.expects(:user).returns({ login: 'andy-wojciechowski' }).at_least_once
+
     Octokit::Client.any_instance.expects(:contents)
                    .with('msoe-sse/jekyll-post-editor-test-repo', path: '_posts')
                    .returns([post1, post2, post3])
@@ -103,24 +119,24 @@ class GithubServiceTest < ActiveSupport::TestCase
                    .returns(post1_content)
     Octokit::Client.any_instance.expects(:contents)
                    .with('msoe-sse/jekyll-post-editor-test-repo', path: '_posts/post2.md')
-                   .returns(post2_content)
+                   .returns(post2_content).never
     Octokit::Client.any_instance.expects(:contents)
                    .with('msoe-sse/jekyll-post-editor-test-repo', path: '_posts/post3.md')
                    .returns(post3_content)
 
     Base64.expects(:decode64).with('post 1 base 64 content').returns('post 1 text content')
-    Base64.expects(:decode64).with('post 2 base 64 content').returns('post 2 text content')
+    Base64.expects(:decode64).with('post 2 base 64 content').returns('post 2 text content').never
     Base64.expects(:decode64).with('post 3 base 64 content').returns('post 3 text content')
     
     PostFactory.expects(:create_post).with('post 1 text content', '_posts/post1.md').returns(post1_model)
-    PostFactory.expects(:create_post).with('post 2 text content', '_posts/post2.md').returns(post2_model)
+    PostFactory.expects(:create_post).with('post 2 text content', '_posts/post2.md').returns(post2_model).never
     PostFactory.expects(:create_post).with('post 3 text content', '_posts/post3.md').returns(post3_model)
 
     # Act
     result = GithubService.get_all_posts('my token')
 
     # Assert
-    assert_equal [post1_model, post2_model, post3_model], result
+    assert_equal [post1_model, post3_model], result
   end
   
   test 'get_post_by_title should return nil if the post does not exist' do
@@ -319,6 +335,21 @@ class GithubServiceTest < ActiveSupport::TestCase
         mode: '100644',
         type: 'blob',
         sha: blob_sha } 
+    end
+
+    def create_commit_hash(date, login)
+      # For more information on how this hash was created see: 
+      # https://developer.github.com/v3/repos/commits/#list-commits-on-a-repository
+      {
+        commit: {
+          committer: {
+            date: date
+          }
+        },
+        author: {
+          login: login
+        }
+      }
     end
 
     class DummyApiResource
