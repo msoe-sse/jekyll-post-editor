@@ -213,11 +213,11 @@ class PostControllerTest < BaseIntegrationTest
 
     PostService.expects(:create_post).with('access token', 'post text', 'title').once
     KramdownService.expects(:create_jekyll_post_text)
-                   .with('# hello', 'author', 'title', 'tags', 'red').returns('post text')
+                   .with('# hello', 'author', 'title', 'tags', 'red', '').returns('post text')
             
     # Act
     post '/post/submit', params: { title: 'title', author: 'author', 
-                                   markdownArea: '# hello', tags: 'tags', overlay: 'red' }
+                                   markdownArea: '# hello', tags: 'tags', overlay: 'red', hero: '' }
             
     # Assert
     assert_redirected_to '/post/edit'
@@ -233,11 +233,11 @@ class PostControllerTest < BaseIntegrationTest
 
     PostService.expects(:edit_post).with('access token', 'post text', 'title', 'path.md').once
     KramdownService.expects(:create_jekyll_post_text)
-                   .with('# hello', 'author', 'title', 'tags', 'red').returns('post text')
+                   .with('# hello', 'author', 'title', 'tags', 'red', '').returns('post text')
 
     # Act
     post '/post/submit?path=path.md', params: { title: 'title', author: 'author', 
-                                                markdownArea: '# hello', tags: 'tags', overlay: 'red' }
+                                                markdownArea: '# hello', tags: 'tags', overlay: 'red', hero: '' }
 
     # Assert
     assert_redirected_to '/post/edit'

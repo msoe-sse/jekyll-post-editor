@@ -70,6 +70,14 @@ module PostService
       PostImageManager.instance.clear
     end
 
+    def is_valid_hero(url)
+      url = URI.parse(url)
+      Net::HTTP.start(url.host, url.port, use_ssl: true) do |http|
+        return http.head(url.request_uri)['Content-Type'].start_with? 'image'
+      end
+    end
+
+    
     private
       def create_new_filepath_for_post(post_title)
         "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-#{post_title.gsub(/\s+/, '')}.md"

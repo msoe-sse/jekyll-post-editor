@@ -8,11 +8,11 @@ class ErrorTest < BaseIntegrationTest
 
     PostService.expects(:create_post).with('access token', 'post text', 'title').raises(Octokit::TooManyRequests)
     KramdownService.expects(:create_jekyll_post_text)
-                   .with('# hello', 'author', 'title', 'tags', 'red').returns('post text')
+                   .with('# hello', 'author', 'title', 'tags', 'red', '').returns('post text')
             
     # Act
     post '/post/submit', params: { title: 'title', author: 'author', 
-                                   markdownArea: '# hello', tags: 'tags', overlay: 'red' }
+                                   markdownArea: '# hello', tags: 'tags', overlay: 'red', hero: '' }
             
     # Assert
     assert_redirected_to '/RateLimitError.html'

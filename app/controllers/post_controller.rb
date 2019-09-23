@@ -1,3 +1,4 @@
+require 'uri'
 ##
 # The controller responsible for dealing with views related to SSE website posts
 class PostController < BasePostEditorController
@@ -23,13 +24,13 @@ class PostController < BasePostEditorController
 
   # POST post/submit
   def submit
-    error_message = validate_submission_parameters(params[:title], params[:author], params[:markdownArea])
+    error_message = validate_submission_parameters(params[:title], params[:author], params[:markdownArea], params[:hero])
     if error_message
       store_post_parameters_in_session
       redirect_to '/post/edit', alert: error_message
     else
       full_post_text = KramdownService.create_jekyll_post_text(params[:markdownArea], params[:author], 
-                                                               params[:title], params[:tags], params[:overlay])
+                                                               params[:title], params[:tags], params[:overlay], params[:hero])
       if params[:path]
         PostService.edit_post(session[:access_token], full_post_text, params[:title], params[:path])
       else
@@ -41,14 +42,18 @@ class PostController < BasePostEditorController
   end
 
   private
-    def validate_submission_parameters(title, author, markdown_text)
+    def validate_submission_parameters(title, author, markdown_text, hero)
       validation_message = nil
       if title.empty?
         validation_message = 'A post cannot be submited with a blank title.'
       elsif author.empty?
         validation_message = 'A post cannot be submited without an author.'
       elsif markdown_text.empty?
-        validation_message = 'A post cannot be submited with no markdown content.'
+        validation_message = 'A post cannot be submited with no markdown content.' 
+      elsif !hero.empty? && !(hero =~ URI::regexp)
+        validation_message = 'The background image must be a valid URL.'
+      elsif !PostService.is_valid_hero(hero)
+        validation_message = 'The background image url must be an image.'
       end
       validation_message
     end
@@ -60,6 +65,7 @@ class PostController < BasePostEditorController
       session[:contents] = params[:markdownArea]
       session[:tags] = params[:tags]
       session[:overlay] = params[:overlay]
+      session[:hero] = params[:hero]
     end
 
     def create_post_from_session
@@ -69,6 +75,7 @@ class PostController < BasePostEditorController
       @post.contents = session[:contents]
       @post.tags = session[:tags]
       @post.overlay = session[:overlay]
+      @post.hero = session[:hero]
       session[:post_stored] = false
     end
 end
