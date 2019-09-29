@@ -1,8 +1,5 @@
 ##
-# This controller deals with routes for attaching photos to an SSE post
-# Note: this should really inherit from BasePostEditorController but doesn't
-# since this controller makes AJAX POST requests which won't save the session[:access_token]
-# variable
+# This controller deals with routes for attaching photos to an SSE posts
 class ImageController < BasePostEditorController
   skip_before_action :verify_authenticity_token
 
