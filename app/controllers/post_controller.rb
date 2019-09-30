@@ -24,13 +24,15 @@ class PostController < BasePostEditorController
 
   # POST post/submit
   def submit
-    error_message = validate_submission_parameters(params[:title], params[:author], params[:markdownArea], params[:hero])
+    error_message = validate_submission_parameters(params[:title], params[:author], params[:markdownArea],
+                                                                                                    params[:hero])
     if error_message
       store_post_parameters_in_session
       redirect_to '/post/edit', alert: error_message
     else
       full_post_text = KramdownService.create_jekyll_post_text(params[:markdownArea], params[:author], 
-                                                               params[:title], params[:tags], params[:overlay], params[:hero])
+                                                               params[:title], params[:tags],
+                                                               params[:overlay], params[:hero])
       if params[:path]
         PostService.edit_post(session[:access_token], full_post_text, params[:title], params[:path])
       else
@@ -50,9 +52,9 @@ class PostController < BasePostEditorController
         validation_message = 'A post cannot be submited without an author.'
       elsif markdown_text.empty?
         validation_message = 'A post cannot be submited with no markdown content.' 
-      elsif !hero.empty? && !(hero =~ URI::regexp)
+      elsif !hero.empty? && !(hero =~ URI.regexp)
         validation_message = 'The background image must be a valid URL.'
-      elsif !PostService.is_valid_hero(hero)
+      elsif !hero.empty? && !PostService.is_valid_hero(hero)
         validation_message = 'The background image url must be an image.'
       end
       validation_message
