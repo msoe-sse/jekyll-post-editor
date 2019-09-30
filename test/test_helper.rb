@@ -33,6 +33,16 @@ class ActiveSupport::TestCase
       attr_accessor :original_filename
     end
 
+    class MockHttp
+      def initialize(content_type)
+        @content_type = content_type
+      end
+
+      def head(uri)
+        { 'Content-Type' => @content_type }
+      end
+    end
+
     def create_mock_uploader(filename, cache_name, file)
       result = MockUploader.new
       result.filename = filename

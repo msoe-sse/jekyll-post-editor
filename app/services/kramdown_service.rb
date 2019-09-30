@@ -63,7 +63,7 @@ module KramdownService
     # +title+:: the title of the post
     # +tags+:: tags specific to the post
     # +overlay+:: the overlay color of the post
-    def create_jekyll_post_text(text, author, title, tags, overlay)
+    def create_jekyll_post_text(text, author, title, tags, overlay, hero)
       header_converted_text = fix_header_syntax(text)
       parsed_tags = parse_tags(tags)
 
@@ -71,14 +71,16 @@ module KramdownService
 #{parsed_tags})
       
       lead_break_section = "{: .lead}\r\n<!–-break-–>"
-          
+      
+      hero_to_use = hero
+      hero_to_use = 'https://source.unsplash.com/collection/145103/' if hero_to_use.empty?
       result = %(---
 layout: post
 title: #{title}
 author: #{author}\r\n)
 
       result << "#{tag_section}\r\n" if !parsed_tags.empty?
-      result << %(hero: https://source.unsplash.com/collection/145103/
+      result << %(hero: #{hero_to_use}
 overlay: #{overlay.downcase}
 published: true
 ---
