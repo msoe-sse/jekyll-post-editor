@@ -206,18 +206,62 @@ class PostControllerTest < BaseIntegrationTest
     assert_nil flash[:notice]
   end
 
+  test 'post/submit should redirect back to the edit screen with an
+   error message if a post has a hero thats not an image.' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
+    PostService.expects(:submit_post).never
+    KramdownService.expects(:create_jekyll_post_text).never
+        
+    # Act
+    post '/post/submit', params: { title: 'title', author: 'author', 
+                                   markdownArea: '# bonk', tags: '',
+                                    overlay: 'red', hero: 'https://github.com/msoe-sse/msoe-sse.github.io' }
+        
+    # Assert
+    assert_redirected_to '/post/edit'
+    assert_equal 'The background image url must be an image.', flash[:alert]
+    assert_nil flash[:notice]
+  end
+
+  test 'post/submit should redirect back to the edit screen with an
+        error message if a post has a hero thats not a valid url.' do 
+   # Arrange
+   setup_session('access token', true)
+   GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
+   PostService.expects(:submit_post).never
+   KramdownService.expects(:create_jekyll_post_text).never
+       
+   # Act
+   post '/post/submit', params: { title: 'title', author: 'author', 
+                                  markdownArea: '# bonk', tags: '',
+                                   overlay: 'red', hero: 'bonk' }
+       
+   # Assert
+   assert_redirected_to '/post/edit'
+   assert_equal 'The background image must be a valid URL.', flash[:alert]
+   assert_nil flash[:notice]
+ end
+  
+
   test 'post/submit should submit the new post to GitHub and redirect back to the edit screen with a valid post' do 
     # Arrange
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
     PostService.expects(:create_post).with('access token', 'post text', 'title').once
+    PostService.expects(:is_valid_hero).with('https://source.unsplash.com/collection/145103/').returns(true)
     KramdownService.expects(:create_jekyll_post_text)
-                   .with('# hello', 'author', 'title', 'tags', 'red').returns('post text')
+                   .with('# hello', 'author', 'title', 'tags', 'red',
+                    'https://source.unsplash.com/collection/145103/').returns('post text')
             
     # Act
     post '/post/submit', params: { title: 'title', author: 'author', 
-                                   markdownArea: '# hello', tags: 'tags', overlay: 'red' }
+                                   markdownArea: '# hello', tags: 'tags', overlay: 'red',
+                                    hero: 'https://source.unsplash.com/collection/145103/' }
             
     # Assert
     assert_redirected_to '/post/edit'
@@ -233,11 +277,11 @@ class PostControllerTest < BaseIntegrationTest
 
     PostService.expects(:edit_post).with('access token', 'post text', 'title', 'path.md').once
     KramdownService.expects(:create_jekyll_post_text)
-                   .with('# hello', 'author', 'title', 'tags', 'red').returns('post text')
+                   .with('# hello', 'author', 'title', 'tags', 'red', '').returns('post text')
 
     # Act
     post '/post/submit?path=path.md', params: { title: 'title', author: 'author', 
-                                                markdownArea: '# hello', tags: 'tags', overlay: 'red' }
+                                                markdownArea: '# hello', tags: 'tags', overlay: 'red', hero: '' }
 
     # Assert
     assert_redirected_to '/post/edit'

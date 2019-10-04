@@ -1,4 +1,5 @@
 require 'base64'
+require 'net/http'
 
 ##
 # This module contains operations related to posts on the SSE website
@@ -70,6 +71,20 @@ module PostService
       PostImageManager.instance.clear
     end
 
+    ##
+    # This method validates the hero for a post when the hero is a URL. In that case we make a request to the URL
+    # to see if the URL is an image or not. The URL must be an image in order for the URL to be valid
+    #
+    # Params
+    # +url+::a url representing the hero of a post
+    def is_valid_hero(url)
+      url = URI.parse(url)
+      Net::HTTP.start(url.host, url.port, use_ssl: true) do |http|
+        return http.head(url.request_uri)['Content-Type'].start_with? 'image'
+      end
+    end
+
+    
     private
       def create_new_filepath_for_post(post_title)
         "_posts/#{DateTime.now.strftime('%Y-%m-%d')}-#{post_title.gsub(/\s+/, '')}.md"

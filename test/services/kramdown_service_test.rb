@@ -121,7 +121,7 @@ published: true
 
     # Act
     result = KramdownService.create_jekyll_post_text("#An H1 tag\r\n##An H2 tag", 'Andy Wojciechowski', 
-                                                     'Some Post', '', 'Green')
+                                                     'Some Post', '', 'green', '')
 
     # Assert
     assert_equal expected_post, result
@@ -149,7 +149,7 @@ published: true
                                                      'Andy Wojciechowski', 
                                                      'Some Post', 
                                                      'announcement, info,    hack n tell     ', 
-                                                     'green')
+                                                     'green', '')
     # Assert
     assert_equal expected_post, result
   end
@@ -190,7 +190,7 @@ published: true
 ######H6 header)
 
     # Act
-    result = KramdownService.create_jekyll_post_text(markdown_text, 'Andy Wojciechowski', 'Some Post', '', 'Green')
+    result = KramdownService.create_jekyll_post_text(markdown_text, 'Andy Wojciechowski', 'Some Post', '', 'green', '')
 
     # Assert
     assert_equal expected_post, result
@@ -214,7 +214,32 @@ published: true
 ##An H2 tag)
     # Act
     result = KramdownService.create_jekyll_post_text("# An H1 tag\r\n##An H2 tag",
-                                                     'Andy Wojciechowski', 'Some Post', 'announcement, info', 'green')
+                                                     'Andy Wojciechowski', 'Some Post',
+                                                      'announcement, info', 'green', '')
+    # Assert
+    assert_equal expected_post, result
+  end
+
+  test 'create_jekyll_post_text should substitute the given hero if its not empty' do 
+    # Arrange
+    expected_post = %(---
+layout: post
+title: Some Post
+author: Andy Wojciechowski\r
+tags:
+  - announcement\r
+  - info\r
+hero: bonk
+overlay: green
+published: true
+---
+#{LEAD_BREAK_SECTION}
+# An H1 tag\r
+##An H2 tag)
+    # Act
+    result = KramdownService.create_jekyll_post_text("# An H1 tag\r\n##An H2 tag",
+                                                     'Andy Wojciechowski', 'Some Post',
+                                                      'announcement, info', 'green', 'bonk')
     # Assert
     assert_equal expected_post, result
   end

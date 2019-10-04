@@ -13,6 +13,11 @@ $(function() {
     })
   });
 
+  setTimeout(function(){
+    $(".alert" ).fadeOut(3000);
+    }, 2000);
+  
+
   $('#markdown-button').click(function() {
     setActiveTab('#markdown-button', '#MarkdownTabContent');
   });

@@ -1,5 +1,6 @@
 require 'test_helper'
 require 'mocha/setup'
+require 'net/http'
 
 class PostServiceTest < ActiveSupport::TestCase
   test 'create_post should commit and push a new post up to the SSE website Github repo' do 
@@ -211,6 +212,31 @@ class PostServiceTest < ActiveSupport::TestCase
     PostService.edit_post('my token', test_markdown, 'Test Post', 'existing post.md')
 
     # No Assert - taken care of with mocha mock setups
+  end
+
+  test 'is_valid_hero should return true if the content type of the url matches an image.' do 
+    # Arrange
+    mock_http = MockHttp.new('image/gif')
+
+    Net::HTTP.expects(:start).returns(mock_http).yields(mock_http)
+
+    # Act
+    result = PostService.is_valid_hero('https://example.com')
+
+    # Assert
+    assert result
+  end
+
+  test 'is_valid_hero should return false if the content type of the url does not match an image.' do 
+    # Arrange
+    mock_http = MockHttp.new('text/html')
+    Net::HTTP.expects(:start).returns(mock_http).yields(mock_http)
+
+    # Act
+    result = PostService.is_valid_hero('https://example.com')
+
+    # Assert
+    assert_not result
   end
 
   private

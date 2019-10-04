@@ -28,6 +28,10 @@
           <%= label_tag('Tags:') %>
           <%= text_field_tag(:tags, @post.tags, class: 'headerTextField form-control', placeholder: 'tag1, tag2, etc.') %>
         <% end %>
+        <%= content_tag(:div, class: 'form-group') do %>
+          <%= label_tag('Background Image:') %>
+          <%= text_field_tag(:hero, @post.hero, class: 'headerTextField form-control', placeholder: 'https://source.unsplash.com/collection/145103/') %>
+        <% end %>
         <%= simple_format("\n") %>
         <%= content_tag(:div, class: 'form-group') do %>
           <%= label_tag('Overlay:') %>
@@ -36,8 +40,8 @@
       <% end %>
       <%= content_tag(:div, class: 'tabContainer btn-toolbar') do %>
         <%= content_tag(:div, class: 'btn-group') do %>
-          <%= button_tag('Markdown', id: 'markdown-button', class: 'btn btn-secondary active', type: 'button') %>
-          <%= button_tag('Preview', id: 'preview-button', class: 'btn btn-secondary', type: 'button') %>
+          <%= button_tag('Markdown', id: 'markdown-button', class: 'btn btn-secondary bg-primary active', type: 'button') %>
+          <%= button_tag('Preview', id: 'preview-button', class: 'btn btn-secondary bg-primary', type: 'button') %>
         <% end %>
       <% end %>
       <%= content_tag(:div, id: 'MarkdownTabContent', class: 'tabcontent') do %>
