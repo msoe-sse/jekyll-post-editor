@@ -65,6 +65,8 @@ module KramdownService
     # +overlay+:: the overlay color of the post
     def create_jekyll_post_text(text, author, title, tags, overlay, hero)
       header_converted_text = fix_header_syntax(text)
+      header_converted_text = add_line_break_to_markdown_if_necessary(header_converted_text)
+      
       parsed_tags = parse_tags(tags)
 
       tag_section = %(tags:
@@ -127,6 +129,17 @@ published: true
 
       def get_filename_for_image_tag(image_el)
         File.basename(image_el.attr['src'])
+      end
+
+      def add_line_break_to_markdown_if_necessary(markdown)
+        lines = markdown.split("\n")
+        # The regular expression in the if statement looks for a markdown reference to a link like
+        # [logo]: https://ieeextreme.org/wp-content/uploads/2019/05/Xtreme_colour-e1557478323964.png
+        # If a post starts with that reference in jekyll followed by an image using that reference
+        # the line below will be interperted as a paragraph tag instead of an image tag. To fix that
+        # we add a line break to the start of the markdown.
+        return "\r\n#{markdown}" if lines.first && lines.first.match?(/\[(.*)\]: (.*)/)
+        markdown
       end
   end
 end

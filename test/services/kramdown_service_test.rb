@@ -243,4 +243,33 @@ published: true
     # Assert
     assert_equal expected_post, result
   end
+
+  test 'create_jekyll_post_text should add a line break before a reference style image 
+        if the markdown starts with a reference style image' do 
+    image_tag = "\r\n![alt text][logo]"
+    markdown = "[logo]: https://ieeextreme.org/wp-content/uploads/2019/05/Xtreme_colour-e1557478323964.png#{image_tag}"
+
+    # Arrange
+    expected_post = %(---
+layout: post
+title: Some Post
+author: Andy Wojciechowski\r
+tags:
+  - announcement\r
+  - info\r
+hero: bonk
+overlay: green
+published: true
+---
+#{LEAD_BREAK_SECTION}
+\r
+#{markdown})
+
+    # Act
+    result = KramdownService.create_jekyll_post_text(markdown, 'Andy Wojciechowski', 'Some Post', 
+                                                    'announcement, info', 'green', 'bonk')
+
+    # Assert
+    assert_equal expected_post, result
+  end
 end
