@@ -5,6 +5,7 @@ class PostController < BasePostEditorController
   # GET post/list
   def list
     @posts = GithubService.get_all_posts(session[:access_token])
+    @pr_posts = GithubService.get_all_posts_in_pr_for_user(session[:access_token])
   end
   
   # GET post/edit

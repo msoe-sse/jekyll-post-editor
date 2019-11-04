@@ -22,5 +22,6 @@ module JekyllPostEditor
     # the framework and any gems in your application.
     config.github_org = 'msoe-sse'
     config.webmaster_github_username = 'msoe-sse-webmaster'
+    config.pull_request_body = 'This pull request was opened automatically by the jekyll-post-editor.'
   end
 end

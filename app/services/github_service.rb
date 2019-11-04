@@ -1,6 +1,7 @@
 require 'octokit'
 require 'base64'
 require 'date'
+require 'cgi'
 
 ##
 # This module contains all operations involving interacting with the GitHub API
@@ -74,13 +75,37 @@ module GithubService
       posts = client.contents(full_repo_name, path: '_posts')
       posts.each do |post|
         oldest_commit = get_oldest_commit_for_file(client, post.path)
+        username = client.user[:login]
+        result << create_post_from_api_response(oauth_token, post) if username == oldest_commit[:author][:login]
+      end
+      result
+    end
 
-        if client.user[:login] == oldest_commit[:author][:login]
-          post_api_response = client.contents(full_repo_name, path: post.path)
-          # Base64.decode64 will convert our string into a ASCII string
-          # calling force_encoding('UTF-8') will fix that problem
-          text_contents = Base64.decode64(post_api_response.content).force_encoding('UTF-8')
-          result << PostFactory.create_post(text_contents, post.path)
+    ##
+    # This method fetches all of the posts that a user has written but have not been merged into master yet.
+    #
+    # Params:
+    # +oauth_token+::a user's oauth access token
+    def get_all_posts_in_pr_for_user(oauth_token)
+      result = []
+      client = Octokit::Client.new(access_token: oauth_token)
+      pull_requests_for_user = get_open_post_editor_pull_requests(oauth_token)
+      
+      pull_requests_for_user.each do | pull_request |
+        pull_request_files = client.pull_request_files(full_repo_name, pull_request[:number])
+
+        pull_request_files.each do | pull_request_file |
+          if pull_request_file[:filename].ends_with?('.md')
+            contents_url_params = CGI.parse(pull_request_file[:contents_url])
+
+            # The CGI.parse method returns a hash with the key being the URL and the value being an array of
+            # URI parameters so in order to get the ref we need to grab the first value in the hash and the first
+            # URI parameter in the first hash value
+            post = client.contents(full_repo_name, path: pull_request_file[:filename], 
+                                   ref: contents_url_params.values.first.first)
+                                   
+            result << create_post_from_api_response(oauth_token, posts.first)
+          end
         end
       end
       result
@@ -218,6 +243,22 @@ module GithubService
         commits = client.commits(full_repo_name, path: path)
         min_date = commits.map { |x| x[:commit][:committer][:date] }.min
         commits.find { |x| x[:commit][:committer][:date] == min_date }
+      end
+
+      def create_post_from_api_response(oauth_token, post)
+        client = Octokit::Client.new(access_token: oauth_token)
+        post_api_response = client.contents(full_repo_name, path: post.path)
+        # Base64.decode64 will convert our string into a ASCII string
+        # calling force_encoding('UTF-8') will fix that problem
+        text_contents = Base64.decode64(post_api_response.content).force_encoding('UTF-8')
+        PostFactory.create_post(text_contents, post.path)
+      end
+
+      def get_open_post_editor_pull_requests(oauth_token)
+        client = Octokit::Client.new(access_token: oauth_token)
+        open_pull_requests = client.pull_requests(full_repo_name, state: 'open')
+        pull_requests_for_user = open_pull_requests.select { |x| x[:user][:login] == client.user[:login] && 
+                                                                 x[:body] == Rails.configuration.pull_request_body}
       end
   end
 end

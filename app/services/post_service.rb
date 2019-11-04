@@ -66,7 +66,8 @@ module PostService
       GithubService.commit_and_push_to_repo(oauth_token, "Edited post #{post_title}", 
                                             new_tree_sha, master_head_sha, ref_name)
       GithubService.create_pull_request(oauth_token, branch_name, 'master', "Edited Post #{post_title}", 
-                                        PULL_REQUEST_BODY, [Rails.configuration.webmaster_github_username])
+                                        Rails.configuration.pull_request_body, 
+                                        [Rails.configuration.webmaster_github_username])
       
       PostImageManager.instance.clear
     end

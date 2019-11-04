@@ -138,6 +138,22 @@ class GithubServiceTest < ActiveSupport::TestCase
     # Assert
     assert_equal [post1_model, post3_model], result
   end
+
+  test 'get_all_posts_in_pr_for_user should return all posts in PR for a user' do 
+    # Arrange
+    Octokit::Client.any_instance(:user).returns({login: 'andy-wojciechowski'})
+
+    Octokit::Client.any_instance(:pull_requests).with('msoe-sse/jekyll-post-editor-test-repo', state: 'open')
+                   .returns([create_pull_request_hash('msoe-sse-webmaster', 
+                            'This pull request was opened automatically by the jekyll-post-editor.'),
+                            create_pull_request_hash('andy-wojciechowski', 'My Pull Request Body'),
+                            create_pull_request_hash('andy-wojciechowski', 
+                            'This pull request was opened automatically by the jekyll-post-editor.')])
+    # Act
+    result = GithubService.get_all_posts_in_pr_for_user('my token')
+
+    # Assert
+  end
   
   test 'get_post_by_title should return nil if the post does not exist' do
     # Arrange
@@ -349,6 +365,15 @@ class GithubServiceTest < ActiveSupport::TestCase
         author: {
           login: login
         }
+      }
+    end
+
+    def create_pull_request_hash(username, body)
+      {
+        user: {
+          login: username
+        },
+        body: body
       }
     end
 

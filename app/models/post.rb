@@ -8,4 +8,5 @@ class Post
   attr_accessor :contents
   attr_accessor :tags
   attr_accessor :file_path
+  attr_accessor :images
 end

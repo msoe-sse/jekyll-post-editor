@@ -8,11 +8,18 @@
       <% end %>
     <% end %>
     <%= content_tag(:ul, class: 'postList') do %>
-      <% if @posts.length > 0 %>
-        <% @posts.each do |post| %>
-          <% concat(content_tag(:li, link_to(post.title, { controller: 'post', action: 'edit', title: post.title }) )) %>
+      <% @posts.each do |post| %>
+        <% concat(content_tag(:li, link_to(post.title, { controller: 'post', action: 'edit', title: post.title }) )) %>
+      <% end %>
+      
+      <% if @pr_posts.length > 0 %>
+        <%= content_tag(:h1, 'Posts in Review') %>
+        <% @pr_posts.each do |post| %>
+          <% concat(content_tag(:li, link_to(post.title, { controller: 'post', action: 'edit', title: post.title}) )) %>
         <% end %>
-      <% else %>
+      <% end %>
+
+      <% if @posts.length == 0 && @pr_posts.length == 0 %>
         <%= content_tag(:div, 'No previously created posts.', class: 'noPostsMessage') %>
       <% end %>
     <% end %>
