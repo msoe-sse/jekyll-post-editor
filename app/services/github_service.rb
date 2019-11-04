@@ -76,7 +76,8 @@ module GithubService
       posts.each do |post|
         oldest_commit = get_oldest_commit_for_file(client, post.path)
         username = client.user[:login]
-        result << create_post_from_api_response(oauth_token, post) if username == oldest_commit[:author][:login]
+        post_api_response = client.contents(full_repo_name, path: post.path)
+        result << create_post_from_api_response(oauth_token, post_api_response) if username == oldest_commit[:author][:login]
       end
       result
     end
@@ -103,8 +104,8 @@ module GithubService
             # URI parameter in the first hash value
             post = client.contents(full_repo_name, path: pull_request_file[:filename], 
                                    ref: contents_url_params.values.first.first)
-                                   
-            result << create_post_from_api_response(oauth_token, posts.first)
+
+            result << create_post_from_api_response(oauth_token, post)
           end
         end
       end
@@ -247,10 +248,9 @@ module GithubService
 
       def create_post_from_api_response(oauth_token, post)
         client = Octokit::Client.new(access_token: oauth_token)
-        post_api_response = client.contents(full_repo_name, path: post.path)
         # Base64.decode64 will convert our string into a ASCII string
         # calling force_encoding('UTF-8') will fix that problem
-        text_contents = Base64.decode64(post_api_response.content).force_encoding('UTF-8')
+        text_contents = Base64.decode64(post.content).force_encoding('UTF-8')
         PostFactory.create_post(text_contents, post.path)
       end
 
