@@ -84,9 +84,9 @@ class GithubServiceTest < ActiveSupport::TestCase
     post2 = create_dummy_api_resource(path: '_posts/post2.md')
     post3 = create_dummy_api_resource(path: '_posts/post3.md')
 
-    post1_content = create_dummy_api_resource(content: 'post 1 base 64 content')
-    post2_content = create_dummy_api_resource(content: 'post 2 base 64 content')
-    post3_content = create_dummy_api_resource(content: 'post 3 base 64 content')
+    post1_content = create_dummy_api_resource(path: '_posts/post1.md', content: 'post 1 base 64 content')
+    post2_content = create_dummy_api_resource(path: '_posts/post2.md', content: 'post 2 base 64 content')
+    post3_content = create_dummy_api_resource(path: '_posts/post3.md', content: 'post 3 base 64 content')
     
     post1_model = create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
                                      overlay: 'overlay 1', contents: '#post1', tags: ['announcement', 'info'])
@@ -141,18 +141,40 @@ class GithubServiceTest < ActiveSupport::TestCase
 
   test 'get_all_posts_in_pr_for_user should return all posts in PR for a user' do 
     # Arrange
-    Octokit::Client.any_instance(:user).returns({login: 'andy-wojciechowski'})
+    post_content = create_dummy_api_resource(content: 'PR base 64 content', path: 'sample.md')
+    post_model = create_post_model(title: 'post', author: 'Andy Wojciechowski', hero: 'hero',
+                                   overlay: 'overlay', contents: '#post', tags: ['announcement', 'info'])
 
-    Octokit::Client.any_instance(:pull_requests).with('msoe-sse/jekyll-post-editor-test-repo', state: 'open')
+    Octokit::Client.any_instance.expects(:user).returns(login: 'andy-wojciechowski').at_least_once
+
+    Octokit::Client.any_instance.expects(:pull_requests).with('msoe-sse/jekyll-post-editor-test-repo', state: 'open')
                    .returns([create_pull_request_hash('msoe-sse-webmaster', 
-                            'This pull request was opened automatically by the jekyll-post-editor.'),
-                            create_pull_request_hash('andy-wojciechowski', 'My Pull Request Body'),
+                            'This pull request was opened automatically by the jekyll-post-editor.', 1),
+                            create_pull_request_hash('andy-wojciechowski', 'My Pull Request Body', 2),
                             create_pull_request_hash('andy-wojciechowski', 
-                            'This pull request was opened automatically by the jekyll-post-editor.')])
+                            'This pull request was opened automatically by the jekyll-post-editor.', 3)])
+    
+    Octokit::Client.any_instance.expects(:pull_request_files).with('msoe-sse/jekyll-post-editor-test-repo', 1)
+                   .returns([]).never
+    Octokit::Client.any_instance.expects(:pull_request_files).with('msoe-sse/jekyll-post-editor-test-repo', 2)
+                   .returns([]).never
+    Octokit::Client.any_instance.expects(:pull_request_files).with('msoe-sse/jekyll-post-editor-test-repo', 3).returns([
+      create_pull_request_file_hash('myref', 'sample.md'),
+      create_pull_request_file_hash('myref', 'sample.jpeg')
+    ])
+
+    Octokit::Client.any_instance.expects(:contents)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', path: 'sample.md', ref: 'myref')
+                   .returns(post_content)
+    
+    Base64.expects(:decode64).with('PR base 64 content').returns('PR content')
+    PostFactory.expects(:create_post).with('PR content', 'sample.md').returns(post_model)
+
     # Act
     result = GithubService.get_all_posts_in_pr_for_user('my token')
 
     # Assert
+    assert_equal [post_model], result
   end
   
   test 'get_post_by_title should return nil if the post does not exist' do
@@ -368,12 +390,20 @@ class GithubServiceTest < ActiveSupport::TestCase
       }
     end
 
-    def create_pull_request_hash(username, body)
+    def create_pull_request_hash(username, body, number)
       {
         user: {
           login: username
         },
-        body: body
+        body: body,
+        number: number
+      }
+    end
+
+    def create_pull_request_file_hash(ref, filename)
+      {
+        contents_url: "http://example.com?ref=#{ref}",
+        filename: filename
       }
     end
 

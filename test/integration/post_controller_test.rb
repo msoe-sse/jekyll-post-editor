@@ -8,7 +8,10 @@ class PostControllerTest < BaseIntegrationTest
                               overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
     post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
                               overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
+    pr_post = create_post_model(title: 'pr post', author: 'pr author', hero: 'pr hero',
+                                overlay: 'pr overlay', contents: 'pr contents', tags: ['tag1', 'tag2'])
     GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
+    GithubService.expects(:get_all_posts_in_pr_for_user).with('access token').returns([pr_post])
 
     # Act
     get '/post/list'
@@ -26,7 +29,10 @@ class PostControllerTest < BaseIntegrationTest
                               overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
     post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
                               overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
+    pr_post = create_post_model(title: 'pr post', author: 'pr author', hero: 'pr hero',
+                                overlay: 'pr overlay', contents: 'pr contents', tags: ['tag1', 'tag2'])
     GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
+    GithubService.expects(:get_all_posts_in_pr_for_user).with('access token').returns([pr_post])
 
     # Act
     get '/'

@@ -76,8 +76,10 @@ module GithubService
       posts.each do |post|
         oldest_commit = get_oldest_commit_for_file(client, post.path)
         username = client.user[:login]
-        post_api_response = client.contents(full_repo_name, path: post.path)
-        result << create_post_from_api_response(oauth_token, post_api_response) if username == oldest_commit[:author][:login]
+        if username == oldest_commit[:author][:login]
+          post_api_response = client.contents(full_repo_name, path: post.path)
+          result << create_post_from_api_response(oauth_token, post_api_response) 
+        end
       end
       result
     end
