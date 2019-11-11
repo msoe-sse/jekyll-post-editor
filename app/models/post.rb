@@ -7,5 +7,9 @@ class Post
   attr_accessor :overlay
   attr_accessor :contents
   attr_accessor :tags
+  # Path to the markdown post starting at the root of the repository
   attr_accessor :file_path
+  # The GitHub ref the post's markdown is at. This is used to indicate
+  # whether a post is in PR or not
+  attr_accessor :github_ref
 end

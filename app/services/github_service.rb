@@ -78,7 +78,7 @@ module GithubService
         username = client.user[:login]
         if username == oldest_commit[:author][:login]
           post_api_response = client.contents(full_repo_name, path: post.path)
-          result << create_post_from_api_response( post_api_response) 
+          result << create_post_from_api_response( post_api_response, nil) 
         end
       end
       result
@@ -104,10 +104,10 @@ module GithubService
             # The CGI.parse method returns a hash with the key being the URL and the value being an array of
             # URI parameters so in order to get the ref we need to grab the first value in the hash and the first
             # URI parameter in the first hash value
-            post = client.contents(full_repo_name, path: pull_request_file[:filename], 
-                                   ref: contents_url_params.values.first.first)
+            ref = contents_url_params.values.first.first
+            post = client.contents(full_repo_name, path: pull_request_file[:filename], ref: ref)
 
-            result << create_post_from_api_response(post)
+            result << create_post_from_api_response(post, ref)
           end
         end
       end
@@ -248,11 +248,11 @@ module GithubService
         commits.find { |x| x[:commit][:committer][:date] == min_date }
       end
 
-      def create_post_from_api_response(post)
+      def create_post_from_api_response(post, ref)
         # Base64.decode64 will convert our string into a ASCII string
         # calling force_encoding('UTF-8') will fix that problem
         text_contents = Base64.decode64(post.content).force_encoding('UTF-8')
-        PostFactory.create_post(text_contents, post.path)
+        PostFactory.create_post(text_contents, post.path, ref)
       end
 
       def get_open_post_editor_pull_requests(oauth_token)

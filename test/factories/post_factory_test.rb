@@ -6,7 +6,7 @@ class PostFactoryTest < ActiveSupport::TestCase
 
   test 'create_post should return nil if given a nil value for post_contents' do 
     # Act
-    result = PostFactory.create_post(nil, nil)
+    result = PostFactory.create_post(nil, nil, nil)
 
     # Assert
     assert_nil result
@@ -14,7 +14,7 @@ class PostFactoryTest < ActiveSupport::TestCase
 
   test 'create_post should return nil if given a non-string type for post_contents' do
     # Act
-    result = PostFactory.create_post(1, 'my post.md')
+    result = PostFactory.create_post(1, 'my post.md', 'myref')
 
     # Assert
     assert_nil result
@@ -37,10 +37,11 @@ overlay: green
 ##An H2 tag)
 
     # Act
-    result = PostFactory.create_post(post_contents, 'my post.md')
+    result = PostFactory.create_post(post_contents, 'my post.md', 'myref')
 
     # Assert
     assert_equal 'my post.md', result.file_path
+    assert_equal 'myref', result.github_ref
     assert_equal 'Some Post', result.title
     assert_equal 'Andrew Wojciechowski', result.author
     assert_equal 'announcement, info', result.tags
@@ -66,10 +67,11 @@ overlay: green\r
 ##An H2 tag)
         
     # Act
-    result = PostFactory.create_post(post_contents, 'my post.md')
+    result = PostFactory.create_post(post_contents, 'my post.md', 'myref')
         
     # Assert
     assert_equal 'my post.md', result.file_path
+    assert_equal 'myref', result.github_ref
     assert_equal "Some Post\r", result.title
     assert_equal "Andrew Wojciechowski\r", result.author
     assert_equal "announcement\r, info\r", result.tags

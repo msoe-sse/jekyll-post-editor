@@ -13,8 +13,9 @@ module PostFactory
     # Params:
     # +post_contents+::markdown in a given post
     # +file_path+::the path on GitHub to the post
-    def create_post(post_contents, file_path)      
-      return create_post_model(post_contents, file_path) if !post_contents.nil? && post_contents.is_a?(String)
+    # +ref+::the ref where this post is on GitHub
+    def create_post(post_contents, file_path, ref)      
+      return create_post_model(post_contents, file_path, ref) if !post_contents.nil? && post_contents.is_a?(String)
     end
 
   private
@@ -27,10 +28,11 @@ module PostFactory
       result.join(', ')
     end
 
-    def create_post_model(post_contents, file_path)
+    def create_post_model(post_contents, file_path, ref)
       result = Post.new
 
       result.file_path = file_path
+      result.github_ref = ref
 
       # What this regular expression does is it matches two groups
       # The first group represents the header of the post which appears

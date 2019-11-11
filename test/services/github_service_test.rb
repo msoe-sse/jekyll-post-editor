@@ -128,9 +128,9 @@ class GithubServiceTest < ActiveSupport::TestCase
     Base64.expects(:decode64).with('post 2 base 64 content').returns('post 2 text content').never
     Base64.expects(:decode64).with('post 3 base 64 content').returns('post 3 text content')
     
-    PostFactory.expects(:create_post).with('post 1 text content', '_posts/post1.md').returns(post1_model)
-    PostFactory.expects(:create_post).with('post 2 text content', '_posts/post2.md').returns(post2_model).never
-    PostFactory.expects(:create_post).with('post 3 text content', '_posts/post3.md').returns(post3_model)
+    PostFactory.expects(:create_post).with('post 1 text content', '_posts/post1.md', nil).returns(post1_model)
+    PostFactory.expects(:create_post).with('post 2 text content', '_posts/post2.md', nil).returns(post2_model).never
+    PostFactory.expects(:create_post).with('post 3 text content', '_posts/post3.md', nil).returns(post3_model)
 
     # Act
     result = GithubService.get_all_posts('my token')
@@ -168,7 +168,7 @@ class GithubServiceTest < ActiveSupport::TestCase
                    .returns(post_content)
     
     Base64.expects(:decode64).with('PR base 64 content').returns('PR content')
-    PostFactory.expects(:create_post).with('PR content', 'sample.md').returns(post_model)
+    PostFactory.expects(:create_post).with('PR content', 'sample.md', 'myref').returns(post_model)
 
     # Act
     result = GithubService.get_all_posts_in_pr_for_user('my token')
