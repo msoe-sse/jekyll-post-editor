@@ -78,7 +78,7 @@ module GithubService
         username = client.user[:login]
         if username == oldest_commit[:author][:login]
           post_api_response = client.contents(full_repo_name, path: post.path)
-          result << create_post_from_api_response(oauth_token, post_api_response) 
+          result << create_post_from_api_response( post_api_response) 
         end
       end
       result
@@ -107,7 +107,7 @@ module GithubService
             post = client.contents(full_repo_name, path: pull_request_file[:filename], 
                                    ref: contents_url_params.values.first.first)
 
-            result << create_post_from_api_response(oauth_token, post)
+            result << create_post_from_api_response(post)
           end
         end
       end
@@ -248,8 +248,7 @@ module GithubService
         commits.find { |x| x[:commit][:committer][:date] == min_date }
       end
 
-      def create_post_from_api_response(oauth_token, post)
-        client = Octokit::Client.new(access_token: oauth_token)
+      def create_post_from_api_response(post)
         # Base64.decode64 will convert our string into a ASCII string
         # calling force_encoding('UTF-8') will fix that problem
         text_contents = Base64.decode64(post.content).force_encoding('UTF-8')
@@ -259,8 +258,8 @@ module GithubService
       def get_open_post_editor_pull_requests(oauth_token)
         client = Octokit::Client.new(access_token: oauth_token)
         open_pull_requests = client.pull_requests(full_repo_name, state: 'open')
-        pull_requests_for_user = open_pull_requests.select { |x| x[:user][:login] == client.user[:login] && 
-                                                                 x[:body] == Rails.configuration.pull_request_body}
+        open_pull_requests.select { |x| x[:user][:login] == client.user[:login] && 
+                                        x[:body] == Rails.configuration.pull_request_body}
       end
   end
 end
