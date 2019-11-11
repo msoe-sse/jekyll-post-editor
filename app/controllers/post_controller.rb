@@ -12,7 +12,7 @@ class PostController < BasePostEditorController
   def edit
     @post = Post.new
     create_post_from_session if session[:post_stored]
-    @post = GithubService.get_post_by_title(session[:access_token], params[:title]) if params[:title]
+    @post = GithubService.get_post_by_title(session[:access_token], params[:title], params[:ref]) if params[:title]
   end
 
   # GET post/preview

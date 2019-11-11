@@ -119,13 +119,28 @@ class PostControllerTest < BaseIntegrationTest
 
     post = create_post_model(title: 'title', author: 'author', hero: 'hero', 
                               overlay: 'overlay', contents: 'contents',  tags: ['tag1', 'tag2'])
-    GithubService.expects(:get_post_by_title).with('access token', 'title').returns(post)
+    GithubService.expects(:get_post_by_title).with('access token', 'title', nil).returns(post)
 
     # Act
     get '/post/edit?title=title'
 
     # Assert
     assert_response :success
+  end
+
+  test 'an authenticated user should be able to navigate to post/edit successfully with a title and ref parameter' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
+    post = create_post_model(title: 'title', author: 'author', hero: 'hero', 
+                              overlay: 'overlay', contents: 'contents',  tags: ['tag1', 'tag2'])
+    GithubService.expects(:get_post_by_title).with('access token', 'title', 'ref').returns(post)
+
+    # Act
+    get '/post/edit?title=title&ref=ref'
+
+    # ASsert
   end
 
   test 'post/edit should create a post from the session if session[:post_stored] is true' do 

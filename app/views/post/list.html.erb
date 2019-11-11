@@ -21,7 +21,7 @@
       <%= content_tag(:h3, 'Posts in Review') %>
       <%= content_tag(:ul, class: 'prPostList') do %>
         <% @pr_posts.each do |post| %>
-          <% concat(content_tag(:li, link_to(post.title, { controller: 'post', action: 'edit', title: post.title}) )) %>
+          <% concat(content_tag(:li, link_to(post.title, { controller: 'post', action: 'edit', title: post.title, ref: post.github_ref}) )) %>
         <% end %>
       <% end %>
     <% end %>

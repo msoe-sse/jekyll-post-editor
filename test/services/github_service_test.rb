@@ -189,7 +189,7 @@ class GithubServiceTest < ActiveSupport::TestCase
     GithubService.expects(:get_all_posts).with('my token').returns([post1_model, post2_model, post3_model])
 
     # Act
-    result = GithubService.get_post_by_title('my token', 'a very fake post')
+    result = GithubService.get_post_by_title('my token', 'a very fake post', nil)
 
     # Assert
     assert_nil result
@@ -207,7 +207,43 @@ class GithubServiceTest < ActiveSupport::TestCase
     GithubService.expects(:get_all_posts).with('my token').returns([post1_model, post2_model, post3_model])
 
     # Act
-    result = GithubService.get_post_by_title('my token', 'post 2')
+    result = GithubService.get_post_by_title('my token', 'post 2', nil)
+
+    # Assert
+    assert_equal post2_model, result
+  end
+
+  test 'get_post_by_title should return nil if the post does not exist on a given ref' do 
+    # Arrange
+    post1_model = create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
+                                    overlay: 'overlay 1', contents: '#post1', tags: ['announcement', 'info'])
+    post2_model = create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
+                                    overlay: 'overlay 2', contents: '##post2', tags: ['announcement'])
+    post3_model = create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
+                                    overlay: 'overlay 3', contents: '###post3', tags: ['info'])
+
+    GithubService.expects(:get_all_posts_in_pr_for_user).with('my token').returns([post1_model, post2_model, post3_model])
+
+    # Act
+    result = GithubService.get_post_by_title('my token', 'a very fake post', 'ref')
+
+    # Assert
+    assert_nil result
+  end
+
+  test 'get_post_by_title should return a given post by its title given a ref' do 
+    # Arrange
+    post1_model = create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
+                                    overlay: 'overlay 1', contents: '#post1', tags: ['announcement', 'info'])
+    post2_model = create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
+                                    overlay: 'overlay 2', contents: '##post2', tags: ['announcement'])
+    post3_model = create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
+                                    overlay: 'overlay 3', contents: '###post3', tags: ['info'])
+
+    GithubService.expects(:get_all_posts_in_pr_for_user).with('my token').returns([post1_model, post2_model, post3_model])
+
+    # Act
+    result = GithubService.get_post_by_title('my token', 'post 2', 'ref')
 
     # Assert
     assert_equal post2_model, result
