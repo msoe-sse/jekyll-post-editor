@@ -7,8 +7,10 @@ module PostHelper
   #
   # Params:
   # +post_path+::a path to an existing post on the website
-  def get_post_submission_url(post_path)
+  def get_post_submission_url(post_path, ref)
+    return "/post/submit?path=#{post_path}&ref=#{ref}"
     return "/post/submit?path=#{post_path}" if post_path
+    return "/post/submit?ref=#{ref}" if ref
     '/post/submit'
   end
 
