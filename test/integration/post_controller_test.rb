@@ -322,7 +322,8 @@ class PostControllerTest < BaseIntegrationTest
 
     # Act
     post '/post/submit?path=path.md&ref=ref', params: { title: 'title', author: 'author', 
-                                                        markdownArea: '# hello', tags: 'tags', overlay: 'red', hero: '' }
+                                                        markdownArea: '# hello', tags: 'tags', 
+                                                        overlay: 'red', hero: '' }
     
     # Assert
     assert_redirected_to '/post/edit'

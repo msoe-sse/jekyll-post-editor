@@ -78,7 +78,7 @@ module GithubService
         username = client.user[:login]
         if username == oldest_commit[:author][:login]
           post_api_response = client.contents(full_repo_name, path: post.path)
-          result << create_post_from_api_response( post_api_response, nil) 
+          result << create_post_from_api_response(post_api_response, nil) 
         end
       end
       result
@@ -123,7 +123,7 @@ module GithubService
     # +title+:: A title of a SSE website post
     # +ref+:: The ref indicating which branch the post is on in GitHub
     def get_post_by_title(oauth_token, title, ref)
-      return get_all_posts_in_pr_for_user(oauth_token).find { |x| x.title == title} if ref
+      return get_all_posts_in_pr_for_user(oauth_token).find { |x| x.title == title } if ref
       get_all_posts(oauth_token).find { |x| x.title == title }
     end
 

@@ -222,7 +222,8 @@ class GithubServiceTest < ActiveSupport::TestCase
     post3_model = create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
                                     overlay: 'overlay 3', contents: '###post3', tags: ['info'])
 
-    GithubService.expects(:get_all_posts_in_pr_for_user).with('my token').returns([post1_model, post2_model, post3_model])
+    GithubService.expects(:get_all_posts_in_pr_for_user)
+                 .with('my token').returns([post1_model, post2_model, post3_model])
 
     # Act
     result = GithubService.get_post_by_title('my token', 'a very fake post', 'ref')
@@ -240,7 +241,8 @@ class GithubServiceTest < ActiveSupport::TestCase
     post3_model = create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
                                     overlay: 'overlay 3', contents: '###post3', tags: ['info'])
 
-    GithubService.expects(:get_all_posts_in_pr_for_user).with('my token').returns([post1_model, post2_model, post3_model])
+    GithubService.expects(:get_all_posts_in_pr_for_user)
+                 .with('my token').returns([post1_model, post2_model, post3_model])
 
     # Act
     result = GithubService.get_post_by_title('my token', 'post 2', 'ref')
