@@ -73,6 +73,27 @@ module PostService
     end
 
     ##
+    # This method submits changes to a post that is already in PR, commiting and pushing the markdown changes
+    # and any added photos to the branch. Since the post is in PR these changes will be a PR updated to the given branch
+    #
+    # Params:
+    # +oauth_token+::a user's oauth access token
+    # +post_markdown+::the modified markdown to submit
+    # +post_title+::the title for the existing post
+    # +existing_post_file_path+::the file path to the existing post on GitHub
+    # +ref+::the ref to update
+    def edit_post_in_pr(oauth_token, post_markdown, post_title, existing_post_file_path, ref)
+      ref_name = GithubService.get_ref_name_by_sha(oauth_token, ref)
+      sha_base_tree = GithubService.get_base_tree_for_branch(oauth_token, ref)
+
+      new_tree_sha = create_new_tree(oauth_token, post_markdown, post_title, existing_post_file_path, sha_base_tree)
+      GithubService.commit_and_push_to_repo(oauth_token, "Edited post #{post_title}",
+                                            new_tree_sha, ref, ref_name)
+      
+      PostImageManager.instance.clear
+    end
+
+    ##
     # This method validates the hero for a post when the hero is a URL. In that case we make a request to the URL
     # to see if the URL is an image or not. The URL must be an image in order for the URL to be valid
     #

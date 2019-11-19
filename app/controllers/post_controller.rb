@@ -34,7 +34,10 @@ class PostController < BasePostEditorController
       full_post_text = KramdownService.create_jekyll_post_text(params[:markdownArea], params[:author], 
                                                                params[:title], params[:tags],
                                                                params[:overlay], params[:hero])
-      if params[:path]
+      
+      if params[:path] && params[:ref]
+        PostService.edit_post_in_pr(session[:access_token], full_post_text, params[:title], params[:path], params[:ref])
+      elsif params[:path]
         PostService.edit_post(session[:access_token], full_post_text, params[:title], params[:path])
       else
         PostService.create_post(session[:access_token], full_post_text, params[:title])

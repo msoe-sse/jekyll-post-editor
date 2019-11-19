@@ -239,6 +239,19 @@ module GithubService
         client.create_ref(full_repo_name, ref_name, master_head_sha)
     end
 
+    ##
+    # This method will fetch a GitHub's ref name given it's sha identifier.
+    # It will also strip off the starting refs portion of the name
+    #
+    # Params:
+    # +oauth_token+::a user's oauth access token
+    # +ref_sha+:: the sha of the ref to fetch
+    def get_ref_name_by_sha(oauth_token, ref_sha)
+      client = Octokit::Client.new(access_token: oauth_token)
+      ref_response = client.refs(full_repo_name).find { |x| x[:object][:sha] == ref_sha }
+      ref_response[:ref].match(/refs\/(.*)/).captures.first
+    end
+
     private
       def full_repo_name
         "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"

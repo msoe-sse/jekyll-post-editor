@@ -268,7 +268,7 @@ class PostControllerTest < BaseIntegrationTest
  end
   
 
-  test 'post/submit should submit the new post to GitHub and redirect back to the edit screen with a valid post' do 
+  test 'post/submit should submit the new post to GitHub and redirect back to the list screen with a valid post' do 
     # Arrange
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
@@ -290,7 +290,7 @@ class PostControllerTest < BaseIntegrationTest
     assert_equal 'Post Successfully Submited', flash[:notice]
   end
 
-  test 'post/submit? should submit the existing post to GitHub 
+  test 'post/submit?path should submit the existing post to GitHub 
         and redirect back to the edit screen with a valid post' do 
     # Arrange
     setup_session('access token', true)
@@ -304,6 +304,26 @@ class PostControllerTest < BaseIntegrationTest
     post '/post/submit?path=path.md', params: { title: 'title', author: 'author', 
                                                 markdownArea: '# hello', tags: 'tags', overlay: 'red', hero: '' }
 
+    # Assert
+    assert_redirected_to '/post/edit'
+    assert_nil flash[:alert]
+    assert_equal 'Post Successfully Submited', flash[:notice]
+  end
+
+  test 'post/submit?path&ref should submit the existing post to GitHub
+        and redirect back to the edit screen with a valid post' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
+    PostService.expects(:edit_post_in_pr).with('access token', 'post text', 'title', 'path.md', 'ref').once
+    KramdownService.expects(:create_jekyll_post_text)
+                   .with('# hello', 'author', 'title', 'tags', 'red', '').returns('post text')
+
+    # Act
+    post '/post/submit?path=path.md&ref=ref', params: { title: 'title', author: 'author', 
+                                                        markdownArea: '# hello', tags: 'tags', overlay: 'red', hero: '' }
+    
     # Assert
     assert_redirected_to '/post/edit'
     assert_nil flash[:alert]

@@ -384,6 +384,38 @@ class GithubServiceTest < ActiveSupport::TestCase
     
     # No Assert - taken care of with mocha mock setups
   end
+
+  test 'get_ref_name_by_sha should return the properly formatted ref name from Octokit' do 
+    # Arrange
+    response = [
+      {
+        ref: 'refs/heads/branch1',
+        object: {
+          sha: 'sha 1'
+        }
+      },
+      {
+        ref: 'refs/heads/branch2',
+        object: {
+          sha: 'sha 2'
+        }
+      },
+      {
+        ref: 'refs/heads/branch3',
+        object: {
+          sha: 'sha 3'
+        }
+      }
+    ]
+
+    Octokit::Client.any_instance.expects(:refs).with('msoe-sse/jekyll-post-editor-test-repo').returns(response)
+
+    # Act
+    result = GithubService.get_ref_name_by_sha('my token', 'sha 2')
+
+    # Assert
+    assert_equal 'heads/branch2', result
+  end
   
   private
     def create_dummy_api_resource(parameters)
