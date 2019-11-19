@@ -45,7 +45,7 @@ overlay: green
     assert_equal 'Some Post', result.title
     assert_equal 'Andrew Wojciechowski', result.author
     assert_equal 'announcement, info', result.tags
-    assert_equal 'https://source.unsplash.com/collection/145103/', result.hero
+    assert_equal '', result.hero
     assert_equal 'green', result.overlay
     assert_equal "#An H1 tag\n##An H2 tag", result.contents
   end
@@ -59,7 +59,7 @@ author: Andrew Wojciechowski\r
 tags:\r
   - announcement\r
   - info\r
-hero: https://source.unsplash.com/collection/145103/\r
+hero: https://source.unsplash.com/collection/145103/blah.com\r
 overlay: green\r
 ---\r
 #{LEAD_BREAK_SECTION2}
@@ -75,7 +75,7 @@ overlay: green\r
     assert_equal "Some Post\r", result.title
     assert_equal "Andrew Wojciechowski\r", result.author
     assert_equal "announcement\r, info\r", result.tags
-    assert_equal "https://source.unsplash.com/collection/145103/\r", result.hero
+    assert_equal "https://source.unsplash.com/collection/145103/blah.com\r", result.hero
     assert_equal "green\r", result.overlay
     assert_equal "#An H1 tag\r\n##An H2 tag", result.contents
   end
