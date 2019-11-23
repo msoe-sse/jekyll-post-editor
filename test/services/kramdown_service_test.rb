@@ -139,6 +139,17 @@ Andy is nice)
     assert_equal 'assets/img/My File2.jpg', result[1]
   end
 
+  test 'get_all_images_paths should not return image paths from URIs' do 
+    # Arrange
+    markdown = '![My Alt Text](https://google.com/blah.jpg)'
+
+    # Act
+    result = KramdownService.get_all_image_paths(markdown)
+
+    # Assert
+    assert_equal 0, result.length
+  end
+
   test 'create_jekyll_post_text should return text for a formatted post' do 
     # Arrange
     expected_post = %(---

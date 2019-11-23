@@ -77,8 +77,14 @@ module KramdownService
 
       get_document_descendants(document.root, document_descendants)
       all_img_tags = document_descendants.select { |x| x.type == :img }
-      
-      all_img_tags.map { |x| x.attr['src'][1..-1] }
+
+      result = all_img_tags.map do | img_tag |
+        if !(img_tag.attr['src'] =~ URI.regexp)
+          img_tag.attr['src'][1..-1]
+        end
+      end
+
+      result.compact
     end
 
     ##
