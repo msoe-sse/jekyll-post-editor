@@ -21,7 +21,8 @@ module Kramdown::Converter
       if uploader
         el.attr['src'] = "/uploads/tmp/#{uploader.preview.cache_name}" 
       else
-        downloaded_image = PostImageManager.instance.downloaded_images.find { |x| File.basename(x.filename) == File.basename(el.attr['src']) }
+        downloaded_image = PostImageManager.instance.downloaded_images
+                                           .find { |x| File.basename(x.filename) == File.basename(el.attr['src']) }
         if downloaded_image
           extension = File.extname(downloaded_image.filename)
           extension[0] = ''

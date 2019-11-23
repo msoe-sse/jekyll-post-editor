@@ -16,7 +16,8 @@ Andy is nice)
     assert_not_nil result
   end
   
-  test 'get_preview should not update the src atribute of image tags if no uploader or PostImage exists in PostImageManager' do 
+  test 'get_preview should not update the src atribute of image tags 
+        if no uploader or PostImage exists in PostImageManager' do 
     # Arrange
     mock_uploader = create_mock_uploader('preview_no image.png', 'my cache', nil)
     preview_uploader = create_preview_uploader('no image.png', mock_uploader)
