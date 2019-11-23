@@ -10,7 +10,7 @@ class PostImageManager
 
   ##
   # The constructor for PostImageManager which initializes the array of Carrierware
-  # image uploaders to use when submiting a post
+  # image uploaders to use when submiting a post and the array of downloaded images
   def initialize
     @uploaders = []
     @downloaded_images = []
@@ -28,12 +28,18 @@ class PostImageManager
     @uploaders << uploader_to_add
   end
 
+  ##
+  # Adds an image that was downloaded from the SSE website repo
+  #
+  # Params:
+  # +file+:: A PostImage object representing the downloaded image
   def add_downloaded_image(downloaded_image)
     @downloaded_images << downloaded_image
   end
 
   ##
-  # Clears the manager of all currently exisiting image uploaders and delete's their cache directories
+  # Clears the manager of all currently exisiting image uploaders and delete's their cache directories.
+  # Also clears the manager of all of the downloaded images
   def clear
     @uploaders.each do |uploader| 
       full_preview_path = "#{Rails.root}/public/uploads/tmp/#{uploader.preview.cache_name}"

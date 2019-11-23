@@ -1,5 +1,8 @@
+##
+# An object representing an image that is on a post
 class PostImage
   attr_accessor :filename
+  # The binary contents of an image as a Base64 string
   attr_accessor :contents
 end
 

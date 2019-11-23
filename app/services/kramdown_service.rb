@@ -8,7 +8,9 @@ module Kramdown::Converter
   class Preview < Html
     ##
     # An override of the convert_img tag which converts all image sources to pull
-    # from the CarrierWare cache location if an uploader exists with the image's filename
+    # from the CarrierWare cache location if an uploader exists with the image's filename. 
+    # Or the Base64 contents of a downloaded image are replaced in the src attribute if the image
+    # was downloaded for the post
     #
     # Params:
     # +el+::the image element to convert to html
