@@ -87,9 +87,13 @@ class GithubServiceTest < ActiveSupport::TestCase
     post1_content = create_dummy_api_resource(path: '_posts/post1.md', content: 'post 1 base 64 content')
     post2_content = create_dummy_api_resource(path: '_posts/post2.md', content: 'post 2 base 64 content')
     post3_content = create_dummy_api_resource(path: '_posts/post3.md', content: 'post 3 base 64 content')
-    
+    image1_content = create_dummy_api_resource(content: 'imagecontents1', path: 'My File1.jpg')
+    image2_content = create_dummy_api_resource(content: 'imagecontents2', path: 'My File2.jpg')
+
+    post1_markdown = "#post1\r\n![My Alt Text](/assets/img/My File1.jpg)\r\n![My Alt Text](/assets/img/My File2.jpg)"
+
     post1_model = create_post_model(title: 'post 1', author: 'Andy Wojciechowski', hero: 'hero 1',
-                                     overlay: 'overlay 1', contents: '#post1', tags: ['announcement', 'info'])
+                                     overlay: 'overlay 1', contents: post1_markdown, tags: ['announcement', 'info'])
     post2_model = create_post_model(title: 'post 2', author: 'Grace Fleming', hero: 'hero 2',
                                      overlay: 'overlay 2', contents: '##post2', tags: ['announcement'])
     post3_model = create_post_model(title: 'post 3', author: 'Sabrina Stangler', hero: 'hero 3',
@@ -111,6 +115,11 @@ class GithubServiceTest < ActiveSupport::TestCase
 
     Octokit::Client.any_instance.expects(:user).returns(login: 'andy-wojciechowski').at_least_once
 
+    KramdownService.expects(:get_all_image_paths).with(post1_markdown)
+                   .returns(['assets/img/My File1.jpg', 'assets/img/My File2.jpg'])
+    KramdownService.expects(:get_all_image_paths).with('##post2').never
+    KramdownService.expects(:get_all_image_paths).with('###post3').returns([])
+
     Octokit::Client.any_instance.expects(:contents)
                    .with('msoe-sse/jekyll-post-editor-test-repo', path: '_posts')
                    .returns([post1, post2, post3])
@@ -123,6 +132,12 @@ class GithubServiceTest < ActiveSupport::TestCase
     Octokit::Client.any_instance.expects(:contents)
                    .with('msoe-sse/jekyll-post-editor-test-repo', path: '_posts/post3.md')
                    .returns(post3_content)
+    Octokit::Client.any_instance.expects(:contents)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', path: 'assets/img/My File1.jpg')
+                   .returns(image1_content)
+    Octokit::Client.any_instance.expects(:contents)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', path: 'assets/img/My File2.jpg')
+                   .returns(image2_content)
 
     Base64.expects(:decode64).with('post 1 base 64 content').returns('post 1 text content')
     Base64.expects(:decode64).with('post 2 base 64 content').returns('post 2 text content').never
@@ -137,6 +152,12 @@ class GithubServiceTest < ActiveSupport::TestCase
 
     # Assert
     assert_equal [post1_model, post3_model], result
+
+    assert_equal 2, post1_model.images.length
+    assert_post_image('assets/img/My File1.jpg', 'imagecontents1', post1_model.images[0])
+    assert_post_image('assets/img/My File2.jpg', 'imagecontents2', post1_model.images[1])
+
+    assert_equal 0, post3_model.images.length
   end
 
   test 'get_all_posts_in_pr_for_user should return all posts in PR for a user' do 
@@ -181,9 +202,8 @@ class GithubServiceTest < ActiveSupport::TestCase
     # Assert
     assert_equal [post_model], result
 
-    assert_not_nil post_model.images
-    assert_equal 'sample.jpeg', post_model.images.first.filename
-    assert_equal 'imagecontents', post_model.images.first.contents
+    assert_equal 1, post_model.images.length
+    assert_post_image('sample.jpeg', 'imagecontents', post_model.images.first)
   end
   
   test 'get_post_by_title should return nil if the post does not exist' do
@@ -484,6 +504,11 @@ class GithubServiceTest < ActiveSupport::TestCase
         contents_url: "http://example.com?ref=#{ref}",
         filename: filename
       }
+    end
+
+    def assert_post_image(filename, contents, actual)
+      assert_equal filename, actual.filename
+      assert_equal contents, actual.contents
     end
 
     class DummyApiResource

@@ -78,7 +78,19 @@ module GithubService
         username = client.user[:login]
         if username == oldest_commit[:author][:login]
           post_api_response = client.contents(full_repo_name, path: post.path)
-          result << create_post_from_api_response(post_api_response, nil) 
+
+          post_model = create_post_from_api_response(post_api_response, nil)
+          image_paths = KramdownService.get_all_image_paths(post_model.contents)
+
+          images = []
+          image_paths.each do | image_path |
+            image_content = client.contents(full_repo_name, path: image_path)
+            images << create_post_image(image_path, image_content.content)
+          end
+
+          post_model.images = images
+          
+          result << post_model
         end
       end
       result
@@ -112,10 +124,7 @@ module GithubService
             post = create_post_from_api_response(file_contents, ref)
             result << post
           else
-            post_image = PostImage.new
-            post_image.filename = pull_request_file[:filename]
-            post_image.contents = file_contents.content
-            images << post_image
+            images << create_post_image(pull_request_file[:filename], file_contents.content)
           end
         end
 
@@ -288,6 +297,13 @@ module GithubService
         open_pull_requests = client.pull_requests(full_repo_name, state: 'open')
         open_pull_requests.select { |x| x[:user][:login] == client.user[:login] && 
                                         x[:body] == Rails.configuration.pull_request_body}
+      end
+
+      def create_post_image(filename, contents)
+        result = PostImage.new
+        result.filename = filename
+        result.contents = contents
+        result
       end
   end
 end
