@@ -16,7 +16,17 @@ module Kramdown::Converter
     def convert_img(el, _indent)
       formatted_filename = File.basename(el.attr['src']).tr(' ', '_') 
       uploader = PostImageManager.instance.uploaders.find { |x| x.filename == formatted_filename }
-      el.attr['src'] = "/uploads/tmp/#{uploader.preview.cache_name}" if uploader
+      if uploader
+        el.attr['src'] = "/uploads/tmp/#{uploader.preview.cache_name}" 
+      else
+        downloaded_image = PostImageManager.instance.downloaded_images.find { |x| File.basename(x.filename) == File.basename(el.attr['src']) }
+        if downloaded_image
+          extension = File.extname(downloaded_image.filename)
+          extension[0] = ''
+          el.attr['src'] = "data:image/#{extension};base64,#{downloaded_image.contents}"
+        end
+      end
+      
       super(el, _indent)
     end
   end

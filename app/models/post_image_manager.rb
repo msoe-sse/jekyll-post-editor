@@ -6,12 +6,14 @@ class PostImageManager
   include Singleton
   
   attr_reader :uploaders
+  attr_reader :downloaded_images
 
   ##
   # The constructor for PostImageManager which initializes the array of Carrierware
   # image uploaders to use when submiting a post
   def initialize
     @uploaders = []
+    @downloaded_images = []
   end
 
   ##
@@ -26,6 +28,10 @@ class PostImageManager
     @uploaders << uploader_to_add
   end
 
+  def add_downloaded_image(downloaded_image)
+    @downloaded_images << downloaded_image
+  end
+
   ##
   # Clears the manager of all currently exisiting image uploaders and delete's their cache directories
   def clear
@@ -37,5 +43,6 @@ class PostImageManager
     end
 
     @uploaders.clear
+    @downloaded_images.clear
   end
 end

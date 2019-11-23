@@ -97,19 +97,29 @@ module GithubService
       pull_requests_for_user.each do | pull_request |
         pull_request_files = client.pull_request_files(full_repo_name, pull_request[:number])
 
+        post = nil
+        images = []
         pull_request_files.each do | pull_request_file |
+          contents_url_params = CGI.parse(pull_request_file[:contents_url])
+
+          # The CGI.parse method returns a hash with the key being the URL and the value being an array of
+          # URI parameters so in order to get the ref we need to grab the first value in the hash and the first
+          # URI parameter in the first hash value
+          ref = contents_url_params.values.first.first
+          file_contents = client.contents(full_repo_name, path: pull_request_file[:filename], ref: ref)
+
           if pull_request_file[:filename].ends_with?('.md')
-            contents_url_params = CGI.parse(pull_request_file[:contents_url])
-
-            # The CGI.parse method returns a hash with the key being the URL and the value being an array of
-            # URI parameters so in order to get the ref we need to grab the first value in the hash and the first
-            # URI parameter in the first hash value
-            ref = contents_url_params.values.first.first
-            post = client.contents(full_repo_name, path: pull_request_file[:filename], ref: ref)
-
-            result << create_post_from_api_response(post, ref)
+            post = create_post_from_api_response(file_contents, ref)
+            result << post
+          else
+            post_image = PostImage.new
+            post_image.filename = pull_request_file[:filename]
+            post_image.contents = file_contents.content
+            images << post_image
           end
         end
+
+        post.images = images
       end
       result
     end
@@ -123,8 +133,11 @@ module GithubService
     # +title+:: A title of a SSE website post
     # +ref+:: The ref indicating which branch the post is on in GitHub
     def get_post_by_title(oauth_token, title, ref)
-      return get_all_posts_in_pr_for_user(oauth_token).find { |x| x.title == title } if ref
-      get_all_posts(oauth_token).find { |x| x.title == title }
+      result = nil
+      result = get_all_posts_in_pr_for_user(oauth_token).find { |x| x.title == title } if ref
+      result = get_all_posts(oauth_token).find { |x| x.title == title } if !ref
+      result.images.each { |x| PostImageManager.instance.add_downloaded_image(x) } if result
+      result
     end
 
     ##

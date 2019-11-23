@@ -142,6 +142,7 @@ class GithubServiceTest < ActiveSupport::TestCase
   test 'get_all_posts_in_pr_for_user should return all posts in PR for a user' do 
     # Arrange
     post_content = create_dummy_api_resource(content: 'PR base 64 content', path: 'sample.md')
+    image_content = create_dummy_api_resource(content: 'imagecontents', path: 'sample.jpeg')
     post_model = create_post_model(title: 'post', author: 'Andy Wojciechowski', hero: 'hero',
                                    overlay: 'overlay', contents: '#post', tags: ['announcement', 'info'])
 
@@ -166,6 +167,10 @@ class GithubServiceTest < ActiveSupport::TestCase
     Octokit::Client.any_instance.expects(:contents)
                    .with('msoe-sse/jekyll-post-editor-test-repo', path: 'sample.md', ref: 'myref')
                    .returns(post_content)
+
+    Octokit::Client.any_instance.expects(:contents)
+                   .with('msoe-sse/jekyll-post-editor-test-repo', path: 'sample.jpeg', ref: 'myref')
+                   .returns(image_content) 
     
     Base64.expects(:decode64).with('PR base 64 content').returns('PR content')
     PostFactory.expects(:create_post).with('PR content', 'sample.md', 'myref').returns(post_model)
@@ -175,6 +180,10 @@ class GithubServiceTest < ActiveSupport::TestCase
 
     # Assert
     assert_equal [post_model], result
+
+    assert_not_nil post_model.images
+    assert_equal 'sample.jpeg', post_model.images.first.filename
+    assert_equal 'imagecontents', post_model.images.first.contents
   end
   
   test 'get_post_by_title should return nil if the post does not exist' do

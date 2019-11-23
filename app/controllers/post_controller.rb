@@ -1,4 +1,5 @@
 require 'uri'
+
 ##
 # The controller responsible for dealing with views related to SSE website posts
 class PostController < BasePostEditorController
