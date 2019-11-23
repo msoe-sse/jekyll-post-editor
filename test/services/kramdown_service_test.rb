@@ -126,6 +126,19 @@ Andy is nice)
     assert_equal 'My File.jpg', result
   end
 
+  test 'get_all_image_paths should return all image paths given some markdown' do 
+    # Arrange
+    markdown = "![My Alt Text](/assets/img/My File.jpg)\r\n![My Alt Text](/assets/img/My File2.jpg)"
+
+    # Act
+    result = KramdownService.get_all_image_paths(markdown)
+
+    # Assert
+    assert_equal 2, result.length
+    assert_equal 'assets/img/My File.jpg', result[0]
+    assert_equal 'assets/img/My File2.jpg', result[1]
+  end
+
   test 'create_jekyll_post_text should return text for a formatted post' do 
     # Arrange
     expected_post = %(---

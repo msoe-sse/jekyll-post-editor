@@ -67,6 +67,21 @@ module KramdownService
     end
 
     ##
+    # This method returns an array of all image paths given some markdown
+    #
+    # Params:
+    # +markdown+:: text of a markdown post
+    def get_all_image_paths(markdown)
+      document = Kramdown::Document.new(markdown)
+      document_descendants = []
+
+      get_document_descendants(document.root, document_descendants)
+      all_img_tags = document_descendants.select { |x| x.type == :img }
+      
+      all_img_tags.map { |x| x.attr['src'][1..-1] }
+    end
+
+    ##
     # This method takes parameters for a given post and formats them
     # as a valid jekyll post for the SSE website
     #
