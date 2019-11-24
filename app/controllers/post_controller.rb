@@ -5,6 +5,7 @@ require 'uri'
 class PostController < BasePostEditorController
   # GET post/list
   def list
+    PostImageManager.instance.clear
     @pr_posts = GithubService.get_all_posts_in_pr_for_user(session[:access_token])
     @posts = GithubService.get_all_posts(session[:access_token]).select do | post |
       found_post = @pr_posts.find { |x| x.title == post.title }
