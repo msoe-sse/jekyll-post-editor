@@ -8,11 +8,6 @@
           <%= content_tag(:strong, flash[:alert]) %>
         <% end %>
       <% end %>
-      <% if flash[:notice] %>
-        <%= content_tag :div, class: 'alert alert-success', role: 'alert' do %>
-          <%= content_tag(:strong, flash[:notice]) %>
-        <% end %>
-      <% end %>
       <%= content_tag(:div, class: 'editHeaderContainer') do %>
         <%= content_tag(:div, class: 'form-group') do %>
           <%= label_tag('Title:')%>

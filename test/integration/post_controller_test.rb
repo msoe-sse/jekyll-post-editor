@@ -285,13 +285,13 @@ class PostControllerTest < BaseIntegrationTest
                                     hero: 'https://source.unsplash.com/collection/145103/' }
             
     # Assert
-    assert_redirected_to '/post/edit'
+    assert_redirected_to '/post/list'
     assert_nil flash[:alert]
     assert_equal 'Post Successfully Submited', flash[:notice]
   end
 
   test 'post/submit?path should submit the existing post to GitHub 
-        and redirect back to the edit screen with a valid post' do 
+        and redirect back to the list screen with a valid post' do 
     # Arrange
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
@@ -305,13 +305,13 @@ class PostControllerTest < BaseIntegrationTest
                                                 markdownArea: '# hello', tags: 'tags', overlay: 'red', hero: '' }
 
     # Assert
-    assert_redirected_to '/post/edit'
+    assert_redirected_to '/post/list'
     assert_nil flash[:alert]
     assert_equal 'Post Successfully Submited', flash[:notice]
   end
 
   test 'post/submit?path&ref should submit the existing post to GitHub
-        and redirect back to the edit screen with a valid post' do 
+        and redirect back to the list screen with a valid post' do 
     # Arrange
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
@@ -326,7 +326,7 @@ class PostControllerTest < BaseIntegrationTest
                                                         overlay: 'red', hero: '' }
     
     # Assert
-    assert_redirected_to '/post/edit'
+    assert_redirected_to '/post/list'
     assert_nil flash[:alert]
     assert_equal 'Post Successfully Submited', flash[:notice]
   end

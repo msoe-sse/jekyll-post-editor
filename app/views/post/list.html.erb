@@ -1,6 +1,12 @@
+<%= javascript_include_tag 'postList', 'data-turbolinks-track': 'reload' %>
 <%= content_tag(:div, class: 'listContainer') do %>
   <%= content_tag(:div, class: 'listMiddleContainer') do %>
     <%= render template: 'shared/header' %>
+    <% if flash[:notice] %>
+      <%= content_tag :div, class: 'alert alert-success', role: 'alert' do %>
+        <%= content_tag(:strong, flash[:notice]) %>
+      <% end %>
+    <% end %>
     <%= content_tag(:div, class: 'listHeaderContainer') do %>
       <%= content_tag(:span) do %>
         <%= content_tag(:h1, 'Post List') %>

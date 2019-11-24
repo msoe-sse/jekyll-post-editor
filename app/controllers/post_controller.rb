@@ -48,7 +48,7 @@ class PostController < BasePostEditorController
         PostService.create_post(session[:access_token], full_post_text, params[:title])
       end
       flash[:notice] = 'Post Successfully Submited'
-      redirect_to action: 'edit'
+      redirect_to action: 'list'
     end
   end
 
