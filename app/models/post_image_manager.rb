@@ -32,7 +32,7 @@ class PostImageManager
   # Adds an image that was downloaded from the SSE website repo
   #
   # Params:
-  # +file+:: A PostImage object representing the downloaded image
+  # +downloaded_image+:: A PostImage object representing the downloaded image
   def add_downloaded_image(downloaded_image)
     @downloaded_images << downloaded_image
   end
