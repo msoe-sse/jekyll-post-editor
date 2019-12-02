@@ -13,7 +13,7 @@ module PostFactory
     # Params:
     # +post_contents+::markdown in a given post
     # +file_path+::the path on GitHub to the post
-    # +ref+::the ref indicating which branch this post is on GitHub
+    # +ref+::a sha for a ref indicating the head of a branch a post is pushed to on the GitHub server
     def create_post(post_contents, file_path, ref)      
       return create_post_model(post_contents, file_path, ref) if !post_contents.nil? && post_contents.is_a?(String)
     end

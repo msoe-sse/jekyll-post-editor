@@ -18,6 +18,8 @@ class PostController < BasePostEditorController
   def edit
     @post = Post.new
     create_post_from_session if session[:post_stored]
+    # The ref parameter is for indicating editing a post that is apart of an open pull request. The ref parameter
+    # itself is a sha pointing to the head of the base branch in that open pull request.
     @post = GithubService.get_post_by_title(session[:access_token], params[:title], params[:ref]) if params[:title]
   end
 

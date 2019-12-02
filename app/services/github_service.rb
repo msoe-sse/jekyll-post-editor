@@ -140,7 +140,7 @@ module GithubService
     # Params:
     # +oauth_token+::a user's oauth access token
     # +title+:: A title of a SSE website post
-    # +ref+:: The ref indicating which branch the post is on in GitHub
+    # +ref+::a sha for a ref indicating the head of a branch a post is pushed to on the GitHub server
     def get_post_by_title(oauth_token, title, ref)
       result = nil
       result = get_all_posts_in_pr_for_user(oauth_token).find { |x| x.title == title } if ref
