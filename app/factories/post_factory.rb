@@ -34,9 +34,10 @@ module PostFactory
       result.file_path = file_path
       result.github_ref = ref
 
-      # What this regular expression does is it matches two groups
+      # What this regular expression does is it matches three groups
       # The first group represents the header of the post which appears
-      # between the two --- lines. The second group represents the actual post contents
+      # between the two --- lines. The second group is for helping capture newline characters
+      # correctly and the third group is the actual post contents
       match_obj = post_contents.match(/---(.*)---(\r\n|\r|\n)(.*)/m)
       header = match_obj.captures[0]
       
