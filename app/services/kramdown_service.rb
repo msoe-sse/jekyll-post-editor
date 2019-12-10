@@ -8,7 +8,9 @@ module Kramdown::Converter
   class Preview < Html
     ##
     # An override of the convert_img tag which converts all image sources to pull
-    # from the CarrierWare cache location if an uploader exists with the image's filename
+    # from the CarrierWare cache location if an uploader exists with the image's filename. 
+    # Or the Base64 contents of a downloaded image are replaced in the src attribute if the image
+    # was downloaded for the post
     #
     # Params:
     # +el+::the image element to convert to html
@@ -16,7 +18,18 @@ module Kramdown::Converter
     def convert_img(el, _indent)
       formatted_filename = File.basename(el.attr['src']).tr(' ', '_') 
       uploader = PostImageManager.instance.uploaders.find { |x| x.filename == formatted_filename }
-      el.attr['src'] = "/uploads/tmp/#{uploader.preview.cache_name}" if uploader
+      if uploader
+        el.attr['src'] = "/uploads/tmp/#{uploader.preview.cache_name}" 
+      else
+        downloaded_image = PostImageManager.instance.downloaded_images
+                                           .find { |x| File.basename(x.filename) == File.basename(el.attr['src']) }
+        if downloaded_image
+          extension = File.extname(downloaded_image.filename)
+          extension[0] = ''
+          el.attr['src'] = "data:image/#{extension};base64,#{downloaded_image.contents}"
+        end
+      end
+      
       super(el, _indent)
     end
   end
@@ -54,6 +67,27 @@ module KramdownService
     end
 
     ##
+    # This method returns an array of all image paths given some markdown
+    #
+    # Params:
+    # +markdown+:: text of a markdown post
+    def get_all_image_paths(markdown)
+      document = Kramdown::Document.new(markdown)
+      document_descendants = []
+
+      get_document_descendants(document.root, document_descendants)
+      all_img_tags = document_descendants.select { |x| x.type == :img }
+
+      result = all_img_tags.map do | img_tag |
+        if !(img_tag.attr['src'] =~ URI.regexp)
+          img_tag.attr['src'][1..-1]
+        end
+      end
+
+      result.compact
+    end
+
+    ##
     # This method takes parameters for a given post and formats them
     # as a valid jekyll post for the SSE website
     #
@@ -75,7 +109,7 @@ module KramdownService
       lead_break_section = "{: .lead}\r\n<!–-break-–>"
       
       hero_to_use = hero
-      hero_to_use = 'https://source.unsplash.com/collection/145103/' if hero_to_use.empty?
+      hero_to_use = Rails.configuration.default_hero if hero_to_use.empty?
       result = %(---
 layout: post
 title: #{title}

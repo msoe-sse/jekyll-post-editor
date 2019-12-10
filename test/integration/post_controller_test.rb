@@ -8,7 +8,10 @@ class PostControllerTest < BaseIntegrationTest
                               overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
     post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
                               overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
+    pr_post = create_post_model(title: 'pr post', author: 'pr author', hero: 'pr hero',
+                                overlay: 'pr overlay', contents: 'pr contents', tags: ['tag1', 'tag2'])
     GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
+    GithubService.expects(:get_all_posts_in_pr_for_user).with('access token').returns([pr_post])
 
     # Act
     get '/post/list'
@@ -26,7 +29,10 @@ class PostControllerTest < BaseIntegrationTest
                               overlay: 'overlay1', contents: 'contents1', tags: ['tag1', 'tag2'])
     post2 = create_post_model(title: 'title2', author: 'author2', hero: 'hero2', 
                               overlay: 'overlay2', contents: 'contents2', tags: ['tag1', 'tag2'])
+    pr_post = create_post_model(title: 'pr post', author: 'pr author', hero: 'pr hero',
+                                overlay: 'pr overlay', contents: 'pr contents', tags: ['tag1', 'tag2'])
     GithubService.expects(:get_all_posts).with('access token').returns([post1, post2])
+    GithubService.expects(:get_all_posts_in_pr_for_user).with('access token').returns([pr_post])
 
     # Act
     get '/'
@@ -113,13 +119,28 @@ class PostControllerTest < BaseIntegrationTest
 
     post = create_post_model(title: 'title', author: 'author', hero: 'hero', 
                               overlay: 'overlay', contents: 'contents',  tags: ['tag1', 'tag2'])
-    GithubService.expects(:get_post_by_title).with('access token', 'title').returns(post)
+    GithubService.expects(:get_post_by_title).with('access token', 'title', nil).returns(post)
 
     # Act
     get '/post/edit?title=title'
 
     # Assert
     assert_response :success
+  end
+
+  test 'an authenticated user should be able to navigate to post/edit successfully with a title and ref parameter' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
+    post = create_post_model(title: 'title', author: 'author', hero: 'hero', 
+                              overlay: 'overlay', contents: 'contents',  tags: ['tag1', 'tag2'])
+    GithubService.expects(:get_post_by_title).with('access token', 'title', 'ref').returns(post)
+
+    # Act
+    get '/post/edit?title=title&ref=ref'
+
+    # ASsert
   end
 
   test 'post/edit should create a post from the session if session[:post_stored] is true' do 
@@ -247,7 +268,7 @@ class PostControllerTest < BaseIntegrationTest
  end
   
 
-  test 'post/submit should submit the new post to GitHub and redirect back to the edit screen with a valid post' do 
+  test 'post/submit should submit the new post to GitHub and redirect back to the list screen with a valid post' do 
     # Arrange
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
@@ -264,13 +285,13 @@ class PostControllerTest < BaseIntegrationTest
                                     hero: 'https://source.unsplash.com/collection/145103/' }
             
     # Assert
-    assert_redirected_to '/post/edit'
+    assert_redirected_to '/post/list'
     assert_nil flash[:alert]
     assert_equal 'Post Successfully Submited', flash[:notice]
   end
 
-  test 'post/submit? should submit the existing post to GitHub 
-        and redirect back to the edit screen with a valid post' do 
+  test 'post/submit?path should submit the existing post to GitHub 
+        and redirect back to the list screen with a valid post' do 
     # Arrange
     setup_session('access token', true)
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
@@ -284,7 +305,28 @@ class PostControllerTest < BaseIntegrationTest
                                                 markdownArea: '# hello', tags: 'tags', overlay: 'red', hero: '' }
 
     # Assert
-    assert_redirected_to '/post/edit'
+    assert_redirected_to '/post/list'
+    assert_nil flash[:alert]
+    assert_equal 'Post Successfully Submited', flash[:notice]
+  end
+
+  test 'post/submit?path&ref should submit the existing post to GitHub
+        and redirect back to the list screen with a valid post' do 
+    # Arrange
+    setup_session('access token', true)
+    GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
+
+    PostService.expects(:edit_post_in_pr).with('access token', 'post text', 'title', 'path.md', 'ref').once
+    KramdownService.expects(:create_jekyll_post_text)
+                   .with('# hello', 'author', 'title', 'tags', 'red', '').returns('post text')
+
+    # Act
+    post '/post/submit?path=path.md&ref=ref', params: { title: 'title', author: 'author', 
+                                                        markdownArea: '# hello', tags: 'tags', 
+                                                        overlay: 'red', hero: '' }
+    
+    # Assert
+    assert_redirected_to '/post/list'
     assert_nil flash[:alert]
     assert_equal 'Post Successfully Submited', flash[:notice]
   end

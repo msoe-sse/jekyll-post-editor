@@ -1,17 +1,26 @@
 require 'uri'
+
 ##
 # The controller responsible for dealing with views related to SSE website posts
 class PostController < BasePostEditorController
   # GET post/list
   def list
-    @posts = GithubService.get_all_posts(session[:access_token])
+    PostImageManager.instance.clear
+    @pr_posts = GithubService.get_all_posts_in_pr_for_user(session[:access_token])
+    @posts = GithubService.get_all_posts(session[:access_token]).select do | post |
+      found_post = @pr_posts.find { |x| x.title == post.title }
+      post if !found_post
+    end
+    @posts.compact!
   end
   
   # GET post/edit
   def edit
     @post = Post.new
     create_post_from_session if session[:post_stored]
-    @post = GithubService.get_post_by_title(session[:access_token], params[:title]) if params[:title]
+    # The ref parameter is for indicating editing a post that is apart of an open pull request. The ref parameter
+    # itself is a sha pointing to the head of the base branch in that open pull request.
+    @post = GithubService.get_post_by_title(session[:access_token], params[:title], params[:ref]) if params[:title]
   end
 
   # GET post/preview
@@ -33,13 +42,16 @@ class PostController < BasePostEditorController
       full_post_text = KramdownService.create_jekyll_post_text(params[:markdownArea], params[:author], 
                                                                params[:title], params[:tags],
                                                                params[:overlay], params[:hero])
-      if params[:path]
+      
+      if params[:path] && params[:ref]
+        PostService.edit_post_in_pr(session[:access_token], full_post_text, params[:title], params[:path], params[:ref])
+      elsif params[:path]
         PostService.edit_post(session[:access_token], full_post_text, params[:title], params[:path])
       else
         PostService.create_post(session[:access_token], full_post_text, params[:title])
       end
       flash[:notice] = 'Post Successfully Submited'
-      redirect_to action: 'edit'
+      redirect_to action: 'list'
     end
   end
 
