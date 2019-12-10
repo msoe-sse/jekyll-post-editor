@@ -1,19 +1,34 @@
+<%= javascript_include_tag 'postList', 'data-turbolinks-track': 'reload' %>
 <%= content_tag(:div, class: 'listContainer') do %>
   <%= content_tag(:div, class: 'listMiddleContainer') do %>
     <%= render template: 'shared/header' %>
+    <% if flash[:notice] %>
+      <%= content_tag :div, class: 'alert alert-success', role: 'alert' do %>
+        <%= content_tag(:strong, flash[:notice]) %>
+      <% end %>
+    <% end %>
     <%= content_tag(:div, class: 'listHeaderContainer') do %>
       <%= content_tag(:span) do %>
         <%= content_tag(:h1, 'Post List') %>
         <%= link_to('Create Post', { controller: 'post', action: 'edit'}, class: 'btn btn-primary active createPostLink') %>
       <% end %>
     <% end %>
+    <% if @posts.length == 0 && @pr_posts.length == 0 %>
+      <%= content_tag(:div, 'No previously created posts.', class: 'noPostsMessage') %>
+    <% end %>
+
     <%= content_tag(:ul, class: 'postList') do %>
-      <% if @posts.length > 0 %>
-        <% @posts.each do |post| %>
-          <% concat(content_tag(:li, link_to(post.title, { controller: 'post', action: 'edit', title: post.title }) )) %>
+      <% @posts.each do |post| %>
+        <% concat(content_tag(:li, link_to(post.title, { controller: 'post', action: 'edit', title: post.title }) )) %>
+      <% end %>
+    <% end %>
+    
+    <% if @pr_posts.length > 0 %>
+      <%= content_tag(:h3, 'Posts in Review') %>
+      <%= content_tag(:ul, class: 'prPostList') do %>
+        <% @pr_posts.each do |post| %>
+          <% concat(content_tag(:li, link_to(post.title, { controller: 'post', action: 'edit', title: post.title, ref: post.github_ref}) )) %>
         <% end %>
-      <% else %>
-        <%= content_tag(:div, 'No previously created posts.', class: 'noPostsMessage') %>
       <% end %>
     <% end %>
   <% end %>

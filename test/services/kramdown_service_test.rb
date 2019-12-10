@@ -16,12 +16,15 @@ Andy is nice)
     assert_not_nil result
   end
   
-  test 'get_preview should not update the src atribute of image tags if no uploader exists in PostImageManager' do 
+  test 'get_preview should not update the src atribute of image tags 
+        if no uploader or PostImage exists in PostImageManager' do 
     # Arrange
     mock_uploader = create_mock_uploader('preview_no image.png', 'my cache', nil)
     preview_uploader = create_preview_uploader('no image.png', mock_uploader)
+    post_image = create_post_image('no image2.png', 'contents')
 
     PostImageManager.instance.expects(:uploaders).returns([ preview_uploader ])
+    PostImageManager.instance.expects(:downloaded_images).returns([ post_image ])
 
     markdown = '![20170610130401_1.jpg](/assets/img/20170610130401_1.jpg)'
 
@@ -36,11 +39,29 @@ Andy is nice)
     # Arrange
     mock_uploader = create_mock_uploader('preview_20170610130401_1.jpg', 'my cache/preview_20170610130401_1.jpg', nil)
     preview_uploader = create_preview_uploader('20170610130401_1.jpg', mock_uploader)
+    post_image = create_post_image('assets/img/20170610130401_1.jpg', 'contents')
 
     PostImageManager.instance.expects(:uploaders).returns([ preview_uploader ])
+    PostImageManager.instance.expects(:downloaded_images).returns([ post_image ]).never
 
     markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
     expected_html = "<p><img src=\"/uploads/tmp/my cache/preview_20170610130401_1.jpg\" alt=\"My Alt Text\" /></p>\n"
+
+    # Act
+    result = KramdownService.get_preview(markdown)
+
+    # Assert
+    assert_equal expected_html, result
+  end
+
+  test 'get_preview should update the src attribute of image tags if a PostImage exists in PostImageManager' do 
+    # Arrange
+    post_image = create_post_image('assets/img/20170610130401_1.jpg', 'contents')
+    markdown = '![My Alt Text](/assets/img/20170610130401_1.jpg)'
+    expected_html = "<p><img src=\"data:image/jpg;base64,contents\" alt=\"My Alt Text\" /></p>\n"
+
+    PostImageManager.instance.expects(:uploaders).returns([])
+    PostImageManager.instance.expects(:downloaded_images).returns([ post_image ])
 
     # Act
     result = KramdownService.get_preview(markdown)
@@ -103,6 +124,30 @@ Andy is nice)
 
     # Assert
     assert_equal 'My File.jpg', result
+  end
+
+  test 'get_all_image_paths should return all image paths given some markdown' do 
+    # Arrange
+    markdown = "![My Alt Text](/assets/img/My File.jpg)\r\n![My Alt Text](/assets/img/My File2.jpg)"
+
+    # Act
+    result = KramdownService.get_all_image_paths(markdown)
+
+    # Assert
+    assert_equal 2, result.length
+    assert_equal 'assets/img/My File.jpg', result[0]
+    assert_equal 'assets/img/My File2.jpg', result[1]
+  end
+
+  test 'get_all_images_paths should not return image paths from URIs' do 
+    # Arrange
+    markdown = '![My Alt Text](https://google.com/blah.jpg)'
+
+    # Act
+    result = KramdownService.get_all_image_paths(markdown)
+
+    # Assert
+    assert_equal 0, result.length
   end
 
   test 'create_jekyll_post_text should return text for a formatted post' do 

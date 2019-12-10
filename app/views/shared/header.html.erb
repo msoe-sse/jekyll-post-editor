@@ -1,4 +1,4 @@
 <%= content_tag(:span, class: 'logoContainer') do %>
-  <%= image_tag('logo.svg') %>
+  <%= link_to(image_tag('logo.svg'), { controller: 'post', action: 'list' }) %>
   <%= content_tag(:h1, 'SSE Website Post Editor') %>
 <% end %>
