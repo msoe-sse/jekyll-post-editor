@@ -22,7 +22,7 @@ Style/SymbolArray:
 Style/StringLiterals:
   EnforcedStyle: single_quotes
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
 
 Metrics/BlockLength:

@@ -44,9 +44,9 @@ module GithubService
       client = Octokit::Client.new(client_id: CLIENT_ID, client_secret: CLIENT_SECRET)
       begin
         client.check_application_authorization access_token
-        return true
+        true
       rescue
-        return false
+        false
       end
     end
 
