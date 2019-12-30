@@ -35,6 +35,20 @@ class PostImageManagerTest < ActiveSupport::TestCase
     assert PostImageManager.instance.uploaders.first.is_a?(PostImageUploader)
   end
 
+  test 'add_downloaded_image should add a downloaded image to the donwloaded_images collection' do 
+    # Arrange
+    post_image = PostImage.new
+    post_image.filename = 'Sample.jpg'
+    post_image.contents = 'contents'
+
+    # Act
+    PostImageManager.instance.add_downloaded_image(post_image)
+
+    # Assert
+    assert_equal 1, PostImageManager.instance.downloaded_images.length
+    assert PostImageManager.instance.downloaded_images.first.is_a?(PostImage)
+  end
+
   test 'clear should clear all PostImageUploader instances from the manager' do 
     # Arrange
     mock_file = create_mock_action_dispatch_file('my file.jpg')
@@ -47,6 +61,20 @@ class PostImageManagerTest < ActiveSupport::TestCase
 
     # Assert
     assert_equal 0, PostImageManager.instance.uploaders.length
+  end
+
+  test 'clear should clear all PostImage instances from the manager' do 
+    # Arrange
+    post_image = PostImage.new
+    post_image.filename = 'Sample.jpg'
+    post_image.contents = 'contents'
+    
+    # Act
+    PostImageManager.instance.add_downloaded_image(post_image)
+    PostImageManager.instance.clear
+
+    # Assert
+    assert_equal 0, PostImageManager.instance.downloaded_images.length
   end
 
   private

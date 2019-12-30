@@ -1,6 +1,7 @@
 require 'octokit'
 require 'base64'
 require 'date'
+require 'cgi'
 
 ##
 # This module contains all operations involving interacting with the GitHub API
@@ -43,9 +44,9 @@ module GithubService
       client = Octokit::Client.new(client_id: CLIENT_ID, client_secret: CLIENT_SECRET)
       begin
         client.check_application_authorization access_token
-        return true
+        true
       rescue
-        return false
+        false
       end
     end
 
@@ -74,14 +75,60 @@ module GithubService
       posts = client.contents(full_repo_name, path: '_posts')
       posts.each do |post|
         oldest_commit = get_oldest_commit_for_file(client, post.path)
-
-        if client.user[:login] == oldest_commit[:author][:login]
+        username = client.user[:login]
+        if username == oldest_commit[:author][:login]
           post_api_response = client.contents(full_repo_name, path: post.path)
-          # Base64.decode64 will convert our string into a ASCII string
-          # calling force_encoding('UTF-8') will fix that problem
-          text_contents = Base64.decode64(post_api_response.content).force_encoding('UTF-8')
-          result << PostFactory.create_post(text_contents, post.path)
+
+          post_model = create_post_from_api_response(post_api_response, nil)
+          image_paths = KramdownService.get_all_image_paths(post_model.contents)
+
+          images = []
+          image_paths.each do | image_path |
+            image_content = client.contents(full_repo_name, path: image_path)
+            images << create_post_image(image_path, image_content.content)
+          end
+
+          post_model.images = images
+          
+          result << post_model
         end
+      end
+      result
+    end
+
+    ##
+    # This method fetches all of the posts that a user has written but have not been merged into master yet.
+    #
+    # Params:
+    # +oauth_token+::a user's oauth access token
+    def get_all_posts_in_pr_for_user(oauth_token)
+      result = []
+      client = Octokit::Client.new(access_token: oauth_token)
+      pull_requests_for_user = get_open_post_editor_pull_requests(oauth_token)
+      
+      pull_requests_for_user.each do | pull_request |
+        pull_request_files = client.pull_request_files(full_repo_name, pull_request[:number])
+
+        post = nil
+        images = []
+        pull_request_files.each do | pull_request_file |
+          contents_url_params = CGI.parse(pull_request_file[:contents_url])
+
+          # The CGI.parse method returns a hash with the key being the URL and the value being an array of
+          # URI parameters so in order to get the ref we need to grab the first value in the hash and the first
+          # URI parameter in the first hash value
+          ref = contents_url_params.values.first.first
+          file_contents = client.contents(full_repo_name, path: pull_request_file[:filename], ref: ref)
+
+          if pull_request_file[:filename].ends_with?('.md')
+            post = create_post_from_api_response(file_contents, ref)
+            result << post
+          else
+            images << create_post_image(pull_request_file[:filename], file_contents.content)
+          end
+        end
+
+        post.images = images
       end
       result
     end
@@ -93,8 +140,13 @@ module GithubService
     # Params:
     # +oauth_token+::a user's oauth access token
     # +title+:: A title of a SSE website post
-    def get_post_by_title(oauth_token, title)
-      get_all_posts(oauth_token).find { |x| x.title == title }
+    # +ref+::a sha for a ref indicating the head of a branch a post is pushed to on the GitHub server
+    def get_post_by_title(oauth_token, title, ref)
+      result = nil
+      result = get_all_posts_in_pr_for_user(oauth_token).find { |x| x.title == title } if ref
+      result = get_all_posts(oauth_token).find { |x| x.title == title } if !ref
+      result.images.each { |x| PostImageManager.instance.add_downloaded_image(x) } if result
+      result
     end
 
     ##
@@ -209,6 +261,19 @@ module GithubService
         client.create_ref(full_repo_name, ref_name, master_head_sha)
     end
 
+    ##
+    # This method will fetch a GitHub's ref name given it's sha identifier.
+    # It will also strip off the starting refs portion of the name
+    #
+    # Params:
+    # +oauth_token+::a user's oauth access token
+    # +ref_sha+:: the sha of the ref to fetch
+    def get_ref_name_by_sha(oauth_token, ref_sha)
+      client = Octokit::Client.new(access_token: oauth_token)
+      ref_response = client.refs(full_repo_name).find { |x| x[:object][:sha] == ref_sha }
+      ref_response[:ref].match(/refs\/(.*)/).captures.first
+    end
+
     private
       def full_repo_name
         "#{Rails.configuration.github_org}/#{Rails.configuration.github_repo_name}"
@@ -218,6 +283,27 @@ module GithubService
         commits = client.commits(full_repo_name, path: path)
         min_date = commits.map { |x| x[:commit][:committer][:date] }.min
         commits.find { |x| x[:commit][:committer][:date] == min_date }
+      end
+
+      def create_post_from_api_response(post, ref)
+        # Base64.decode64 will convert our string into a ASCII string
+        # calling force_encoding('UTF-8') will fix that problem
+        text_contents = Base64.decode64(post.content).force_encoding('UTF-8')
+        PostFactory.create_post(text_contents, post.path, ref)
+      end
+
+      def get_open_post_editor_pull_requests(oauth_token)
+        client = Octokit::Client.new(access_token: oauth_token)
+        open_pull_requests = client.pull_requests(full_repo_name, state: 'open')
+        open_pull_requests.select { |x| x[:user][:login] == client.user[:login] && 
+                                        x[:body] == Rails.configuration.pull_request_body}
+      end
+
+      def create_post_image(filename, contents)
+        result = PostImage.new
+        result.filename = filename
+        result.contents = contents
+        result
       end
   end
 end

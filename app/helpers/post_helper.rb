@@ -7,8 +7,11 @@ module PostHelper
   #
   # Params:
   # +post_path+::a path to an existing post on the website
-  def get_post_submission_url(post_path)
+  # +ref+::a sha for a ref indicating the head of a branch a post is pushed to on the GitHub server
+  def get_post_submission_url(post_path, ref)
+    return "/post/submit?path=#{post_path}&ref=#{ref}" if post_path && ref
     return "/post/submit?path=#{post_path}" if post_path
+    return "/post/submit?ref=#{ref}" if ref
     '/post/submit'
   end
 

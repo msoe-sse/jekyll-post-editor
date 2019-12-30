@@ -3,6 +3,7 @@ SimpleCov.start 'rails'
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
+require_relative '../app/models/post'
 
 class ActiveSupport::TestCase
   ENV['GH_BASIC_CLIENT_ID'] = 'github client id'
@@ -80,6 +81,13 @@ class ActiveSupport::TestCase
     def create_mock_action_dispatch_file(filename)
       result = MockActionDispatchFile.new
       result.original_filename = filename
+      result
+    end
+
+    def create_post_image(filename, contents)
+      result = PostImage.new
+      result.filename = filename
+      result.contents = contents
       result
     end
 end

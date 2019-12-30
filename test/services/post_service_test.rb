@@ -214,6 +214,26 @@ class PostServiceTest < ActiveSupport::TestCase
     # No Assert - taken care of with mocha mock setups
   end
 
+  test 'edit_post_in_pr should commit edits to an existing post up to the SSE website Github repo' do 
+    # Arrange
+    GithubService.expects(:get_ref_name_by_sha).returns('heads/createPostTestPost')
+    GithubService.expects(:get_base_tree_for_branch).with('my token', 'my ref').returns('master tree sha')
+    GithubService.expects(:create_text_blob).with('my token', '# hello').returns('post blob sha')
+    GithubService.expects(:create_new_tree_with_blobs)
+                 .with('my token', [ create_file_info_hash('existing post.md', 'post blob sha')], 'master tree sha')
+                 .returns('new tree sha')
+    GithubService.expects(:commit_and_push_to_repo)
+                 .with('my token', 'Edited post TestPost', 'new tree sha', 
+                       'my ref', 'heads/createPostTestPost').once
+        
+    PostImageManager.instance.expects(:clear).once
+                
+    # Act
+    PostService.edit_post_in_pr('my token', '# hello', 'TestPost', 'existing post.md', 'my ref')
+    
+    # No Assert - taken care of with mocha mock setups
+  end
+
   test 'is_valid_hero should return true if the content type of the url matches an image.' do 
     # Arrange
     mock_http = MockHttp.new('image/gif')
