@@ -2,6 +2,7 @@ class PostControllerTest < BaseIntegrationTest
   test 'an authenticated user should be able to navigate to post/list successfully' do 
     # Arrange
     setup_session('access token', true)
+    PostImageManager.instance.expects(:clear).once
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
     post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 
@@ -23,6 +24,7 @@ class PostControllerTest < BaseIntegrationTest
   test 'an authenticated user should be able to navigate to / successfully' do 
     # Arrange
     setup_session('access token', true)
+    PostImageManager.instance.expects(:clear).once
     GithubService.expects(:check_sse_github_org_membership).with('access token').returns(true)
 
     post1 = create_post_model(title: 'title1', author: 'author1', hero: 'hero1', 

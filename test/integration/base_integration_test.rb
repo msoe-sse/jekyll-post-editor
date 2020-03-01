@@ -1,5 +1,5 @@
 require 'test_helper'
-require 'mocha/setup'
+require 'mocha/minitest'
 
 ##
 # The base class for all integration tests which includes operations common to all integration tests.
